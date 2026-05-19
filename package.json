@@ -1,0 +1,19 @@
+{
+  "name": "btc-pizza-day-fee-airdrops",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Solana BTC Pizza Day Pump.fun creator-fee to WBTC airdrop blueprint and implementation scaffold.",
+  "scripts": {
+    "build": "echo \"Scaffold only: generate apps and programs from docs/IMPLEMENTATION_PROMPT.md\"",
+    "test": "echo \"Scaffold only: add Anchor and TypeScript tests during implementation\""
+  },
+  "keywords": [
+    "solana",
+    "token-2022",
+    "btc",
+    "anchor",
+    "claims",
+    "dashboard"
+  ],
+  "license": "UNLICENSED"
+}

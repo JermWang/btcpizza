@@ -1,0 +1,32 @@
+title = "BTC Pizza Day secret scanning"
+
+[allowlist]
+description = "Allow public template defaults and documentation placeholders."
+paths = [
+  '''\.env\.example$''',
+  '''docs/.*'''
+]
+
+[[rules]]
+id = "solana-private-key-array"
+description = "Solana private keys are often pasted as JSON byte arrays."
+regex = '''\[(?:\s*\d{1,3}\s*,){31,}\s*\d{1,3}\s*\]'''
+tags = ["solana", "private-key"]
+
+[[rules]]
+id = "rpc-provider-token-url"
+description = "Provider RPC URLs often contain private API tokens."
+regex = '''https://[A-Za-z0-9._/-]*(?:helius|quicknode|alchemy|triton|ankr)[A-Za-z0-9._/?=&%-]*(?:api[-_]?key|token|key|rpc)[A-Za-z0-9._/?=&%-]+'''
+tags = ["rpc", "api-key"]
+
+[[rules]]
+id = "privy-secret"
+description = "Privy app secrets must not be committed."
+regex = '''(?i)PRIVY_APP_SECRET\s*=\s*["']?[A-Za-z0-9_\-]{16,}'''
+tags = ["privy", "secret"]
+
+[[rules]]
+id = "generic-env-secret"
+description = "Generic secret-like env assignments."
+regex = '''(?i)(SECRET|PRIVATE_KEY|API_KEY|AUTH_TOKEN|BEARER_TOKEN)\s*=\s*["']?[A-Za-z0-9_./+=\-]{20,}'''
+tags = ["env", "secret"]

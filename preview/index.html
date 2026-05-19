@@ -1,0 +1,1720 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BTC Pizza Day - Live Dashboard</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --cream: #fff2be;
+        --gold: #f7b733;
+        --orange: #ef6f22;
+        --red: #e24731;
+        --mint: #51f4a9;
+        --cyan: #55dfff;
+        --purple: #c56bff;
+        --ink: #08090f;
+        --panel: rgba(7, 8, 12, 0.88);
+        --glass: rgba(8, 10, 16, 0.68);
+        --glass-strong: rgba(8, 10, 16, 0.82);
+        --line: rgba(255, 242, 190, 0.16);
+        --soft: #b9b7c8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        background: #05060a;
+        color: var(--cream);
+        font-family: "Trebuchet MS", Verdana, system-ui, sans-serif;
+      }
+
+      body {
+        overflow-x: hidden;
+      }
+
+      button,
+      a {
+        font: inherit;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .page {
+        min-height: 100vh;
+        padding: 0;
+        background: #05060a;
+      }
+
+      .stage {
+        position: relative;
+        width: 100vw;
+        min-height: 100vh;
+        margin: 0 auto;
+        overflow: hidden;
+        background: #0b0b10;
+        box-shadow: none;
+      }
+
+      .parlor {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(to bottom, rgba(5, 6, 10, 0.9) 0 112px, rgba(0, 0, 0, 0.04) 112px 46%, rgba(5, 6, 10, 0.28) 59%, rgba(5, 6, 10, 0.88) 100%),
+          url("assets/parlor-bg.png");
+        background-size: cover;
+        background-position: center top;
+      }
+
+      .top {
+        position: fixed;
+        inset: 0 0 auto;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        min-height: 76px;
+        padding: 0 32px;
+        border-bottom: 3px solid rgba(247, 183, 51, 0.28);
+        background: rgba(4, 6, 10, 0.92);
+        box-shadow: 0 8px 0 rgba(0, 0, 0, 0.34);
+      }
+
+      .market-ticker {
+        position: fixed;
+        left: 0;
+        right: 0;
+        top: 76px;
+        z-index: 5;
+        height: 34px;
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+        border-bottom: 1px solid rgba(247, 183, 51, 0.25);
+        background: rgba(5, 6, 10, 0.86);
+        backdrop-filter: blur(14px);
+        box-shadow: 0 8px 22px rgba(0, 0, 0, 0.3);
+      }
+
+      .ticker-track {
+        display: flex;
+        width: max-content;
+        min-width: 100%;
+        animation: ticker-scroll 34s linear infinite;
+      }
+
+      .ticker-set {
+        display: flex;
+        align-items: center;
+        gap: 28px;
+        padding-right: 28px;
+        white-space: nowrap;
+      }
+
+      .ticker-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #d8d6e6;
+        font-size: 12px;
+        font-weight: 1000;
+        text-transform: uppercase;
+      }
+
+      .ticker-item b {
+        color: var(--gold);
+      }
+
+      .ticker-item .price {
+        color: var(--cream);
+      }
+
+      .ticker-item .change.up {
+        color: var(--mint);
+      }
+
+      .ticker-item .change.down {
+        color: #ff6b58;
+      }
+
+      @keyframes ticker-scroll {
+        from {
+          transform: translateX(0);
+        }
+
+        to {
+          transform: translateX(-50%);
+        }
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 260px;
+      }
+
+      .slice-mark {
+        width: 32px;
+        height: 32px;
+        border: 3px solid #05060a;
+        background: var(--gold);
+        clip-path: polygon(8% 0, 100% 50%, 8% 100%);
+        box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.42);
+      }
+
+      .wordmark {
+        color: var(--gold);
+        font-size: clamp(18px, 1.55vw, 27px);
+        font-weight: 1000;
+        line-height: 0.9;
+        text-transform: uppercase;
+        text-shadow:
+          4px 0 0 var(--red),
+          0 4px 0 var(--red),
+          7px 7px 0 #05060a;
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        flex: 1;
+      }
+
+      .nav a,
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+        border: 3px solid rgba(247, 183, 51, 0.1);
+        background: rgba(23, 21, 30, 0.78);
+        color: var(--soft);
+        padding: 0 14px;
+        font-size: 12px;
+        font-weight: 1000;
+        text-transform: uppercase;
+        box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.35);
+      }
+
+      .nav a.active,
+      .button.primary {
+        background: var(--gold);
+        color: #24120a;
+        border-color: #05060a;
+      }
+
+      .nav a:focus-visible,
+      .button:focus-visible {
+        outline: 3px solid var(--cyan);
+        outline-offset: 3px;
+      }
+
+      .nav a::before {
+        margin-right: 8px;
+        filter: drop-shadow(2px 2px 0 #05060a);
+      }
+
+      .nav a:nth-child(1)::before {
+        content: "⌂";
+      }
+
+      .nav a:nth-child(2)::before {
+        content: "▤";
+      }
+
+      .nav a:nth-child(3)::before {
+        content: "◕";
+      }
+
+      .nav a:nth-child(4)::before {
+        content: "✦";
+      }
+
+      .nav a:nth-child(5)::before {
+        content: "?";
+      }
+
+      .top-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 12px;
+        min-width: 300px;
+      }
+
+      .status-pill,
+      .wallet-pill {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
+        border: 3px solid rgba(247, 183, 51, 0.34);
+        background: rgba(4, 6, 10, 0.82);
+        padding: 0 16px;
+        color: var(--mint);
+        font-size: 12px;
+        font-weight: 1000;
+        line-height: 1.05;
+        text-transform: uppercase;
+        box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.35);
+      }
+
+      .wallet-pill {
+        color: var(--gold);
+      }
+
+      .wallet-pill.connected {
+        color: var(--mint);
+      }
+
+      .hero-copy {
+        position: absolute;
+        z-index: 3;
+        left: 14.2%;
+        right: 13.8%;
+        top: 12.1%;
+        width: auto;
+        margin: 0;
+        padding: 6px 24px 11px;
+        text-align: center;
+        border: 6px solid #40160d;
+        background:
+          linear-gradient(180deg, rgba(124, 45, 21, 0.98), rgba(70, 20, 12, 0.98));
+        box-shadow:
+          0 0 0 4px #120807,
+          10px 10px 0 rgba(0, 0, 0, 0.45);
+      }
+
+      .hero-copy h1 {
+        margin: 0;
+        color: var(--gold);
+        font-size: clamp(42px, 5.9vw, 104px);
+        line-height: 0.82;
+        text-transform: uppercase;
+        text-shadow:
+          5px 0 0 var(--red),
+          0 5px 0 var(--red),
+          9px 9px 0 #05060a;
+      }
+
+      .hero-copy p {
+        display: inline-flex;
+        justify-content: center;
+        width: min(720px, 82%);
+        margin: 12px auto 0;
+        padding: 5px 14px 7px;
+        border: 4px solid #09180f;
+        background: #13733f;
+        color: #d9ffb5;
+        font-size: clamp(15px, 1.6vw, 26px);
+        line-height: 1;
+        font-weight: 1000;
+        text-transform: uppercase;
+        text-shadow: 3px 3px 0 #051108;
+      }
+
+      .hero-actions {
+        display: none;
+      }
+
+      .dashboard {
+        position: absolute;
+        z-index: 3;
+        display: grid;
+        grid-template-columns: 1.1fr 0.95fr 1.25fr 0.8fr;
+        gap: 14px;
+        left: 12.6%;
+        right: 7.6%;
+        top: 51.4%;
+        margin: 0;
+      }
+
+      .art-panel {
+        position: relative;
+        min-height: 216px;
+        padding: 54px 28px 24px;
+        border: 1px solid rgba(255, 242, 190, 0.2);
+        border-radius: 18px;
+        background:
+          linear-gradient(145deg, rgba(255, 242, 190, 0.09), rgba(255, 242, 190, 0.02) 36%),
+          var(--glass);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.12),
+          0 16px 34px rgba(0, 0, 0, 0.45);
+        backdrop-filter: blur(18px) saturate(1.2);
+        overflow: hidden;
+      }
+
+      .art-panel::after {
+        content: "";
+        position: absolute;
+        inset: 46px 18px 18px;
+        z-index: 0;
+        border-top: 1px solid var(--line);
+        background: linear-gradient(180deg, rgba(255, 242, 190, 0.04), transparent 42%);
+        pointer-events: none;
+      }
+
+      .art-panel > * {
+        position: relative;
+        z-index: 1;
+      }
+
+      .panel-pool {
+        border-color: rgba(226, 71, 49, 0.45);
+      }
+
+      .panel-next {
+        border-color: rgba(85, 223, 255, 0.42);
+      }
+
+      .panel-flow {
+        border-color: rgba(247, 183, 51, 0.42);
+      }
+
+      .panel-ticket {
+        border-color: rgba(197, 107, 255, 0.52);
+      }
+
+      .art-panel h2 {
+        position: absolute;
+        left: 26px;
+        top: 22px;
+        z-index: 2;
+        margin: 0;
+        color: var(--gold);
+        font-size: clamp(12px, 1.05vw, 17px);
+        line-height: 1;
+        text-transform: uppercase;
+        text-shadow: 0 2px 10px rgba(247, 183, 51, 0.35);
+        letter-spacing: 0;
+      }
+
+      .panel-pool h2 {
+        left: 28px;
+        top: 22px;
+      }
+
+      .panel-flow h2,
+      .panel-ticket h2 {
+        left: 28px;
+        top: 22px;
+      }
+
+      .pool-layout {
+        display: grid;
+        grid-template-columns: 43% 1fr;
+        gap: 16px;
+        align-items: center;
+        min-height: 145px;
+      }
+
+      .pizza-pool {
+        width: 100%;
+        aspect-ratio: 1;
+        object-fit: contain;
+        mix-blend-mode: screen;
+        filter: drop-shadow(0 0 12px rgba(81, 244, 169, 0.2));
+        transform: translate(-2px, 4px) scale(0.95);
+      }
+
+      .metric {
+        display: grid;
+        gap: 3px;
+        margin-top: 8px;
+      }
+
+      .metric span,
+      .flow-row span,
+      .ticket-row span {
+        color: var(--soft);
+        font-size: 11px;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+
+      .metric strong {
+        color: var(--gold);
+        font-size: clamp(17px, 1.8vw, 28px);
+        line-height: 1;
+        text-shadow: 3px 3px 0 #140905;
+      }
+
+      .metric .green {
+        color: var(--mint);
+      }
+
+      .countdown {
+        color: var(--cyan);
+        font-size: clamp(38px, 4.1vw, 68px);
+        font-weight: 1000;
+        line-height: 0.9;
+        text-shadow: 4px 4px 0 #082330;
+        margin-top: 2px;
+      }
+
+      .slice-schedule {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 7px;
+        margin-top: 12px;
+      }
+
+      .slice-step {
+        min-height: 40px;
+        border: 3px solid #05060a;
+        background: rgba(255, 217, 79, 0.1);
+        color: #a87b48;
+        padding: 9px 4px 6px;
+        text-align: center;
+        font-size: 11px;
+        font-weight: 1000;
+        text-transform: uppercase;
+      }
+
+      .slice-step.done {
+        color: var(--mint);
+        background: rgba(81, 244, 169, 0.18);
+      }
+
+      .slice-step.active {
+        color: var(--gold);
+        background: rgba(247, 183, 51, 0.26);
+      }
+
+      .flow-list,
+      .ticket-list {
+        display: grid;
+        gap: 6px;
+      }
+
+      .flow-row,
+      .ticket-row {
+        display: grid;
+        grid-template-columns: 62px 1fr 52px;
+        gap: 10px;
+        align-items: center;
+        min-height: 35px;
+        border-bottom: 1px solid rgba(255, 242, 190, 0.14);
+      }
+
+      .flow-row b,
+      .ticket-row b {
+        color: var(--gold);
+        font-size: 12px;
+        line-height: 1.05;
+        text-transform: uppercase;
+      }
+
+      .flow-row strong,
+      .ticket-row strong {
+        color: var(--mint);
+        font-size: 11px;
+        text-align: right;
+        text-transform: uppercase;
+      }
+
+      .ticket-row {
+        grid-template-columns: minmax(86px, 1fr) auto;
+        min-height: 32px;
+      }
+
+      .ticket-row b {
+        grid-column: 1 / -1;
+      }
+
+      .ticket-row strong {
+        color: var(--gold);
+        font-size: clamp(14px, 1.35vw, 22px);
+      }
+
+      .panel-ticket {
+        padding: 50px 26px 18px;
+      }
+
+      .panel-ticket .ticket-row strong {
+        font-size: clamp(12px, 1vw, 17px);
+      }
+
+      .panel-ticket .ticket-list {
+        gap: 3px;
+      }
+
+      .panel-ticket .ticket-row {
+        min-height: 27px;
+      }
+
+      .ticket-status {
+        position: absolute;
+        right: 24px;
+        top: 18px;
+        z-index: 2;
+        display: inline-flex;
+        align-items: center;
+        min-height: 30px;
+        border-radius: 999px;
+        border: 1px solid rgba(81, 244, 169, 0.42);
+        background: rgba(81, 244, 169, 0.14);
+        color: var(--mint);
+        padding: 0 12px;
+        font-size: 11px;
+        font-weight: 1000;
+        text-transform: uppercase;
+      }
+
+      .receipt-row {
+        position: absolute;
+        z-index: 4;
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr)) 146px;
+        gap: 12px;
+        left: 1.2%;
+        right: 1.2%;
+        bottom: 2.4%;
+        margin: 0;
+        align-items: stretch;
+        padding: 42px 20px 18px;
+        border: 1px solid rgba(255, 242, 190, 0.2);
+        border-radius: 20px;
+        background:
+          linear-gradient(145deg, rgba(255, 242, 190, 0.08), rgba(255, 242, 190, 0.02)),
+          var(--glass-strong);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.1),
+          0 18px 44px rgba(0, 0, 0, 0.44);
+        backdrop-filter: blur(18px) saturate(1.2);
+      }
+
+      .receipt-row::before {
+        content: "🍕 Receipt Tickets";
+        position: absolute;
+        left: 22px;
+        top: 14px;
+        color: var(--gold);
+        font-size: 16px;
+        font-weight: 1000;
+        line-height: 1;
+        text-transform: uppercase;
+        text-shadow: 0 2px 10px rgba(247, 183, 51, 0.35);
+      }
+
+      .receipt {
+        min-height: 82px;
+        padding: 14px 18px;
+        border: 1px solid rgba(255, 242, 190, 0.18);
+        border-radius: 14px;
+        background:
+          linear-gradient(145deg, rgba(255, 242, 190, 0.12), rgba(255, 242, 190, 0.04)),
+          rgba(8, 10, 16, 0.52);
+        color: var(--cream);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.08),
+          0 10px 22px rgba(0, 0, 0, 0.26);
+        backdrop-filter: blur(14px) saturate(1.15);
+        overflow: hidden;
+      }
+
+      .receipt b {
+        display: inline-flex;
+        border: 2px solid currentColor;
+        color: #188848;
+        padding: 1px 7px;
+        max-width: 100%;
+        font-size: 9px;
+        line-height: 1;
+        text-transform: uppercase;
+      }
+
+      .receipt span {
+        display: block;
+        margin-top: 9px;
+        color: var(--cream);
+        font-size: 11px;
+        font-weight: 1000;
+        line-height: 1.05;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .receipt code {
+        display: block;
+        margin-top: 5px;
+        color: #d8d6e6;
+        font-family: inherit;
+        font-size: 9px;
+        font-weight: 900;
+        line-height: 1;
+      }
+
+      .tx-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 5px;
+        color: #d8d6e6;
+        font-size: 9px;
+        font-weight: 1000;
+        line-height: 1;
+        text-transform: uppercase;
+        text-decoration: none;
+      }
+
+      .tx-link:hover,
+      .tx-link:focus-visible {
+        color: var(--cyan);
+      }
+
+      .proof-link {
+        color: var(--cyan);
+        font-weight: 1000;
+        text-decoration: none;
+      }
+
+      .proof-link:hover,
+      .proof-link:focus-visible {
+        color: var(--mint);
+      }
+
+      .controls {
+        display: grid;
+        gap: 10px;
+        align-content: end;
+      }
+
+      .button {
+        cursor: pointer;
+        white-space: nowrap;
+      }
+
+      .button.secondary {
+        background: #432016;
+        color: var(--gold);
+      }
+
+      .empty-state {
+        display: grid;
+        align-content: center;
+        min-height: 82px;
+        border: 1px dashed rgba(255, 242, 190, 0.24);
+        border-radius: 14px;
+        color: var(--soft);
+        padding: 16px;
+        font-size: 12px;
+        font-weight: 900;
+        line-height: 1.35;
+      }
+
+      .side-sign,
+      .chalk-sign {
+        position: absolute;
+        z-index: 2;
+        display: grid;
+        place-items: center;
+        border: 5px solid #05060a;
+        background: rgba(8, 9, 13, 0.82);
+        color: var(--mint);
+        text-align: center;
+        text-transform: uppercase;
+        font-weight: 1000;
+        line-height: 1.08;
+        box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.42);
+      }
+
+      .side-sign {
+        left: 2.1%;
+        top: 11%;
+        width: 8.1%;
+        min-height: 292px;
+        padding: 18px 10px;
+        color: var(--mint);
+        font-size: clamp(15px, 1.7vw, 29px);
+        border-color: #30100b;
+        box-shadow:
+          inset 0 0 0 4px #ef6f22,
+          8px 8px 0 rgba(0, 0, 0, 0.42);
+      }
+
+      .side-sign span {
+        color: var(--gold);
+        margin-top: 16px;
+      }
+
+      .chalk-sign {
+        left: 3.6%;
+        bottom: 17.7%;
+        width: 8.4%;
+        min-height: 170px;
+        padding: 14px 10px;
+        color: #ffb45e;
+        font-size: clamp(12px, 1.25vw, 20px);
+        border-color: #3b2115;
+        transform: rotate(-1deg);
+      }
+
+      .lower-info {
+        display: grid;
+        position: relative;
+        z-index: 1;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        max-width: 1180px;
+        width: calc(100% - 48px);
+        margin: 0 auto;
+        padding: 48px 0 24px;
+      }
+
+      .info-card {
+        border: 1px solid rgba(255, 242, 190, 0.18);
+        border-radius: 18px;
+        background:
+          linear-gradient(145deg, rgba(255, 242, 190, 0.08), rgba(255, 242, 190, 0.02)),
+          rgba(8, 10, 16, 0.72);
+        padding: 20px;
+        box-shadow: 0 16px 34px rgba(0, 0, 0, 0.34);
+        backdrop-filter: blur(18px) saturate(1.18);
+      }
+
+      .info-card h3 {
+        margin: 0 0 8px;
+        color: var(--gold);
+        font-size: 15px;
+        text-transform: uppercase;
+      }
+
+      .info-card p {
+        margin: 0;
+        color: #d8d6e6;
+        font-size: 13px;
+        line-height: 1.38;
+        font-weight: 700;
+      }
+
+      .info-pages {
+        background:
+          linear-gradient(180deg, #05060a, #0d0807 42%, #05060a);
+        color: var(--cream);
+        padding: 0 24px 64px;
+      }
+
+      .info-section {
+        max-width: 1180px;
+        margin: 0 auto 18px;
+        padding: 26px;
+        border: 1px solid rgba(255, 242, 190, 0.18);
+        border-radius: 22px;
+        background:
+          linear-gradient(145deg, rgba(255, 242, 190, 0.08), rgba(255, 242, 190, 0.015)),
+          rgba(9, 10, 15, 0.76);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.1),
+          0 18px 48px rgba(0, 0, 0, 0.36);
+        backdrop-filter: blur(20px) saturate(1.2);
+        scroll-margin-top: 92px;
+      }
+
+      .info-section h2 {
+        margin: 0 0 16px;
+        color: var(--gold);
+        font-size: 24px;
+        line-height: 1;
+        text-transform: uppercase;
+        text-shadow: 3px 3px 0 #05060a;
+      }
+
+      .info-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+      }
+
+      .info-item {
+        border: 1px solid rgba(255, 242, 190, 0.14);
+        border-radius: 16px;
+        background: rgba(255, 242, 190, 0.06);
+        padding: 16px;
+      }
+
+      .info-item b {
+        display: block;
+        color: var(--mint);
+        font-size: 13px;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+      }
+
+      .info-item span {
+        display: block;
+        color: #d8d6e6;
+        font-size: 13px;
+        line-height: 1.4;
+        font-weight: 800;
+      }
+
+      .holder-board {
+        margin-top: 18px;
+        border: 1px solid rgba(255, 242, 190, 0.18);
+        border-radius: 20px;
+        background:
+          linear-gradient(145deg, rgba(85, 223, 255, 0.08), rgba(247, 183, 51, 0.04)),
+          rgba(8, 10, 16, 0.72);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.08),
+          0 16px 34px rgba(0, 0, 0, 0.32);
+        overflow: hidden;
+      }
+
+      .draw-board {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 14px;
+        margin-top: 18px;
+      }
+
+      .draw-card {
+        border: 1px solid rgba(255, 242, 190, 0.16);
+        border-radius: 18px;
+        background:
+          linear-gradient(145deg, rgba(247, 183, 51, 0.09), rgba(85, 223, 255, 0.04)),
+          rgba(8, 10, 16, 0.68);
+        padding: 18px;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      }
+
+      .draw-card h3 {
+        margin: 0 0 12px;
+        color: var(--gold);
+        font-size: 18px;
+        line-height: 1;
+        text-transform: uppercase;
+      }
+
+      .draw-meter {
+        position: relative;
+        height: 14px;
+        border-radius: 999px;
+        background: rgba(255, 242, 190, 0.1);
+        overflow: hidden;
+      }
+
+      .draw-meter span {
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: var(--meter, 66%);
+        border-radius: inherit;
+        background: linear-gradient(90deg, var(--mint), var(--cyan));
+        box-shadow: 0 0 20px rgba(81, 244, 169, 0.25);
+      }
+
+      .draw-numbers {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      .draw-number {
+        border: 1px solid rgba(255, 242, 190, 0.13);
+        border-radius: 14px;
+        background: rgba(255, 242, 190, 0.055);
+        padding: 12px;
+      }
+
+      .draw-number span {
+        display: block;
+        color: var(--soft);
+        font-size: 11px;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+
+      .draw-number strong {
+        display: block;
+        margin-top: 5px;
+        color: var(--gold);
+        font-size: 20px;
+        line-height: 1;
+      }
+
+      .fair-list,
+      .boost-list {
+        display: grid;
+        gap: 10px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .fair-list li,
+      .boost-list li {
+        display: grid;
+        grid-template-columns: 22px 1fr;
+        gap: 10px;
+        align-items: start;
+        color: #d8d6e6;
+        font-size: 13px;
+        line-height: 1.35;
+        font-weight: 800;
+      }
+
+      .fair-list b,
+      .boost-list b {
+        color: var(--mint);
+      }
+
+      .boost-list li span:first-child,
+      .fair-list li span:first-child {
+        display: inline-grid;
+        place-items: center;
+        width: 22px;
+        height: 22px;
+        border-radius: 999px;
+        background: rgba(247, 183, 51, 0.16);
+        color: var(--gold);
+        font-size: 11px;
+        font-weight: 1000;
+      }
+
+      .holder-toolbar {
+        display: grid;
+        grid-template-columns: 1fr minmax(220px, 320px);
+        gap: 14px;
+        align-items: center;
+        padding: 18px;
+        border-bottom: 1px solid rgba(255, 242, 190, 0.14);
+      }
+
+      .holder-toolbar h3 {
+        margin: 0;
+        color: var(--gold);
+        font-size: 18px;
+        line-height: 1;
+        text-transform: uppercase;
+      }
+
+      .holder-toolbar span {
+        display: block;
+        margin-top: 7px;
+        color: #d8d6e6;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .holder-search {
+        width: 100%;
+        min-height: 42px;
+        border: 1px solid rgba(255, 242, 190, 0.22);
+        border-radius: 12px;
+        background: rgba(4, 6, 10, 0.68);
+        color: var(--cream);
+        padding: 0 14px;
+        font: inherit;
+        font-size: 13px;
+        font-weight: 900;
+        outline: none;
+      }
+
+      .holder-search:focus {
+        border-color: var(--cyan);
+        box-shadow: 0 0 0 3px rgba(85, 223, 255, 0.16);
+      }
+
+      .holder-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1px;
+        background: rgba(255, 242, 190, 0.1);
+      }
+
+      .holder-stat {
+        background: rgba(8, 10, 16, 0.72);
+        padding: 14px 16px;
+      }
+
+      .holder-stat span {
+        display: block;
+        color: var(--soft);
+        font-size: 11px;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+
+      .holder-stat strong {
+        display: block;
+        margin-top: 5px;
+        color: var(--gold);
+        font-size: 18px;
+        line-height: 1;
+      }
+
+      .holder-table {
+        display: grid;
+        padding: 12px;
+        gap: 8px;
+      }
+
+      .holder-row {
+        display: grid;
+        grid-template-columns: 70px minmax(150px, 1.2fr) repeat(4, minmax(82px, 0.65fr)) 118px;
+        gap: 12px;
+        align-items: center;
+        min-height: 52px;
+        padding: 0 14px;
+        border: 1px solid rgba(255, 242, 190, 0.12);
+        border-radius: 14px;
+        background: rgba(255, 242, 190, 0.055);
+        color: #d8d6e6;
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      .holder-row.header {
+        min-height: 34px;
+        color: var(--soft);
+        background: transparent;
+        border-color: transparent;
+        text-transform: uppercase;
+      }
+
+      .holder-row.current {
+        border-color: rgba(85, 223, 255, 0.48);
+        background: rgba(85, 223, 255, 0.1);
+        box-shadow: inset 0 0 0 1px rgba(85, 223, 255, 0.16);
+      }
+
+      .holder-row strong {
+        color: var(--cream);
+      }
+
+      .holder-wallet {
+        color: var(--gold);
+      }
+
+      .holder-badge {
+        display: inline-flex;
+        justify-content: center;
+        border-radius: 999px;
+        padding: 6px 10px;
+        color: #061009;
+        background: var(--mint);
+        font-size: 11px;
+        text-transform: uppercase;
+      }
+
+      .holder-badge.out {
+        color: var(--cream);
+        background: rgba(255, 107, 88, 0.26);
+      }
+
+      .odds-pill {
+        color: var(--cyan);
+      }
+
+      .holder-empty {
+        padding: 22px;
+        color: var(--soft);
+        font-size: 13px;
+        font-weight: 900;
+        text-align: center;
+      }
+
+      @media (max-width: 1100px) {
+        .stage {
+          aspect-ratio: auto;
+          min-height: 1240px;
+        }
+
+        .dashboard,
+        .receipt-row,
+        .lower-info {
+          position: relative;
+          left: auto;
+          right: auto;
+          top: auto;
+          bottom: auto;
+          grid-template-columns: 1fr;
+        }
+
+        .dashboard {
+          width: calc(100% - 32px);
+          margin: 360px 16px 0;
+        }
+
+        .art-panel {
+          min-height: 240px;
+        }
+
+        .nav {
+          overflow-x: auto;
+          justify-content: flex-start;
+        }
+
+        .top {
+          padding: 0 14px;
+        }
+
+        .brand,
+        .top-actions {
+          min-width: auto;
+        }
+
+        .top-actions {
+          display: none;
+        }
+
+        .hero-copy {
+          width: calc(100% - 32px);
+          left: 16px;
+          top: 92px;
+        }
+
+        .receipt-row {
+          width: calc(100% - 32px);
+          margin: 16px;
+        }
+
+        .side-sign,
+        .chalk-sign {
+          display: none;
+        }
+
+        .hero-copy {
+          left: 16px;
+          right: 16px;
+          width: auto;
+          top: 100px;
+        }
+
+        .hero-copy h1 {
+          font-size: 44px;
+        }
+
+        .info-grid,
+        .lower-info {
+          grid-template-columns: 1fr;
+        }
+
+        .holder-toolbar,
+        .draw-board,
+        .draw-numbers,
+        .holder-stats,
+        .holder-row {
+          grid-template-columns: 1fr;
+        }
+
+        .holder-row.header {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="stage" id="dashboard" aria-label="BTC Pizza Day public dashboard">
+        <div class="parlor"></div>
+
+        <header class="top">
+          <a class="brand" href="#">
+            <span class="slice-mark" aria-hidden="true"></span>
+            <span class="wordmark">BTC Pizza Day</span>
+          </a>
+          <nav class="nav" aria-label="Primary">
+            <a class="active" href="#dashboard">Dashboard</a>
+            <a href="#receipts">Receipts</a>
+            <a href="#holders">Holders</a>
+            <a href="#airdrops">Airdrops</a>
+            <a href="#about">About</a>
+          </nav>
+          <div class="top-actions" aria-label="Network and wallet status">
+            <span class="status-pill" id="networkStatus">Live<br />on Solana</span>
+            <button class="wallet-pill" id="connectWallet" type="button">Connect wallet</button>
+          </div>
+        </header>
+
+        <section class="market-ticker" aria-label="Live crypto prices">
+          <div class="ticker-track" id="tickerTrack">
+            <div class="ticker-set">
+              <span class="ticker-item" data-symbol="bitcoin"><b>BTC</b><span class="price">loading</span><span class="change up">live</span></span>
+              <span class="ticker-item" data-symbol="solana"><b>SOL</b><span class="price">loading</span><span class="change up">live</span></span>
+              <span class="ticker-item" data-symbol="ethereum"><b>ETH</b><span class="price">loading</span><span class="change up">live</span></span>
+              <span class="ticker-item" data-symbol="jupiter-exchange-solana"><b>JUP</b><span class="price">loading</span><span class="change up">live</span></span>
+              <span class="ticker-item" data-symbol="dogwifcoin"><b>WIF</b><span class="price">loading</span><span class="change up">live</span></span>
+              <span class="ticker-item" data-symbol="bonk"><b>BONK</b><span class="price">loading</span><span class="change up">live</span></span>
+            </div>
+          </div>
+        </section>
+
+        <section class="hero-copy">
+          <h1>BTC Pizza Day</h1>
+          <p>Public WBTC Airdrop Dashboard</p>
+          <div class="hero-actions">
+            <a class="button primary" href="#dashboard">See live pool</a>
+            <a class="button secondary" href="#receipts">View receipts</a>
+          </div>
+        </section>
+
+        <aside class="side-sign">Pump fees in.<span>WBTC slices out.</span></aside>
+        <aside class="chalk-sign">Baking freedom<br />one slice<br />at a time</aside>
+
+        <section class="dashboard">
+          <article class="art-panel panel-pool">
+            <h2>Pizza Pool</h2>
+            <div class="pool-layout">
+              <img class="pizza-pool" src="assets/pizza-pool.png" alt="Pizza pool slices showing distributed and pending WBTC airdrops" />
+              <div>
+                <div class="metric"><span>Total WBTC</span><strong id="pool">--</strong></div>
+                <div class="metric"><span>Creator Fees</span><strong id="creatorFees">--</strong></div>
+                <div class="metric"><span>Last Receipt</span><strong class="green" id="lastReceipt">--</strong></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="art-panel panel-next">
+            <h2>Next Slice</h2>
+            <div class="countdown" id="countdown">08:42</div>
+            <div class="metric"><span>Current Interval</span><strong class="green" id="interval">10 minutes</strong></div>
+            <div class="slice-schedule">
+              <div class="slice-step done">3m</div>
+              <div class="slice-step done">5m</div>
+              <div class="slice-step active">10m</div>
+              <div class="slice-step">15m</div>
+              <div class="slice-step">30m</div>
+              <div class="slice-step">1h</div>
+            </div>
+          </article>
+
+          <article class="art-panel panel-flow" id="flow">
+            <h2>Order Flow</h2>
+            <div class="flow-list">
+              <div class="flow-row"><b>1 Fees</b><span>Pump.fun fee wallet</span><strong id="feeStatus">Config</strong></div>
+              <div class="flow-row"><b>2 Swap</b><span>WBTC pool wallet</span><strong id="swapStatus">Config</strong></div>
+              <div class="flow-row"><b>3 List</b><span>Holder indexer</span><strong id="holderStatus">Config</strong></div>
+              <div class="flow-row"><b>4 Drop</b><span>Distributor receipts</span><strong id="batch">Config</strong></div>
+            </div>
+          </article>
+
+          <article class="art-panel panel-ticket" id="ticket">
+            <h2>Your Ticket</h2>
+            <strong class="ticket-status" id="ticketStatus">Eligible</strong>
+            <div class="ticket-list">
+              <div class="ticket-row"><b>Your Score</b><span>Time + weight</span><strong id="score">--</strong></div>
+              <div class="ticket-row"><b>Round Rank</b><span>Current list</span><strong id="holderRank">--</strong></div>
+              <div class="ticket-row"><b>Cutoff</b><span>Score needed</span><strong id="cutoffScore">--</strong></div>
+              <div class="ticket-row"><b>Est. WBTC</b><span>Projected slice</span><strong id="estimate">--</strong></div>
+            </div>
+          </article>
+        </section>
+
+        <section class="receipt-row" id="receipts" aria-live="polite">
+          <div class="empty-state" id="receiptEmpty">Configure `PUBLIC_FEE_WALLET` to load live Solana fee-wallet receipts.</div>
+          <div class="controls">
+            <button class="button primary" id="refreshData" type="button">Refresh chain data</button>
+            <button class="button secondary" id="connectWalletSecondary" type="button">Connect wallet</button>
+          </div>
+        </section>
+      </section>
+
+      <section class="info-pages" aria-label="BTC Pizza Day information pages">
+        <div class="lower-info">
+          <article class="info-card"><h3>What it does</h3><p>Creator fees convert into WBTC and distribute to holders.</p></article>
+          <article class="info-card"><h3>Live utility</h3><p>Pool, countdown, holder estimate, receipts, and batches update live.</p></article>
+          <article class="info-card"><h3>Public proof</h3><p>Every fee, swap, manifest, and transfer links to onchain receipts.</p></article>
+        </div>
+
+        <section class="info-section" id="holders">
+          <h2>Holders</h2>
+          <div class="info-grid">
+            <div class="info-item"><b>Draw Score</b><span>Every wallet earns weighted entries from balance size and verified holding time.</span></div>
+            <div class="info-item"><b>Visible Cutoff</b><span>The round shows the score needed to make the airdrop list before it closes.</span></div>
+            <div class="info-item"><b>Proof</b><span>Snapshots, formula inputs, manifest hash, and transfer txs stay public.</span></div>
+          </div>
+          <div class="draw-board">
+            <div class="draw-card">
+              <h3>Your Round Position</h3>
+              <div class="draw-meter" aria-label="Progress above current cutoff"><span id="drawMeter"></span></div>
+              <div class="draw-numbers">
+                <div class="draw-number"><span>Rank</span><strong id="drawRank">--</strong></div>
+                <div class="draw-number"><span>Above cutoff</span><strong id="drawEdge">--</strong></div>
+                <div class="draw-number"><span>Round odds</span><strong id="drawOdds">--</strong></div>
+              </div>
+            </div>
+            <div class="draw-card">
+              <h3>How to climb</h3>
+              <ul class="boost-list">
+                <li><span>1</span><div><b>Hold longer.</b> Time weight keeps compounding while the wallet stays in.</div></li>
+                <li><span>2</span><div><b>Hold more.</b> Balance weight lifts your score for the next snapshot.</div></li>
+                <li><span>3</span><div><b>Stay ready.</b> WBTC ATA readiness keeps eligible wallets from getting skipped.</div></li>
+              </ul>
+            </div>
+          </div>
+          <div class="draw-board">
+            <div class="draw-card">
+              <h3>Fairness Layer</h3>
+              <ul class="fair-list">
+                <li><span>✓</span><div><b>Same formula for everyone.</b> Score = holding weight + holding-time multiplier.</div></li>
+                <li><span>✓</span><div><b>Public snapshot.</b> Round manifests prove the eligible wallet set once the holder indexer is configured.</div></li>
+                <li><span>✓</span><div><b>Onchain outcome.</b> Final WBTC transfers become clickable Solscan receipts when real batch signatures exist.</div></li>
+              </ul>
+            </div>
+            <div class="draw-card">
+              <h3>Round Rules</h3>
+              <ul class="fair-list">
+                <li><span>•</span><div>Top scored wallets make the next WBTC drop until the round cap is filled.</div></li>
+                <li><span>•</span><div>Payout size follows score share, so higher rank means a larger slice.</div></li>
+                <li><span>•</span><div>If you miss this round, your wallet can climb before the next one.</div></li>
+              </ul>
+            </div>
+          </div>
+          <div class="holder-board">
+            <div class="holder-toolbar">
+              <div>
+                <h3>Current Draw Board</h3>
+                <span>Search any wallet to see rank, cutoff status, and projected slice.</span>
+              </div>
+              <input class="holder-search" id="holderSearch" type="search" placeholder="Search wallet address" autocomplete="off" />
+            </div>
+            <div class="holder-stats">
+              <div class="holder-stat"><span>Round cap</span><strong id="roundCap">--</strong></div>
+              <div class="holder-stat"><span>Cutoff score</span><strong id="holderCutoff">--</strong></div>
+              <div class="holder-stat"><span>Eligible shown</span><strong id="eligibleShown">--</strong></div>
+              <div class="holder-stat"><span>Snapshot</span><strong id="snapshotAge">--</strong></div>
+            </div>
+            <div class="holder-table" id="holderTable" aria-live="polite"></div>
+          </div>
+        </section>
+
+        <section class="info-section" id="airdrops">
+          <h2>Airdrops</h2>
+          <div class="info-grid">
+            <div class="info-item"><b>Intervals</b><span>Distribution windows expand from 3 minutes to longer cycles as the campaign grows.</span></div>
+            <div class="info-item"><b>Pool</b><span>Pump.fun creator fees are routed, swapped, and reserved for holder distribution.</span></div>
+            <div class="info-item"><b>Batches</b><span>Each airdrop posts a manifest hash and transfer receipts for public verification.</span></div>
+          </div>
+        </section>
+
+        <section class="info-section" id="about">
+          <h2>About</h2>
+          <div class="info-grid">
+            <div class="info-item"><b>Theme</b><span>BTC Pizza Day packaging for a transparent holder rewards dashboard.</span></div>
+            <div class="info-item"><b>Custody</b><span>Fee custody can be handled through Privy or a controlled treasury wallet flow.</span></div>
+            <div class="info-item"><b>Transparency</b><span>The site should expose receipts, swaps, manifests, and recipient batches live.</span></div>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script>
+      const state = {
+        config: null,
+        connectedWallet: "",
+        holderSnapshot: null,
+        feeReceipts: [],
+        remaining: 0
+      };
+
+      const poolEl = document.querySelector("#pool");
+      const countdownEl = document.querySelector("#countdown");
+      const creatorFeesEl = document.querySelector("#creatorFees");
+      const lastReceiptEl = document.querySelector("#lastReceipt");
+      const scoreEl = document.querySelector("#score");
+      const holderRankEl = document.querySelector("#holderRank");
+      const cutoffScoreEl = document.querySelector("#cutoffScore");
+      const estimateEl = document.querySelector("#estimate");
+      const ticketStatusEl = document.querySelector("#ticketStatus");
+      const feeStatusEl = document.querySelector("#feeStatus");
+      const swapStatusEl = document.querySelector("#swapStatus");
+      const holderStatusEl = document.querySelector("#holderStatus");
+      const batchEl = document.querySelector("#batch");
+      const receiptRow = document.querySelector("#receipts");
+      const receiptEmptyEl = document.querySelector("#receiptEmpty");
+      const tickerTrack = document.querySelector("#tickerTrack");
+      const holderSearchEl = document.querySelector("#holderSearch");
+      const holderTableEl = document.querySelector("#holderTable");
+      const roundCapEl = document.querySelector("#roundCap");
+      const holderCutoffEl = document.querySelector("#holderCutoff");
+      const eligibleShownEl = document.querySelector("#eligibleShown");
+      const snapshotAgeEl = document.querySelector("#snapshotAge");
+      const drawMeterEl = document.querySelector("#drawMeter");
+      const drawRankEl = document.querySelector("#drawRank");
+      const drawEdgeEl = document.querySelector("#drawEdge");
+      const drawOddsEl = document.querySelector("#drawOdds");
+      const connectWalletEl = document.querySelector("#connectWallet");
+      const connectWalletSecondaryEl = document.querySelector("#connectWalletSecondary");
+      const refreshDataEl = document.querySelector("#refreshData");
+      const networkStatusEl = document.querySelector("#networkStatus");
+      const marketFallback = {
+        bitcoin: { usd: null, usd_24h_change: null },
+        solana: { usd: null, usd_24h_change: null },
+        ethereum: { usd: null, usd_24h_change: null },
+        "jupiter-exchange-solana": { usd: null, usd_24h_change: null },
+        dogwifcoin: { usd: null, usd_24h_change: null },
+        bonk: { usd: null, usd_24h_change: null }
+      };
+
+      function shortAddress(address) {
+        if (!address) return "";
+        return `${address.slice(0, 4)}...${address.slice(-4)}`;
+      }
+
+      function solscanTx(signature) {
+        const base = state.config?.solscanBaseUrl || "https://solscan.io";
+        return `${base.replace(/\/$/, "")}/tx/${signature}`;
+      }
+
+      function formatTime(totalSeconds) {
+        const safeSeconds = Math.max(0, totalSeconds);
+        const minutes = Math.floor(safeSeconds / 60).toString().padStart(2, "0");
+        const seconds = Math.floor(safeSeconds % 60).toString().padStart(2, "0");
+        return `${minutes}:${seconds}`;
+      }
+
+      function formatAmount(value, suffix = "") {
+        const number = Number(value);
+        if (!Number.isFinite(number)) return "--";
+        return `${number.toLocaleString(undefined, { maximumFractionDigits: 6 })}${suffix}`;
+      }
+
+      function renderShell() {
+        countdownEl.textContent = formatTime(state.remaining);
+        networkStatusEl.innerHTML = `${state.config?.cluster || "Solana"}<br />${state.config?.rpcConfigured ? "RPC ready" : "RPC missing"}`;
+
+        if (state.connectedWallet) {
+          connectWalletEl.textContent = shortAddress(state.connectedWallet);
+          connectWalletEl.classList.add("connected");
+          connectWalletSecondaryEl.textContent = "Wallet connected";
+        } else {
+          connectWalletEl.textContent = "Connect wallet";
+          connectWalletEl.classList.remove("connected");
+          connectWalletSecondaryEl.textContent = "Connect wallet";
+        }
+      }
+
+      function renderTicket(current) {
+        const isEligible = current?.status === "eligible" || current?.eligible === true;
+        scoreEl.textContent = current?.score?.toLocaleString?.() || "--";
+        holderRankEl.textContent = current?.rank ? `#${current.rank}` : "--";
+        cutoffScoreEl.textContent = current?.cutoffScore?.toLocaleString?.() || "--";
+        estimateEl.textContent = Number.isFinite(Number(current?.estimatedWbtc)) ? Number(current.estimatedWbtc).toFixed(8) : "--";
+        ticketStatusEl.textContent = current ? (isEligible ? "Eligible" : "Not in cut") : "Connect";
+        ticketStatusEl.style.color = isEligible ? "var(--gold)" : "#ff6b58";
+        ticketStatusEl.style.borderColor = isEligible ? "rgba(81, 244, 169, 0.42)" : "rgba(255, 107, 88, 0.5)";
+        ticketStatusEl.style.background = isEligible ? "rgba(81, 244, 169, 0.14)" : "rgba(255, 107, 88, 0.16)";
+      }
+
+      function renderHolderBoard() {
+        const snapshot = state.holderSnapshot;
+        const holders = Array.isArray(snapshot?.holders) ? snapshot.holders : [];
+        const query = holderSearchEl.value.trim().toLowerCase();
+        const filtered = holders.filter((holder) => (holder.wallet || "").toLowerCase().includes(query));
+        const visible = query ? filtered : holders.slice(0, 25);
+
+        roundCapEl.textContent = snapshot?.roundCap?.toLocaleString?.() || "--";
+        holderCutoffEl.textContent = snapshot?.cutoffScore?.toLocaleString?.() || "--";
+        eligibleShownEl.textContent = snapshot?.eligibleCount?.toLocaleString?.() || "--";
+        snapshotAgeEl.textContent = snapshot?.updatedAt ? new Date(snapshot.updatedAt).toLocaleTimeString() : "--";
+
+        holderTableEl.innerHTML = `
+          <div class="holder-row header">
+            <span>Rank</span><span>Wallet</span><span>Score</span><span>Balance</span><span>Held</span><span>Odds</span><span>Status</span>
+          </div>
+          ${
+            visible.length
+              ? visible
+                  .map((holder) => {
+                    const eligible = holder.status === "eligible" || holder.eligible === true;
+                    return `
+                      <div class="holder-row ${holder.wallet === state.connectedWallet ? "current" : ""}">
+                        <strong>${holder.rank ? `#${holder.rank}` : "--"}</strong>
+                        <span class="holder-wallet">${shortAddress(holder.wallet || "")}${holder.wallet === state.connectedWallet ? " (you)" : ""}</span>
+                        <strong>${holder.score?.toLocaleString?.() || "--"}</strong>
+                        <span>${holder.balanceLabel || "--"}</span>
+                        <span>${holder.heldLabel || "--"}</span>
+                        <span class="odds-pill">${holder.oddsLabel || "--"}</span>
+                        <span class="holder-badge ${eligible ? "" : "out"}">${eligible ? "Made cut" : "Below cut"}</span>
+                      </div>
+                    `;
+                  })
+                  .join("")
+              : `<div class="holder-empty">${snapshot?.configured === false ? snapshot.reason : "No holder snapshot available yet."}</div>`
+          }
+        `;
+      }
+
+      function renderDrawStats(current) {
+        if (!current) {
+          drawMeterEl.style.setProperty("--meter", "0%");
+          drawRankEl.textContent = "--";
+          drawEdgeEl.textContent = "--";
+          drawOddsEl.textContent = "--";
+          return;
+        }
+        drawMeterEl.style.setProperty("--meter", `${Math.max(0, Math.min(100, Number(current.cutoffProgress || 0)))}%`);
+        drawRankEl.textContent = current.rank ? `#${current.rank}` : "--";
+        drawEdgeEl.textContent = Number.isFinite(Number(current.cutoffDelta)) ? `${Number(current.cutoffDelta) >= 0 ? "+" : ""}${Number(current.cutoffDelta).toLocaleString()}` : "--";
+        drawEdgeEl.style.color = Number(current.cutoffDelta) >= 0 ? "var(--gold)" : "#ff6b58";
+        drawOddsEl.textContent = current.oddsLabel || "--";
+      }
+
+      function formatUsd(value) {
+        if (!Number.isFinite(value)) return "$--";
+        if (value >= 1000) return `$${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+        if (value >= 1) return `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        return `$${value.toLocaleString(undefined, { minimumSignificantDigits: 2, maximumSignificantDigits: 3 })}`;
+      }
+
+      function renderMarketTicker(marketData) {
+        document.querySelectorAll(".ticker-item").forEach((item) => {
+          const data = marketData[item.dataset.symbol] || marketFallback[item.dataset.symbol];
+          const change = Number(data?.usd_24h_change);
+          item.querySelector(".price").textContent = formatUsd(Number(data?.usd));
+          const changeEl = item.querySelector(".change");
+          if (Number.isFinite(change)) {
+            changeEl.textContent = `${change >= 0 ? "+" : ""}${change.toFixed(2)}%`;
+            changeEl.className = `change ${change >= 0 ? "up" : "down"}`;
+          } else {
+            changeEl.textContent = "live";
+            changeEl.className = "change up";
+          }
+        });
+      }
+
+      async function updateMarketTicker() {
+        const ids = Object.keys(marketFallback).join(",");
+        try {
+          const api = state.config?.coingeckoApiUrl || "https://api.coingecko.com/api/v3";
+          const response = await fetch(`${api}/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`, {
+            cache: "no-store"
+          });
+          if (!response.ok) throw new Error("price request failed");
+          renderMarketTicker(await response.json());
+        } catch {
+          renderMarketTicker(marketFallback);
+        }
+      }
+
+      function renderReceipts() {
+        receiptRow.querySelectorAll(".receipt").forEach((node) => node.remove());
+        if (!state.feeReceipts.length) {
+          receiptEmptyEl.style.display = "grid";
+          return;
+        }
+
+        receiptEmptyEl.style.display = "none";
+        state.feeReceipts.slice(0, 5).forEach((receipt) => {
+          const card = document.createElement("article");
+          card.className = "receipt";
+          const time = receipt.blockTime ? new Date(receipt.blockTime * 1000).toLocaleString() : `Slot ${receipt.slot}`;
+          card.innerHTML = `<b>${receipt.status}</b><span>${time}</span><a class="tx-link" href="${solscanTx(receipt.signature)}" target="_blank" rel="noreferrer">TX: ${shortAddress(receipt.signature)} view</a>`;
+          receiptRow.insertBefore(card, receiptEmptyEl);
+        });
+      }
+
+      async function loadConfig() {
+        const response = await fetch("/api/config", { cache: "no-store" });
+        state.config = await response.json();
+        feeStatusEl.textContent = state.config.feeWallet ? "Ready" : "Config";
+        swapStatusEl.textContent = state.config.distributorWallet ? "Ready" : "Config";
+        holderStatusEl.textContent = state.config.holderIndexerUrlConfigured ? "Ready" : "Config";
+        batchEl.textContent = state.config.holderIndexerUrlConfigured ? "Ready" : "Config";
+        renderShell();
+      }
+
+      async function loadChainData() {
+        if (!state.config) await loadConfig();
+
+        try {
+          const response = await fetch("/api/fee-receipts", { cache: "no-store" });
+          const body = await response.json();
+          state.feeReceipts = body.receipts || [];
+          creatorFeesEl.textContent = body.configured ? formatAmount(body.solBalance, " SOL") : "--";
+          lastReceiptEl.textContent = state.feeReceipts[0]?.blockTime ? new Date(state.feeReceipts[0].blockTime * 1000).toLocaleTimeString() : "--";
+          feeStatusEl.textContent = body.configured ? "Live" : "Config";
+        } catch {
+          creatorFeesEl.textContent = "--";
+          feeStatusEl.textContent = "Error";
+        }
+
+        try {
+          if (state.config.distributorWallet && state.config.wbtcMint) {
+            const params = new URLSearchParams({ owner: state.config.distributorWallet, mint: state.config.wbtcMint });
+            const response = await fetch(`/api/token-balance?${params}`, { cache: "no-store" });
+            const body = await response.json();
+            poolEl.textContent = body.configured ? formatAmount(body.balance) : "--";
+          } else {
+            poolEl.textContent = "--";
+          }
+        } catch {
+          poolEl.textContent = "--";
+        }
+
+        await loadHolderSnapshot();
+        renderReceipts();
+      }
+
+      async function loadHolderSnapshot() {
+        const params = new URLSearchParams();
+        if (state.connectedWallet) params.set("wallet", state.connectedWallet);
+        const response = await fetch(`/api/holders?${params}`, { cache: "no-store" });
+        state.holderSnapshot = await response.json();
+        const current = state.holderSnapshot.current || null;
+        renderTicket(current);
+        renderDrawStats(current);
+        renderHolderBoard();
+        holderStatusEl.textContent = state.holderSnapshot.configured === false ? "Config" : "Live";
+      }
+
+      function getWalletProvider() {
+        if (window.phantom?.solana) return window.phantom.solana;
+        if (window.solflare) return window.solflare;
+        if (window.backpack) return window.backpack;
+        if (window.solana?.isPhantom) return window.solana;
+        return window.solana || null;
+      }
+
+      async function connectWallet() {
+        const provider = getWalletProvider();
+        if (!provider) {
+          connectWalletEl.textContent = "Install wallet";
+          return;
+        }
+
+        const result = await provider.connect();
+        state.connectedWallet = result.publicKey?.toString?.() || provider.publicKey?.toString?.() || "";
+        renderShell();
+        await loadHolderSnapshot();
+      }
+
+      connectWalletEl.addEventListener("click", connectWallet);
+      connectWalletSecondaryEl.addEventListener("click", connectWallet);
+      refreshDataEl.addEventListener("click", loadChainData);
+      holderSearchEl.addEventListener("input", renderHolderBoard);
+      tickerTrack.appendChild(tickerTrack.firstElementChild.cloneNode(true));
+
+      renderShell();
+      renderTicket(null);
+      renderDrawStats(null);
+      renderHolderBoard();
+      renderMarketTicker(marketFallback);
+      loadConfig().then(loadChainData);
+      updateMarketTicker();
+      window.setInterval(updateMarketTicker, 60_000);
+      window.setInterval(loadChainData, 30_000);
+      window.setInterval(() => {
+        state.remaining = Math.max(0, state.remaining - 1);
+        countdownEl.textContent = formatTime(state.remaining);
+      }, 1000);
+    </script>
+  </body>
+</html>
