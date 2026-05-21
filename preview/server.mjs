@@ -10,9 +10,9 @@ const { fetchRpcHolderSnapshot, parseWalletList, toDashboardSnapshot } = require
 const { tokenBalanceForOwner } = require("../lib/token-utils.js");
 const root = dirname(fileURLToPath(import.meta.url));
 const envRoot = dirname(root);
-const port = Number(process.env.PORT || 4173);
 const env = await loadEnv();
 Object.assign(process.env, env);
+const port = Number(process.env.PORT || 4199);
 
 const types = {
   ".html": "text/html; charset=utf-8",

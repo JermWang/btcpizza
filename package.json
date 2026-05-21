@@ -4,6 +4,9 @@
   "version": "0.1.0",
   "description": "Solana BTC Pizza Day Pump.fun creator-fee to WBTC airdrop blueprint and implementation scaffold.",
   "scripts": {
+    "dev": "node preview/server.mjs",
+    "start": "node preview/server.mjs",
+    "preview": "node preview/server.mjs",
     "build": "node -e \"console.log('Static dashboard output: preview/')\"",
     "test": "echo \"Scaffold only: add Anchor and TypeScript tests during implementation\""
   },
