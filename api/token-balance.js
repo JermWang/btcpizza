@@ -1,22 +1,8 @@
 const { requestUrl, rpc, sendJson } = require("../lib/vercel-api");
+const { tokenBalanceForOwner } = require("../lib/token-utils");
 
 async function tokenBalance(owner, mint) {
-  if (!owner || !mint) {
-    return { configured: false, balance: null };
-  }
-
-  const accounts = await rpc("getTokenAccountsByOwner", [
-    owner,
-    { mint },
-    { encoding: "jsonParsed" }
-  ]);
-
-  const balance = accounts.value.reduce((total, account) => {
-    const amount = account.account.data.parsed.info.tokenAmount.uiAmount || 0;
-    return total + amount;
-  }, 0);
-
-  return { configured: true, balance };
+  return await tokenBalanceForOwner({ rpc, owner, mint });
 }
 
 module.exports = async function handler(request, response) {

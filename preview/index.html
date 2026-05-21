@@ -192,10 +192,6 @@
         font-weight: 1000;
         line-height: 0.9;
         text-transform: uppercase;
-        text-shadow:
-          4px 0 0 var(--red),
-          0 4px 0 var(--red),
-          7px 7px 0 #05060a;
       }
 
       .nav {
@@ -275,7 +271,6 @@
 
       .nav a::before {
         margin-right: 8px;
-        filter: drop-shadow(2px 2px 0 #05060a);
       }
 
       .nav a:nth-child(1)::before {
@@ -296,6 +291,10 @@
 
       .nav a:nth-child(5)::before {
         content: "?";
+      }
+
+      .nav a:nth-child(6)::before {
+        content: "!";
       }
 
       .top-actions {
@@ -397,10 +396,6 @@
         font-size: clamp(42px, 5.9vw, 104px);
         line-height: 0.82;
         text-transform: uppercase;
-        text-shadow:
-          5px 0 0 var(--red),
-          0 5px 0 var(--red),
-          9px 9px 0 #05060a;
       }
 
       .hero-copy p {
@@ -416,7 +411,6 @@
         line-height: 1;
         font-weight: 1000;
         text-transform: uppercase;
-        text-shadow: 3px 3px 0 #051108;
       }
 
       .hero-actions {
@@ -1337,6 +1331,7 @@
             <a href="#holders">Holders</a>
             <a href="#airdrops">Airdrops</a>
             <a href="#about">About</a>
+            <a href="/admin">Admin</a>
           </nav>
           <div class="top-actions" aria-label="Contract actions">
             <button class="contract-pill" id="copyContract" type="button" disabled>CA pending</button>
@@ -1787,7 +1782,7 @@
           const response = await fetch("/api/fee-receipts", { cache: "no-store" });
           const body = await response.json();
           state.feeReceipts = body.receipts || [];
-          creatorFeesEl.textContent = body.configured ? formatAmount(body.solBalance, " SOL") : "--";
+          creatorFeesEl.textContent = body.configured ? formatAmount(body.totalSolAndWsolBalance ?? body.solBalance, " SOL") : "--";
           lastReceiptEl.textContent = state.feeReceipts[0]?.blockTime ? new Date(state.feeReceipts[0].blockTime * 1000).toLocaleTimeString() : "--";
           feeStatusEl.textContent = body.configured ? "Live" : "Config";
         } catch {

@@ -9,3 +9,6 @@ target/
 coverage/
 *.log
 preview/qa/
+.admin-data/
+snapshots/
+manifests/

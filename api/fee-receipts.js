@@ -1,4 +1,5 @@
 const { publicConfig, rpc, sendJson } = require("../lib/vercel-api");
+const { tokenBalanceForOwner } = require("../lib/token-utils");
 
 async function feeReceipts() {
   const config = publicConfig();
@@ -10,15 +11,21 @@ async function feeReceipts() {
     };
   }
 
-  const signatures = await rpc("getSignaturesForAddress", [
-    config.feeWallet,
-    { limit: Number(process.env.FEE_RECEIPT_LIMIT || 10) }
+  const [signatures, lamports, wsol] = await Promise.all([
+    rpc("getSignaturesForAddress", [
+      config.feeWallet,
+      { limit: Number(process.env.FEE_RECEIPT_LIMIT || 10) }
+    ]),
+    rpc("getBalance", [config.feeWallet]),
+    tokenBalanceForOwner({ rpc, owner: config.feeWallet, mint: config.wsolMint })
   ]);
-  const lamports = await rpc("getBalance", [config.feeWallet]);
 
   return {
     configured: true,
     solBalance: lamports.value / 1_000_000_000,
+    wsolBalance: wsol.balance,
+    totalSolAndWsolBalance: lamports.value / 1_000_000_000 + wsol.balance,
+    wsolAccountCount: wsol.accountCount,
     receipts: signatures.map((item) => ({
       signature: item.signature,
       slot: item.slot,
