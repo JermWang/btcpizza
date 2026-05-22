@@ -1,4 +1,4 @@
-const { adminStatus, isAdminAuthorized, runAdminAction } = require("../lib/admin-control");
+const { adminAuthError, adminStatus, isAdminAuthorized, runAdminAction } = require("../lib/admin-control");
 const { sendJson } = require("../lib/vercel-api");
 
 function parseBody(request) {
@@ -15,7 +15,7 @@ module.exports = async function handler(request, response) {
   if (!isAdminAuthorized(request.headers)) {
     sendJson(response, 401, {
       ok: false,
-      error: "Admin password is required."
+      error: adminAuthError()
     });
     return;
   }

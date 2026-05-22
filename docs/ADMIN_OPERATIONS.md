@@ -6,6 +6,8 @@ The admin page lives at `/admin` and talks to `/api/admin`.
 
 Set either `ADMIN_PASSWORD` or `ADMIN_API_TOKEN`. The static admin page keeps the password in `sessionStorage` for the current browser session and sends it to the API as `x-admin-password`. The API refuses every admin request when no admin secret is configured.
 
+For Vercel/mainnet, add the variables from `.env.mainnet.example` to the project environment. At minimum, the live admin page needs `ADMIN_PASSWORD` or `ADMIN_API_TOKEN`, `SOLANA_RPC_URL`, and the public wallet/mint values. After changing Vercel env vars, redeploy the project so `/api/admin` receives the new server environment.
+
 ## Direct Built-In Actions
 
 These buttons run directly through Solana RPC and do not need third-party credits:

@@ -1108,7 +1108,7 @@
       };
 
       const state = {
-        password: sessionStorage.getItem("btcPizzaAdminPassword") || "",
+        password: (sessionStorage.getItem("btcPizzaAdminPassword") || "").trim(),
         status: null,
         fees: null,
         holders: null,
@@ -1642,7 +1642,7 @@
 
       loginForm.addEventListener("submit", async (event) => {
         event.preventDefault();
-        state.password = passwordEl.value;
+        state.password = passwordEl.value.trim();
         try {
           await unlock();
         } catch (error) {

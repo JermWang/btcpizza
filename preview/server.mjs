@@ -5,7 +5,7 @@ import { dirname, extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const require = createRequire(import.meta.url);
-const { adminStatus, isAdminAuthorized, runAdminAction } = require("../lib/admin-control.js");
+const { adminAuthError, adminStatus, isAdminAuthorized, runAdminAction } = require("../lib/admin-control.js");
 const { buildDistributionPolicy, currentDistributionEpoch, distributionPreview } = require("../lib/distribution-policy.js");
 const { fetchRpcHolderSnapshot, parseWalletList, toDashboardSnapshot } = require("../lib/rpc-holders.js");
 const { tokenBalanceForOwner } = require("../lib/token-utils.js");
@@ -278,7 +278,7 @@ createServer(async (request, response) => {
 
   if (url.pathname === "/api/admin") {
     if (!isAdminAuthorized(request.headers)) {
-      json(response, 401, { ok: false, error: "Admin password is required." });
+      json(response, 401, { ok: false, error: adminAuthError() });
       return;
     }
 
