@@ -1508,6 +1508,7 @@
 
       const poolEl = document.querySelector("#pool");
       const countdownEl = document.querySelector("#countdown");
+      const intervalEl = document.querySelector("#interval");
       const creatorFeesEl = document.querySelector("#creatorFees");
       const lastReceiptEl = document.querySelector("#lastReceipt");
       const scoreEl = document.querySelector("#score");
@@ -1588,6 +1589,22 @@
         return `${minutes}:${seconds}`;
       }
 
+      function distributionIntervalSeconds() {
+        const configured = Number(state.config?.distributionIntervalSeconds);
+        return Number.isFinite(configured) && configured > 0 ? configured : 600;
+      }
+
+      function secondsUntilNextDistribution() {
+        const interval = distributionIntervalSeconds();
+        const elapsed = Math.floor(Date.now() / 1000) % interval;
+        return elapsed === 0 ? interval : interval - elapsed;
+      }
+
+      function syncCountdown() {
+        state.remaining = secondsUntilNextDistribution();
+        countdownEl.textContent = formatTime(state.remaining);
+      }
+
       function formatAmount(value, suffix = "") {
         const number = Number(value);
         if (!Number.isFinite(number)) return "--";
@@ -1595,7 +1612,8 @@
       }
 
       function renderShell() {
-        countdownEl.textContent = formatTime(state.remaining);
+        intervalEl.textContent = state.config?.distributionIntervalLabel || "10 minutes";
+        syncCountdown();
 
         const contractAddress = state.config?.contractAddress || "";
         if (contractAddress) {
@@ -1843,10 +1861,7 @@
       updateMarketTicker();
       window.setInterval(updateMarketTicker, 60_000);
       window.setInterval(loadChainData, 30_000);
-      window.setInterval(() => {
-        state.remaining = Math.max(0, state.remaining - 1);
-        countdownEl.textContent = formatTime(state.remaining);
-      }, 1000);
+      window.setInterval(syncCountdown, 1000);
     </script>
   </body>
 </html>

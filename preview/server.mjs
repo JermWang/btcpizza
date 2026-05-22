@@ -70,6 +70,8 @@ function publicConfig() {
     creatorFeeClaimPublicKey: env.CREATOR_PUBLIC_KEY || devCreatorWallet,
     pumpPortalLocalApiUrl: env.PUMPPORTAL_LOCAL_API_URL || "https://pumpportal.fun/api/trade-local",
     holderIndexerUrlConfigured: Boolean(env.HOLDER_INDEXER_API_URL),
+    distributionIntervalSeconds: Number(env.PUBLIC_DISTRIBUTION_INTERVAL_SECONDS || env.DISTRIBUTION_INTERVAL_SECONDS || 600),
+    distributionIntervalLabel: env.PUBLIC_DISTRIBUTION_INTERVAL_LABEL || "10 minutes",
     solscanBaseUrl: env.PUBLIC_SOLSCAN_BASE_URL || "https://solscan.io",
     coingeckoApiUrl: env.PUBLIC_COINGECKO_API_URL || "https://api.coingecko.com/api/v3"
   };

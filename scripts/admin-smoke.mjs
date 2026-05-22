@@ -71,6 +71,15 @@ function summarizeResult(result) {
 }
 
 async function runCheck(check) {
+  if (check.optional) {
+    return {
+      name: check.name,
+      ok: true,
+      status: "SKIP",
+      detail: check.skipReason || "Optional check is not configured."
+    };
+  }
+
   try {
     const result = await check.run();
     return {
@@ -80,14 +89,6 @@ async function runCheck(check) {
       detail: check.detail ? check.detail(result) : summarizeResult(result)
     };
   } catch (error) {
-    if (check.optional) {
-      return {
-        name: check.name,
-        ok: true,
-        status: "SKIP",
-        detail: error.message
-      };
-    }
     return {
       name: check.name,
       ok: false,
@@ -177,18 +178,21 @@ const checks = [
   {
     name: "Holder snapshot from token mint",
     optional: !env.PUBLIC_TOKEN_MINT,
+    skipReason: "PUBLIC_TOKEN_MINT is not set.",
     run: async () => await adminAction({ baseUrl, adminSecret, action: "refresh-holder-list" }),
     detail: (result) => `holders=${result.result.totalEligible} fetched=${result.result.totalFetched}`
   },
   {
     name: "Create holder snapshot",
     optional: !env.PUBLIC_TOKEN_MINT,
+    skipReason: "PUBLIC_TOKEN_MINT is not set.",
     run: async () => await adminAction({ baseUrl, adminSecret, action: "create-holder-snapshot" }),
     detail: (result) => `snapshot=${result.result.snapshotId} holders=${result.result.totalEligible}`
   },
   {
     name: "Simulate distribution math",
     optional: !env.PUBLIC_TOKEN_MINT,
+    skipReason: "PUBLIC_TOKEN_MINT is not set.",
     run: async () =>
       await adminAction({
         baseUrl,
