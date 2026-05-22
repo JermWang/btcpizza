@@ -2,7 +2,7 @@
 
 ## Goal
 
-Create tailored high-end 3D graphics for the BTC Pizza Day dashboard while keeping the important visuals editable and data-driven.
+Create tailored high-end 3D graphics for the Bitcoin Pizza Strategy dashboard while keeping the important visuals editable and data-driven.
 
 ## Recommended Pipeline
 
@@ -77,7 +77,7 @@ Recommended implementation:
 ## Prompt Template
 
 ```text
-Create a premium 3D Blender-style render for a futuristic BTC Pizza Day Solana dashboard.
+Create a premium 3D Blender-style render for a futuristic Bitcoin Pizza Strategy Solana dashboard.
 
 Subject:
 A circular pizza pie designed like a live crypto reward pool. The pizza is divided into [N] clean slices. Each slice is slightly separated with beveled crust edges, glossy melted cheese, pepperoni details, and subtle Bitcoin coin embossing. One slice glows with Solana mint light to indicate the active airdrop epoch. A small wrapped-BTC coin hovers above the pie.
@@ -130,7 +130,7 @@ apps/web/src/components/visuals/
   ReceiptIcon.tsx
 
 assets/blender/
-  btc-pizza-pool.blend
+  bitcoin-pizza-strategy-pool.blend
   exports/pizza-slice.glb
   exports/pizza-pool.glb
 ```

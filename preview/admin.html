@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>BTC Pizza Day - Admin Operations</title>
+    <title>Bitcoin Pizza Strategy - Admin Operations</title>
     <meta name="robots" content="noindex,nofollow" />
     <meta name="theme-color" content="#0b0d10" />
     <link rel="icon" type="image/png" href="/assets/pizza-slice-favicon-256.png" />
@@ -443,6 +443,33 @@
         flex-wrap: wrap;
       }
 
+      .feedback-panel {
+        display: grid;
+        gap: 10px;
+        margin-top: 12px;
+        padding: 12px;
+        border: 1px solid rgba(251, 146, 60, 0.38);
+        border-radius: var(--radius);
+        background: rgba(251, 146, 60, 0.08);
+      }
+
+      .feedback-panel strong {
+        font-size: 13px;
+      }
+
+      .feedback-panel p {
+        color: var(--soft);
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1.4;
+      }
+
+      .inline-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
       .step {
         display: grid;
         gap: 11px;
@@ -488,6 +515,85 @@
         min-height: 42px;
         padding: 6px 9px;
         font-size: 12px;
+      }
+
+      .checklist-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .check-row {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: 11px;
+        padding: 13px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: rgba(255, 255, 255, 0.045);
+      }
+
+      .check-row i {
+        width: 11px;
+        height: 11px;
+        margin-top: 3px;
+        border-radius: 999px;
+        background: var(--orange);
+        box-shadow: 0 0 0 4px rgba(251, 146, 60, 0.08);
+      }
+
+      .check-row.ok i {
+        background: var(--green);
+        box-shadow: 0 0 0 4px rgba(85, 216, 138, 0.08);
+      }
+
+      .check-row.fail i {
+        background: var(--red);
+        box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.08);
+      }
+
+      .check-row h3 {
+        font-size: 14px;
+        line-height: 1.15;
+      }
+
+      .check-row p,
+      .check-row small {
+        display: block;
+        margin-top: 5px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1.35;
+      }
+
+      details.advanced-actions {
+        margin-top: 12px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: rgba(0, 0, 0, 0.14);
+      }
+
+      details.advanced-actions summary {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        padding: 0 12px;
+        color: var(--soft);
+        font-size: 13px;
+        font-weight: 850;
+        cursor: pointer;
+      }
+
+      .advanced-body {
+        display: grid;
+        gap: 12px;
+        padding: 0 12px 12px;
+      }
+
+      .advanced-body > p {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1.4;
       }
 
       .badge-row {
@@ -768,7 +874,8 @@
 
       @media (max-width: 1280px) {
         .overview-grid,
-        .workflow {
+        .workflow,
+        .checklist-grid {
           grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
@@ -819,6 +926,7 @@
 
         .overview-grid,
         .workflow,
+        .checklist-grid,
         .action-grid,
         .nav {
           grid-template-columns: 1fr;
@@ -858,13 +966,12 @@
       <aside class="side">
         <a class="brand" href="/">
           <span class="brand-mark">P</span>
-          <span><strong>BTC Pizza Day</strong><span>Admin console</span></span>
+          <span><strong>Bitcoin Pizza Strategy</strong><span>Admin console</span></span>
         </a>
         <nav class="nav" aria-label="Admin sections">
           <a href="#overview" data-icon="gauge">Overview</a>
-          <a href="#workflow" data-icon="route">Workflow</a>
+          <a href="#launch" data-icon="rocket">Go Live</a>
           <a href="#holders" data-icon="users">Holders</a>
-          <a href="#distribution" data-icon="send">Distribution</a>
           <a href="#monitor" data-icon="activity">Monitor</a>
           <a href="#settings" data-icon="settings">Settings</a>
           <a href="#audit" data-icon="file">Audit Log</a>
@@ -882,7 +989,7 @@
         <header class="topbar">
           <div>
             <h1>Treasury Operations</h1>
-            <p>Claim creator fees, buy WBTC, lock weighted holder snapshots, and distribute rewards from one controlled surface.</p>
+            <p>Run the launch checklist, review blockers, and keep manual controls out of the way unless they are needed.</p>
           </div>
           <div class="top-actions">
             <label class="toggle"><input id="dryRun" type="checkbox" checked /> Dry run</label>
@@ -906,11 +1013,21 @@
           <div class="launch-panel">
             <div>
               <h2>Official Launch Control</h2>
-              <p>Dry run verifies config, live data, WBTC pool, holders, and payout math. Live mode locks the snapshot, creates the batch, and sends WBTC from the configured distributor.</p>
+              <p>Dry run checks setup, live data, WBTC pool, holders, and payout math. Live mode locks the snapshot, creates the batch, and sends WBTC.</p>
               <div class="launch-status" id="launchStatus"></div>
+              <div class="feedback-panel hidden" id="errorFeedback">
+                <strong id="feedbackTitle">Checklist needs attention</strong>
+                <p id="feedbackMessage"></p>
+                <p id="feedbackFix"></p>
+                <div class="inline-actions">
+                  <button class="btn primary" id="retryChecklist" type="button" data-icon="refresh">Retry checklist</button>
+                  <button class="btn" id="copyFeedback" type="button" data-icon="file">Copy error</button>
+                  <a class="btn ghost" id="feedbackSettings" href="#settings" data-icon="settings">Settings</a>
+                </div>
+              </div>
             </div>
             <div class="launch-actions">
-              <button class="btn go" type="button" data-run-action="official-live-go" data-icon="rocket">Official Live GO</button>
+              <button class="btn go" type="button" data-run-action="official-live-go" data-icon="rocket">Run Go-Live Checklist</button>
             </div>
           </div>
         </section>
@@ -918,41 +1035,37 @@
         <section class="section" id="workflow">
           <div class="section-head">
             <div>
-              <h2>Operations Workflow</h2>
-              <span>Use this order for the manual creator-fee to WBTC distribution run.</span>
+              <h2>Go-Live Checklist</h2>
+              <span>One readable checklist. Failed rows point to the exact blocker and next fix.</span>
             </div>
           </div>
-          <div class="grid workflow" id="workflowGrid"></div>
+          <div class="grid checklist-grid" id="workflowGrid"></div>
         </section>
 
-        <section class="section">
-          <div class="grid two-col">
-            <div class="panel">
-              <div class="section-head">
-                <div>
-                  <h2>Action Console</h2>
-                  <span>Every configured backend or webhook action grouped by responsibility.</span>
-                </div>
+        <section class="section" id="options">
+          <div class="panel">
+            <div class="section-head">
+              <div>
+                <h2>Run Options</h2>
+                <span>Only change these if the checklist tells you to override a value.</span>
               </div>
-              <div class="grid action-grid" id="actionGrid"></div>
             </div>
-            <div class="panel">
-              <div class="section-head">
-                <div>
-                  <h2>Payload Builder</h2>
-                  <span>Optional values are sent with every manual action.</span>
-                </div>
-              </div>
-              <div class="form-grid">
-                <label class="field"><span class="label">Reward pool WBTC</span><input id="rewardPool" inputmode="decimal" placeholder="0.00000000" /></label>
-                <label class="field"><span class="label">Minimum payout</span><input id="minPayout" inputmode="decimal" placeholder="0.00000001" /></label>
-                <label class="field"><span class="label">Batch size</span><input id="batchSize" inputmode="numeric" placeholder="12" /></label>
-                <label class="field"><span class="label">Round cap</span><input id="roundCap" inputmode="numeric" placeholder="128" /></label>
-                <label class="field"><span class="label">Slippage bps</span><input id="slippageBps" inputmode="numeric" placeholder="100" /></label>
-                <label class="field"><span class="label">Snapshot ID</span><input id="snapshotId" placeholder="optional" /></label>
-              </div>
-              <label class="field" style="margin-top:10px;"><span class="label">Raw JSON payload</span><textarea id="payload" spellcheck="false" placeholder='{"wallet":"","roundCap":128}'></textarea></label>
+            <div class="form-grid">
+              <label class="field"><span class="label">Reward pool WBTC</span><input id="rewardPool" inputmode="decimal" placeholder="0.00000000" /></label>
+              <label class="field"><span class="label">Minimum payout</span><input id="minPayout" inputmode="decimal" placeholder="0.00000001" /></label>
+              <label class="field"><span class="label">Batch size</span><input id="batchSize" inputmode="numeric" placeholder="12" /></label>
+              <label class="field"><span class="label">Round cap</span><input id="roundCap" inputmode="numeric" placeholder="128" /></label>
+              <label class="field"><span class="label">Slippage bps</span><input id="slippageBps" inputmode="numeric" placeholder="100" /></label>
+              <label class="field"><span class="label">Snapshot ID</span><input id="snapshotId" placeholder="optional" /></label>
             </div>
+            <label class="field" style="margin-top:10px;"><span class="label">Raw JSON payload</span><textarea id="payload" spellcheck="false" placeholder='{"wallet":"","roundCap":128}'></textarea></label>
+            <details class="advanced-actions">
+              <summary>Advanced manual actions</summary>
+              <div class="advanced-body">
+                <p>Use these only when you need to rerun a single backend operation instead of the full go-live checklist.</p>
+                <div class="grid action-grid" id="actionGrid"></div>
+              </div>
+            </details>
           </div>
         </section>
 
@@ -998,14 +1111,12 @@
               <div class="panel">
                 <div class="section-head">
                   <div>
-                    <h2>Snapshot Controls</h2>
-                    <span>Create, export, and lock holder state before distribution.</span>
+                    <h2>Snapshot Export</h2>
+                    <span>The go-live checklist creates and locks snapshots. Export the preview when needed.</span>
                   </div>
                 </div>
                 <div class="grid">
-                  <button class="btn" type="button" data-run-action="create-holder-snapshot" data-icon="users">Create snapshot</button>
                   <button class="btn" type="button" id="exportSnapshot" data-icon="download">Export snapshot CSV</button>
-                  <button class="btn danger" type="button" data-run-action="finalize-manifest" data-icon="lock">Lock snapshot</button>
                 </div>
               </div>
             </div>
@@ -1036,28 +1147,23 @@
               <div class="panel">
                 <div class="section-head">
                   <div>
-                    <h2>Batch Execution</h2>
-                    <span>Run batches only after simulation and snapshot lock.</span>
+                    <h2>Launch Output</h2>
+                    <span>Batch generation and WBTC sends are handled by Official Live GO.</span>
                   </div>
                 </div>
-                <div class="grid">
-                  <button class="btn" type="button" data-run-action="simulate-distribution" data-icon="calculator">Server simulate</button>
-                  <button class="btn danger" type="button" data-run-action="generate-distribution-batch" data-icon="file">Generate batch</button>
-                  <button class="btn danger" type="button" data-run-action="distribute-wbtc" data-icon="send">Execute WBTC batch</button>
-                  <button class="btn danger" type="button" data-run-action="retry-failed-airdrops" data-icon="refresh">Retry failed sends</button>
-                </div>
+                <div class="muted" id="lastLaunchSummary">Run the checklist to see snapshot, manifest, batch, and transaction details here.</div>
               </div>
               <div class="panel">
-                <div class="section-head">
-                  <div>
-                    <h2>Safety Controls</h2>
-                    <span>Emergency controls remain live-gated.</span>
+                <details class="advanced-actions">
+                  <summary>Emergency controls</summary>
+                  <div class="advanced-body">
+                    <p>Use these only when a wallet, route, manifest, or config looks wrong.</p>
+                    <div class="grid">
+                      <button class="btn danger" type="button" data-run-action="pause-protocol" data-icon="pause">Pause everything</button>
+                      <button class="btn success" type="button" data-run-action="unpause-protocol" data-icon="play">Resume operations</button>
+                    </div>
                   </div>
-                </div>
-                <div class="grid">
-                  <button class="btn danger" type="button" data-run-action="pause-protocol" data-icon="pause">Pause everything</button>
-                  <button class="btn success" type="button" data-run-action="unpause-protocol" data-icon="play">Resume operations</button>
-                </div>
+                </details>
               </div>
             </div>
           </div>
@@ -1180,6 +1286,8 @@
         holders: null,
         wbtc: null,
         audit: JSON.parse(sessionStorage.getItem("btcPizzaAuditLog") || "[]"),
+        lastLaunchResult: null,
+        lastFeedback: null,
         pendingConfirm: null
       };
 
@@ -1251,7 +1359,19 @@
       async function fetchJson(url, options = {}) {
         const response = await fetch(url, { cache: "no-store", ...options });
         const body = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(body.error || `${url} failed with ${response.status}`);
+        if (!response.ok) {
+          const webhookBody = body.result?.body;
+          const message =
+            body.error ||
+            webhookBody?.error ||
+            webhookBody?.message ||
+            (typeof webhookBody === "string" ? webhookBody : "") ||
+            (body.result?.status ? `Webhook failed with HTTP ${body.result.status}` : "") ||
+            `${url} failed with ${response.status}`;
+          const error = new Error(message);
+          error.body = body;
+          throw error;
+        }
         return body;
       }
 
@@ -1395,23 +1515,137 @@
         return `<span class="badge warn">${escapeHtml(action.mode)}</span>`;
       }
 
+      const errorFixes = [
+        [/ADMIN_PASSWORD|ADMIN_API_TOKEN/i, "Set ADMIN_PASSWORD or ADMIN_API_TOKEN in the server environment, redeploy, then unlock again."],
+        [/Admin password is incorrect/i, "Re-enter the admin password or API token. The page sends it as x-admin-password."],
+        [/SOLANA_RPC_URL|HELIUS_RPC_URL|RPC/i, "Set SOLANA_RPC_URL or HELIUS_RPC_URL to a healthy Solana endpoint, then rerun the checklist."],
+        [/PUBLIC_TOKEN_MINT/i, "Set PUBLIC_TOKEN_MINT to the live token mint before scanning holders."],
+        [/PUBLIC_FEE_WALLET/i, "Set PUBLIC_FEE_WALLET to the creator-fee wallet that receives fee income."],
+        [/PUBLIC_DISTRIBUTOR_WALLET/i, "Set PUBLIC_DISTRIBUTOR_WALLET to the wallet that controls the WBTC pool."],
+        [/PUBLIC_WBTC_MINT/i, "Set PUBLIC_WBTC_MINT to the WBTC mint used for holder payouts."],
+        [/WBTC reward pool is zero|reward pool is zero|positive WBTC/i, "Fund the distributor WBTC account or enter a Reward pool WBTC override in Run Options."],
+        [/no payable recipients|No recipients|No holder snapshot|holder/i, "Refresh holder data, check PUBLIC_TOKEN_MINT, lower Minimum payout if needed, then rerun the checklist."],
+        [/Snapshot .* not found|No locked manifest|No prepared distribution batch/i, "Rerun Official Live GO so the snapshot, manifest, and batch are created in order."],
+        [/requires explicit confirmation|Confirm live/i, "Turn off Dry run, enable Confirm live, then run the live action only when ready."],
+        [/not configured\. Set ([A-Z0-9_]+)|WEBHOOK_URL/i, "Set the named webhook env var or ADMIN_ACTION_WEBHOOK_URL, then rerun this action."],
+        [/DATABASE_URL/i, "Set DATABASE_URL for durable production admin storage, or configure ADMIN_STORAGE_PATH for local-only storage."]
+      ];
+
+      function friendlyFix(message) {
+        const text = String(message || "");
+        const match = errorFixes.find(([pattern]) => pattern.test(text));
+        return match?.[1] || "Check the settings table for missing env vars, confirm the selected mode, then rerun the checklist.";
+      }
+
+      function actionLabel(id) {
+        return actionById(id)?.label || id || "Checklist";
+      }
+
+      function stepLabel(id) {
+        const labels = {
+          "validate-config": "Setup",
+          "refresh-fee-receipts": "Fee wallet",
+          "check-wbtc-vault": "WBTC pool",
+          "refresh-holder-list": "Holder scan",
+          "simulate-distribution": "Payout math",
+          "create-holder-snapshot": "Snapshot",
+          "finalize-manifest": "Manifest lock",
+          "generate-distribution-batch": "Batch",
+          "distribute-wbtc": "WBTC send"
+        };
+        return labels[id] || actionLabel(id);
+      }
+
+      function feedbackFromError(error, actionId) {
+        const message = error?.message || String(error || "Action failed.");
+        return {
+          title: `${actionLabel(actionId)} failed`,
+          message,
+          fix: friendlyFix(message),
+          actionId
+        };
+      }
+
+      function feedbackFromLaunch(result) {
+        if (!result) return null;
+        const failed = (result.steps || []).find((step) => step.ok === false);
+        const message =
+          failed?.error ||
+          (result.missing?.length ? `Missing: ${result.missing.join(", ")}` : "") ||
+          result.message ||
+          "";
+        if (!message || !["blocked", "failed"].includes(String(result.status || "").toLowerCase())) return null;
+        return {
+          title: `${stepLabel(failed?.name || "official-live-go")} blocked launch`,
+          message,
+          fix: friendlyFix(message),
+          actionId: "official-live-go"
+        };
+      }
+
       function renderWorkflow() {
-        const steps = [
-          { title: "Claim fees", detail: "Simulate and claim available creator fees into treasury control.", actions: ["simulate-creator-fee-claim", "claim-creator-fees"] },
-          { title: "Buy WBTC", detail: "Preview route, approve spend if needed, then convert available funds to WBTC.", actions: ["quote-wbtc-buy", "approve-wbtc-buy", "execute-wbtc-buy"] },
-          { title: "Snapshot holders", detail: "Refresh balances, compute weights, and create the distribution snapshot.", actions: ["refresh-holder-list", "create-holder-snapshot"] },
-          { title: "Lock manifest", detail: "Freeze the eligible recipient set so payouts are reproducible.", actions: ["finalize-manifest"] },
-          { title: "Distribute", detail: "Simulate payout math, generate a batch, and execute WBTC transfers.", actions: ["simulate-distribution", "generate-distribution-batch", "distribute-wbtc"] },
-          { title: "Verify", detail: "Publish receipts, sync the public dashboard, and retry failed transfers.", actions: ["record-receipt", "sync-indexer", "retry-failed-airdrops"] }
-        ];
-        $("#workflowGrid").innerHTML = steps
-          .map((step, index) => `
-            <article class="step" data-step="${index + 1}">
-              <h3>${escapeHtml(step.title)}</h3>
-              <p>${escapeHtml(step.detail)}</p>
-              <div class="badge-row">${step.actions.map((id) => statusBadge(actionById(id))).join("")}</div>
-              <div class="step-actions">
-                ${step.actions.map((id) => renderActionButton(id, true)).join("")}
+        const requiredMissing = (state.status?.required || []).filter((item) => !item.configured).map((item) => item.name);
+        const holders = state.holders?.eligibleCount ?? state.holders?.holders?.length ?? 0;
+        const rewardPool = Number(rewardPoolEl.value || state.wbtc?.balance || 0);
+        const payable = computeDistribution().filter((holder) => holder.distributionStatus === "pay").length;
+        const stepMap = new Map((state.lastLaunchResult?.steps || []).map((step) => [step.name, step]));
+        const fromStep = (id) => {
+          const step = stepMap.get(id);
+          if (!step) return null;
+          return step.ok ? { status: "ok", note: "Last checklist run passed this step." } : { status: "fail", note: step.error, fix: friendlyFix(step.error) };
+        };
+        const checks = [
+          {
+            id: "validate-config",
+            title: "Setup",
+            ok: requiredMissing.length === 0,
+            note: requiredMissing.length ? `Missing ${requiredMissing.join(", ")}` : "Required launch env is configured.",
+            fix: "Open Settings and fill every missing required env var."
+          },
+          {
+            id: "refresh-fee-receipts",
+            title: "Fee wallet",
+            ok: Boolean(state.fees?.configured && !state.fees?.error),
+            note: state.fees?.error || (state.fees?.configured ? "Fee wallet data loaded." : "Fee wallet has not loaded yet."),
+            fix: friendlyFix(state.fees?.error || "PUBLIC_FEE_WALLET")
+          },
+          {
+            id: "check-wbtc-vault",
+            title: "WBTC pool",
+            ok: rewardPool > 0,
+            note: rewardPool > 0 ? `${formatWbtc(rewardPool)} WBTC available for this run.` : state.wbtc?.error || "No WBTC reward pool is available.",
+            fix: friendlyFix(state.wbtc?.error || "WBTC reward pool is zero")
+          },
+          {
+            id: "refresh-holder-list",
+            title: "Holders",
+            ok: holders > 0 && !state.holders?.error,
+            note: state.holders?.error || (holders ? `${holders} eligible holders loaded.` : "No eligible holders loaded."),
+            fix: friendlyFix(state.holders?.error || "No holder snapshot")
+          },
+          {
+            id: "simulate-distribution",
+            title: "Payout math",
+            ok: payable > 0,
+            note: payable ? `${payable} payable recipients pass the current threshold.` : "No payable recipients at the current reward/minimum payout values.",
+            fix: friendlyFix("no payable recipients")
+          },
+          {
+            id: "official-live-go",
+            title: "Live gate",
+            ok: dryRunEl.checked || confirmLiveEl.checked,
+            note: dryRunEl.checked ? "Dry run is active." : confirmLiveEl.checked ? "Live mode is confirmed." : "Live mode needs Confirm live checked.",
+            fix: "Use Dry run for checks. For launch execution, turn off Dry run and enable Confirm live."
+          }
+        ].map((check) => ({ ...check, ...fromStep(check.id) }));
+        $("#workflowGrid").innerHTML = checks
+          .map((check) => `
+            <article class="check-row ${check.status === "fail" || !check.ok ? "fail" : check.status === "ok" || check.ok ? "ok" : ""}">
+              <i aria-hidden="true"></i>
+              <div>
+                <h3>${escapeHtml(check.title)}</h3>
+                <p>${escapeHtml(check.note)}</p>
+                ${check.ok || check.status === "ok" ? "" : `<small>${escapeHtml(check.fix)}</small>`}
               </div>
             </article>
           `)
@@ -1620,6 +1854,35 @@
           : `<div class="muted">Run an action to populate the monitor.</div>`;
       }
 
+      function renderFeedback() {
+        const panel = $("#errorFeedback");
+        const feedback = state.lastFeedback;
+        panel.classList.toggle("hidden", !feedback);
+        if (!feedback) return;
+        $("#feedbackTitle").textContent = feedback.title || "Checklist needs attention";
+        $("#feedbackMessage").textContent = feedback.message || "An admin check failed.";
+        $("#feedbackFix").textContent = feedback.fix || friendlyFix(feedback.message);
+      }
+
+      function renderLastLaunchSummary() {
+        const target = $("#lastLaunchSummary");
+        if (!target) return;
+        const result = state.lastLaunchResult;
+        if (!result) {
+          target.textContent = "Run the checklist to see snapshot, manifest, batch, and transaction details here.";
+          return;
+        }
+        const parts = [
+          result.status ? `Status: ${result.status}` : "",
+          result.snapshotId ? `Snapshot: ${shortAddress(result.snapshotId)}` : "",
+          result.manifestId ? `Manifest: ${shortAddress(result.manifestId)}` : "",
+          result.batchId ? `Batch: ${shortAddress(result.batchId)}` : "",
+          result.signature ? `Tx: ${shortAddress(result.signature)}` : "",
+          result.message || ""
+        ].filter(Boolean);
+        target.textContent = parts.join(" | ");
+      }
+
       function renderAll() {
         if (!state.status) return;
         renderStatus();
@@ -1627,9 +1890,11 @@
         renderLaunchStatus();
         renderWorkflow();
         renderActionGrid();
+        renderFeedback();
         renderHolders();
         renderTiers();
         renderDistribution();
+        renderLastLaunchSummary();
         renderReceipts();
         renderSettings();
         renderAudit();
@@ -1668,6 +1933,7 @@
           confirm: action?.dangerous ? confirmLiveEl.checked || dryRunEl.checked : true,
           payload
         };
+        if (actionId === "official-live-go") state.lastFeedback = null;
         addAudit({ status: "pending", action: actionId, title: `Starting ${action?.label || actionId}`, mode: action?.mode, details: body });
         try {
           const result = await fetchJson("/api/admin", {
@@ -1676,11 +1942,24 @@
             body: JSON.stringify(body)
           });
           const txHash = extractTxHash(result);
-          addAudit({ status: "success", action: actionId, title: `${action?.label || actionId} complete`, mode: result.result?.mode || action?.mode, txHash, details: result });
+          if (actionId === "official-live-go") {
+            state.lastLaunchResult = result.result || null;
+            state.lastFeedback = feedbackFromLaunch(state.lastLaunchResult);
+          }
+          const launchBlocked = actionId === "official-live-go" && state.lastLaunchResult?.status === "blocked";
+          addAudit({
+            status: launchBlocked ? "error" : "success",
+            action: actionId,
+            title: launchBlocked ? "Go-live checklist blocked" : `${action?.label || actionId} complete`,
+            mode: result.result?.mode || action?.mode,
+            txHash,
+            details: result
+          });
           await loadStatus();
           if (["refresh-holder-list", "create-holder-snapshot", "simulate-distribution"].includes(actionId)) await loadHolders();
           await refreshAll();
         } catch (error) {
+          state.lastFeedback = feedbackFromError(error, actionId);
           addAudit({
             status: "error",
             action: actionId,
@@ -1691,6 +1970,7 @@
               nextStep: action?.webhookEnv ? `Set ${action.webhookEnv} or ADMIN_ACTION_WEBHOOK_URL in the server env.` : "Check required runtime settings."
             }
           });
+          renderAll();
         }
       }
 
@@ -1709,14 +1989,14 @@
 
       function exportSnapshot() {
         const rows = computeDistribution();
-        exportCsv("btc-pizza-holder-snapshot.csv", [
+        exportCsv("bitcoin-pizza-strategy-holder-snapshot.csv", [
           ["rank", "wallet", "balance", "holding_days", "multiplier", "weight", "estimated_wbtc", "status"],
           ...rows.map((holder) => [holder.rank, holder.wallet || holder.address, holder.balance, holder.days, holder.multiplier, holder.weight, holder.reward, holder.distributionStatus])
         ]);
       }
 
       function exportAudit() {
-        exportCsv("btc-pizza-admin-audit.csv", [
+        exportCsv("bitcoin-pizza-strategy-admin-audit.csv", [
           ["timestamp", "status", "action", "title", "mode", "tx_hash", "details"],
           ...state.audit.map((entry) => [entry.timestamp, entry.status, entry.action || "", entry.title || "", entry.mode || "", entry.txHash || "", JSON.stringify(entry.details || {})])
         ]);
@@ -1742,6 +2022,18 @@
         });
       });
 
+      $("#retryChecklist").addEventListener("click", () => runAction("official-live-go"));
+      $("#copyFeedback").addEventListener("click", async () => {
+        const feedback = state.lastFeedback;
+        if (!feedback) return;
+        const text = `${feedback.title}\n${feedback.message}\nFix: ${feedback.fix}`;
+        try {
+          await navigator.clipboard.writeText(text);
+          addAudit({ status: "success", title: "Copied checklist error" });
+        } catch {
+          addAudit({ status: "error", title: "Copy failed", details: { error: text } });
+        }
+      });
       $("#refreshAll").addEventListener("click", () => refreshAll().then(() => addAudit({ status: "success", title: "Dashboard refreshed" })).catch((error) => addAudit({ status: "error", title: "Refresh failed", details: { error: error.message } })));
       $("#refreshHolders").addEventListener("click", () => loadHolders().then(() => addAudit({ status: "success", title: "Holders refreshed", details: { count: state.holders?.holders?.length || 0 } })));
       $("#recalcDistribution").addEventListener("click", () => renderAll());

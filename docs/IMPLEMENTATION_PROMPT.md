@@ -3,10 +3,10 @@
 Use this prompt to build the repo from this blueprint.
 
 ```text
-You are building a production-grade Solana project called BTC Pizza Day Fee Airdrops.
+You are building a production-grade Solana project called Bitcoin Pizza Strategy.
 
 Goal:
-Create a public website, Solana Anchor program, indexer, keeper, airdrop distributor, and TypeScript SDK for a Pump.fun-launched token whose creator fees are periodically converted into wrapped BTC on Solana and automatically airdropped to holders through transparent receipt records.
+Create a public website, Solana Anchor program, indexer, keeper, airdrop distributor, and TypeScript SDK for a Michael Saylor-inspired Bitcoin treasury parody token whose Pump.fun creator fees are periodically converted into wrapped BTC on Solana and automatically airdropped to holders through transparent receipt records.
 
 Repository structure:
 - apps/web: Next.js App Router, TypeScript, Tailwind, wallet connection, public dashboard, receipts feed, holder airdrop verification UI, admin/keeper UI.
@@ -21,7 +21,7 @@ Repository structure:
 
 Core product requirements:
 1. Public dashboard displays:
-   - BTC Pizza Day countdown.
+   - treasury slice countdown.
    - next buy/airdrop cycle countdown.
    - current airdrop interval and next interval.
    - total creator fees collected.

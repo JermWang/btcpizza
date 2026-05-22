@@ -51,7 +51,7 @@ Tradeoffs:
 
 - Less custom control over WBTC conversion.
 - Requires confirming launch-time support and permanence of the setting.
-- May not support the exact BTC Pizza Day narrative.
+- May not support the exact Bitcoin Pizza Strategy narrative.
 
 ### Manual Treasury Deposits
 

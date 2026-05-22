@@ -45,7 +45,7 @@ Each epoch produces a canonical JSON manifest:
 
 ```json
 {
-  "epoch": "2026-btc-pizza-day-001",
+  "epoch": "2026-bitcoin-pizza-strategy-001",
   "projectTokenMint": "...",
   "wbtcMint": "...",
   "rewardPoolAmount": "123456",

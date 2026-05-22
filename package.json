@@ -1,8 +1,8 @@
 {
-  "name": "btc-pizza-day-fee-airdrops",
+  "name": "bitcoin-pizza-strategy",
   "private": true,
   "version": "0.1.0",
-  "description": "Solana BTC Pizza Day Pump.fun creator-fee to WBTC airdrop blueprint and implementation scaffold.",
+  "description": "Solana Bitcoin Pizza Strategy parody creator-fee to WBTC airdrop blueprint and implementation scaffold.",
   "scripts": {
     "dev": "node preview/server.mjs",
     "start": "node preview/server.mjs",

@@ -1,6 +1,6 @@
-# BTC Pizza Day Fee Airdrops
+# Bitcoin Pizza Strategy
 
-Public Solana dashboard and airdrop system for a BTC Pizza Day token whose Pump.fun creator fees are periodically converted into wrapped BTC on Solana and automatically distributed to holders based on holding weight and holding time.
+Public Solana dashboard and airdrop system for a Michael Saylor-inspired Bitcoin treasury parody token whose Pump.fun creator fees are periodically converted into wrapped BTC on Solana and automatically distributed to holders based on holding weight and holding time.
 
 This repository is intentionally structured as a full project brief plus implementation scaffold. It should be treated as the source of truth before smart contract development begins.
 
@@ -14,7 +14,7 @@ The hard part is automatic distribution at scale. A Solana program cannot iterat
 
 ## Core Product
 
-- Token page with countdown to BTC Pizza Day airdrop cycles, using an expanding interval schedule.
+- Token page with countdown to Bitcoin Pizza Strategy airdrop cycles, using an expanding interval schedule.
 - Public receipt feed for creator-fee intake, swaps, WBTC vault deposits, snapshots, and airdrop batches.
 - Holder dashboard showing current estimated airdrop entitlement.
 - Airdrop verification page where holders can see whether their wallet was included and whether the WBTC transfer landed.

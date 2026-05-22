@@ -2,7 +2,7 @@
 
 ## Product Fantasy
 
-BTC Pizza Shop: a 90s console-style DeFi game where each utility function is a pizza shop station.
+Bitcoin Pizza Strategy Shop: a 90s console-style DeFi game where each utility function is a pizza shop station.
 
 ## Architecture
 
@@ -73,4 +73,3 @@ For production, replace simulated state with:
 - Real receipt rows.
 - Real holder score estimates.
 - Real airdrop manifest and batch status.
-

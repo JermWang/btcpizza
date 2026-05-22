@@ -2,7 +2,7 @@
 
 ## One-Liner
 
-BTC Pizza Day token whose Pump.fun creator fees are transparently converted into wrapped BTC on Solana and automatically airdropped to holders.
+A Michael Saylor-inspired Bitcoin treasury parody whose Pump.fun creator fees are transparently converted into wrapped BTC on Solana and automatically airdropped to holders.
 
 ## Users
 
@@ -15,7 +15,7 @@ BTC Pizza Day token whose Pump.fun creator fees are transparently converted into
 
 ### Home Dashboard
 
-- BTC Pizza Day countdown.
+- Treasury slice countdown.
 - Total creator fees collected.
 - Total wrapped BTC acquired.
 - Next buy cycle countdown.

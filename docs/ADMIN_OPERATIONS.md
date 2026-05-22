@@ -144,7 +144,7 @@ Recommended env:
 
 ```env
 DEV_CREATOR_WALLET=<creator/dev wallet public key>
-CREATOR_KEYPAIR_PATH=C:\secure\btc-pizza-creator.json
+CREATOR_KEYPAIR_PATH=C:\secure\bitcoin-pizza-strategy-creator.json
 CREATOR_FEE_DRY_RUN=false
 CREATOR_FEE_PRIORITY_FEE_SOL=0.000001
 CREATOR_FEE_POOL=pump
@@ -165,7 +165,7 @@ Required live-send env:
 SOLANA_RPC_URL=...
 PUBLIC_DISTRIBUTOR_WALLET=<must match distributor keypair public key>
 PUBLIC_WBTC_MINT=9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E
-DISTRIBUTOR_KEYPAIR_PATH=C:\secure\btc-pizza-distributor.json
+DISTRIBUTOR_KEYPAIR_PATH=C:\secure\bitcoin-pizza-strategy-distributor.json
 DISTRIBUTOR_DRY_RUN=false
 CREATE_RECIPIENT_ATAS=true
 MAX_RECIPIENTS_PER_BATCH=4
