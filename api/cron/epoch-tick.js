@@ -1,4 +1,5 @@
 const { epochTick, isCronAuthorized } = require("../../lib/rewards/epochs");
+const { runScheduledEpoch } = require("../../lib/admin-control");
 const { sendJson } = require("../../lib/vercel-api");
 
 function parseBody(request) {
@@ -24,9 +25,30 @@ module.exports = async function handler(request, response) {
   }
 
   const body = parseBody(request);
-  const result = await epochTick({
+
+  // 1. Always run the rewards engine tick for public dashboard / epochs
+  const rewardsResult = await epochTick({
     source: body.source || "cron-job.org",
     task: body.task || "epoch-tick"
   });
-  sendJson(response, result.ok === false ? 500 : 200, result);
+
+  // 2. If admin automation is armed, also run the money-ops epoch
+  let adminResult = null;
+  try {
+    adminResult = await runScheduledEpoch({
+      force: false,
+      source: body.source || "cron-job.org",
+      payload: body.payload || {}
+    });
+  } catch (adminError) {
+    adminResult = { ok: false, status: "failed", error: adminError.message || "Admin epoch failed." };
+  }
+
+  const combined = {
+    ok: rewardsResult.ok !== false,
+    rewards: rewardsResult,
+    admin: adminResult
+  };
+
+  sendJson(response, combined.ok === false ? 500 : 200, combined);
 };

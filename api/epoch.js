@@ -71,19 +71,30 @@ module.exports = async function handler(request, response) {
   try {
     const body = request.method === "POST" ? parseBody(request) : {};
     const params = requestSearchParams(request);
-    if (params.get("engine") === "rewards" || body.task === "epoch-tick") {
-      sendJson(response, 200, await epochTick({ source: body.source || "cron-job.org", task: "epoch-tick" }));
-      return;
-    }
-    const result = await runScheduledEpoch({
-      force: body.force === true || params.get("force") === "true",
-      source: body.source || "cron",
-      payload: body.payload || {}
+
+    // 1. Always run the rewards engine tick for public dashboard / epochs
+    const rewardsResult = await epochTick({
+      source: body.source || "cron-job.org",
+      task: body.task || "epoch-tick"
     });
+
+    // 2. If admin automation is armed, also run the money-ops epoch
+    let adminResult = null;
+    try {
+      adminResult = await runScheduledEpoch({
+        force: body.force === true || params.get("force") === "true",
+        source: body.source || "cron",
+        payload: body.payload || {}
+      });
+    } catch (adminError) {
+      adminResult = { ok: false, status: "failed", error: adminError.message || "Admin epoch failed." };
+    }
+
     sendJson(response, 200, {
       ok: true,
-      action: "run-due-epoch",
-      result
+      action: "epoch-tick",
+      rewards: rewardsResult,
+      admin: adminResult
     });
   } catch (error) {
     sendJson(response, error.statusCode || 500, {
