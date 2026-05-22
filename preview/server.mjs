@@ -24,6 +24,9 @@ const types = {
   ".jpeg": "image/jpeg"
 };
 
+const DEFAULT_DISTRIBUTION_SCHEDULE_SECONDS = "180,300,600,900,1800,3600,7200,14400,28800,43200,86400";
+const DEFAULT_DISTRIBUTION_SCHEDULE_LABELS = "3m,5m,10m,15m,30m,1h,2h,4h,8h,12h,24h";
+
 async function loadEnv() {
   const values = { ...process.env };
   for (const file of [".env.local", ".env"]) {
@@ -52,8 +55,36 @@ function json(response, status, body) {
   response.end(JSON.stringify(body));
 }
 
+function parseCsvNumbers(value, fallback) {
+  const parsed = String(value || fallback)
+    .split(",")
+    .map((item) => Number(item.trim()))
+    .filter((item) => Number.isFinite(item) && item > 0);
+  return parsed.length ? parsed : fallback.split(",").map(Number);
+}
+
+function parseCsvLabels(value, fallback) {
+  const parsed = String(value || fallback)
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+  return parsed.length ? parsed : fallback.split(",");
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 function publicConfig() {
   const devCreatorWallet = env.DEV_CREATOR_WALLET || "";
+  const distributionScheduleSeconds = parseCsvNumbers(
+    env.PUBLIC_DISTRIBUTION_SCHEDULE_SECONDS || env.DISTRIBUTION_SCHEDULE_SECONDS,
+    DEFAULT_DISTRIBUTION_SCHEDULE_SECONDS
+  );
+  const distributionScheduleLabels = parseCsvLabels(
+    env.PUBLIC_DISTRIBUTION_SCHEDULE_LABELS || env.DISTRIBUTION_SCHEDULE_LABELS,
+    DEFAULT_DISTRIBUTION_SCHEDULE_LABELS
+  );
   return {
     cluster: env.SOLANA_CLUSTER || "mainnet-beta",
     rpcConfigured: Boolean(env.SOLANA_RPC_URL),
@@ -70,8 +101,13 @@ function publicConfig() {
     creatorFeeClaimPublicKey: env.CREATOR_PUBLIC_KEY || devCreatorWallet,
     pumpPortalLocalApiUrl: env.PUMPPORTAL_LOCAL_API_URL || "https://pumpportal.fun/api/trade-local",
     holderIndexerUrlConfigured: Boolean(env.HOLDER_INDEXER_API_URL),
-    distributionIntervalSeconds: Number(env.PUBLIC_DISTRIBUTION_INTERVAL_SECONDS || env.DISTRIBUTION_INTERVAL_SECONDS || 600),
-    distributionIntervalLabel: env.PUBLIC_DISTRIBUTION_INTERVAL_LABEL || "10 minutes",
+    distributionStartedAt: env.PUBLIC_DISTRIBUTION_STARTED_AT || env.DISTRIBUTION_STARTED_AT || "",
+    distributionScheduleSeconds,
+    distributionScheduleLabels,
+    distributionIntervalSeconds: Number(
+      env.PUBLIC_DISTRIBUTION_INTERVAL_SECONDS || env.DISTRIBUTION_INTERVAL_SECONDS || distributionScheduleSeconds[2] || 600
+    ),
+    distributionIntervalLabel: env.PUBLIC_DISTRIBUTION_INTERVAL_LABEL || distributionScheduleLabels[2] || "10m",
     solscanBaseUrl: env.PUBLIC_SOLSCAN_BASE_URL || "https://solscan.io",
     coingeckoApiUrl: env.PUBLIC_COINGECKO_API_URL || "https://api.coingecko.com/api/v3"
   };
@@ -82,26 +118,57 @@ async function rpc(method, params) {
     throw new Error("SOLANA_RPC_URL is not configured");
   }
 
-  const result = await fetch(env.SOLANA_RPC_URL, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      jsonrpc: "2.0",
-      id: "btc-pizza-day",
-      method,
-      params
-    })
-  });
+  const retryCount = Number(env.SOLANA_RPC_RETRY_COUNT || 4);
+  const retryBaseMs = Number(env.SOLANA_RPC_RETRY_BASE_MS || 650);
+  let lastError;
 
-  if (!result.ok) {
-    throw new Error(`RPC request failed: ${result.status}`);
+  for (let attempt = 0; attempt <= retryCount; attempt += 1) {
+    try {
+      const result = await fetch(env.SOLANA_RPC_URL, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: "btc-pizza-day",
+          method,
+          params
+        })
+      });
+
+      if (!result.ok) {
+        const retryAfter = Number(result.headers.get("retry-after"));
+        const retryable = result.status === 429 || result.status >= 500;
+        if (retryable && attempt < retryCount) {
+          const delay = Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter * 1000 : retryBaseMs * 2 ** attempt;
+          await sleep(delay);
+          continue;
+        }
+        const error = new Error(`RPC request failed: ${result.status}`);
+        error.retryable = retryable;
+        throw error;
+      }
+
+      const body = await result.json();
+      if (body.error) {
+        const retryable = body.error.code === 429 || body.error.code === -32005;
+        if (retryable && attempt < retryCount) {
+          await sleep(retryBaseMs * 2 ** attempt);
+          continue;
+        }
+        const error = new Error(body.error.message || "RPC returned an error");
+        error.retryable = retryable;
+        throw error;
+      }
+      return body.result;
+    } catch (error) {
+      lastError = error;
+      if (error?.retryable === false) throw error;
+      if (attempt >= retryCount) break;
+      await sleep(retryBaseMs * 2 ** attempt);
+    }
   }
 
-  const body = await result.json();
-  if (body.error) {
-    throw new Error(body.error.message || "RPC returned an error");
-  }
-  return body.result;
+  throw lastError || new Error("RPC request failed");
 }
 
 async function feeReceipts() {
@@ -114,14 +181,12 @@ async function feeReceipts() {
     };
   }
 
-  const [signatures, lamports, wsol] = await Promise.all([
-    rpc("getSignaturesForAddress", [
-      config.feeWallet,
-      { limit: Number(env.FEE_RECEIPT_LIMIT || 10) }
-    ]),
-    rpc("getBalance", [config.feeWallet]),
-    tokenBalanceForOwner({ rpc, owner: config.feeWallet, mint: config.wsolMint })
+  const signatures = await rpc("getSignaturesForAddress", [
+    config.feeWallet,
+    { limit: Number(env.FEE_RECEIPT_LIMIT || 10) }
   ]);
+  const lamports = await rpc("getBalance", [config.feeWallet]);
+  const wsol = await tokenBalanceForOwner({ rpc, owner: config.feeWallet, mint: config.wsolMint });
 
   return {
     configured: true,

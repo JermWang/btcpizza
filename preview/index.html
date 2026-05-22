@@ -541,7 +541,7 @@
 
       .slice-schedule {
         display: grid;
-        grid-template-columns: repeat(6, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(42px, 1fr));
         gap: 7px;
         margin-top: 12px;
       }
@@ -556,6 +556,7 @@
         font-size: 11px;
         font-weight: 1000;
         text-transform: uppercase;
+        white-space: nowrap;
       }
 
       .slice-step.done {
@@ -1368,14 +1369,8 @@
             <h2>Next Slice</h2>
             <div class="countdown" id="countdown">08:42</div>
             <div class="metric"><span>Current Interval</span><strong class="green" id="interval">10 minutes</strong></div>
-            <div class="slice-schedule">
-              <div class="slice-step done">3m</div>
-              <div class="slice-step done">5m</div>
-              <div class="slice-step active">10m</div>
-              <div class="slice-step">15m</div>
-              <div class="slice-step">30m</div>
-              <div class="slice-step">1h</div>
-            </div>
+            <div class="metric"><span>Epoch Status</span><strong class="green" id="cycleStatus">Syncing</strong></div>
+            <div class="slice-schedule" id="sliceSchedule" aria-label="Distribution schedule"></div>
           </article>
 
           <article class="art-panel panel-flow" id="flow">
@@ -1503,12 +1498,15 @@
         config: null,
         holderSnapshot: null,
         feeReceipts: [],
-        remaining: 0
+        remaining: 0,
+        cycle: null
       };
 
       const poolEl = document.querySelector("#pool");
       const countdownEl = document.querySelector("#countdown");
       const intervalEl = document.querySelector("#interval");
+      const cycleStatusEl = document.querySelector("#cycleStatus");
+      const sliceScheduleEl = document.querySelector("#sliceSchedule");
       const creatorFeesEl = document.querySelector("#creatorFees");
       const lastReceiptEl = document.querySelector("#lastReceipt");
       const scoreEl = document.querySelector("#score");
@@ -1584,25 +1582,106 @@
 
       function formatTime(totalSeconds) {
         const safeSeconds = Math.max(0, totalSeconds);
-        const minutes = Math.floor(safeSeconds / 60).toString().padStart(2, "0");
+        const hours = Math.floor(safeSeconds / 3600);
+        const minutes = Math.floor((safeSeconds % 3600) / 60).toString().padStart(2, "0");
         const seconds = Math.floor(safeSeconds % 60).toString().padStart(2, "0");
-        return `${minutes}:${seconds}`;
+        return hours > 0 ? `${hours}:${minutes}:${seconds}` : `${minutes}:${seconds}`;
       }
 
-      function distributionIntervalSeconds() {
-        const configured = Number(state.config?.distributionIntervalSeconds);
-        return Number.isFinite(configured) && configured > 0 ? configured : 600;
+      function distributionSchedule() {
+        const configured = Array.isArray(state.config?.distributionScheduleSeconds)
+          ? state.config.distributionScheduleSeconds
+          : [];
+        const seconds = configured
+          .map((item) => Number(item))
+          .filter((item) => Number.isFinite(item) && item > 0);
+        const labels = Array.isArray(state.config?.distributionScheduleLabels)
+          ? state.config.distributionScheduleLabels
+          : [];
+        const fallbackSeconds = seconds.length ? seconds : [180, 300, 600, 900, 1800, 3600, 7200, 14400, 28800, 43200, 86400];
+        const fallbackLabels = ["3m", "5m", "10m", "15m", "30m", "1h", "2h", "4h", "8h", "12h", "24h"];
+        return fallbackSeconds.map((secondsValue, index) => ({
+          seconds: secondsValue,
+          label: labels[index] || fallbackLabels[index] || `${Math.round(secondsValue / 60)}m`
+        }));
       }
 
-      function secondsUntilNextDistribution() {
-        const interval = distributionIntervalSeconds();
-        const elapsed = Math.floor(Date.now() / 1000) % interval;
-        return elapsed === 0 ? interval : interval - elapsed;
+      function distributionStartMs() {
+        const configured = Date.parse(state.config?.distributionStartedAt || "");
+        if (Number.isFinite(configured)) return configured;
+        const key = "btcPizzaDistributionStartedAt";
+        const stored = Date.parse(localStorage.getItem(key) || "");
+        if (Number.isFinite(stored)) return stored;
+        const now = Date.now();
+        localStorage.setItem(key, new Date(now).toISOString());
+        return now;
+      }
+
+      function distributionCycle(nowMs = Date.now()) {
+        const schedule = distributionSchedule();
+        const startMs = distributionStartMs();
+        const elapsed = Math.max(0, Math.floor((nowMs - startMs) / 1000));
+        let consumed = 0;
+        let epochIndex = 0;
+        let scheduleIndex = 0;
+
+        for (let index = 0; index < schedule.length; index += 1) {
+          const interval = schedule[index].seconds;
+          if (elapsed < consumed + interval) {
+            scheduleIndex = index;
+            epochIndex = index;
+            const elapsedInInterval = elapsed - consumed;
+            return {
+              schedule,
+              scheduleIndex,
+              epochIndex,
+              interval,
+              label: schedule[index].label,
+              remaining: interval - elapsedInInterval,
+              progress: elapsedInInterval / interval,
+              repeatsDaily: false
+            };
+          }
+          consumed += interval;
+        }
+
+        const lastIndex = schedule.length - 1;
+        const lastInterval = schedule[lastIndex].seconds;
+        const repeatedElapsed = elapsed - consumed;
+        const repeatCount = Math.floor(repeatedElapsed / lastInterval);
+        const elapsedInInterval = repeatedElapsed % lastInterval;
+        return {
+          schedule,
+          scheduleIndex: lastIndex,
+          epochIndex: lastIndex + repeatCount + 1,
+          interval: lastInterval,
+          label: schedule[lastIndex].label,
+          remaining: lastInterval - elapsedInInterval,
+          progress: elapsedInInterval / lastInterval,
+          repeatsDaily: true
+        };
+      }
+
+      function renderSliceSchedule(cycle) {
+        if (!sliceScheduleEl || !cycle?.schedule) return;
+        sliceScheduleEl.innerHTML = cycle.schedule
+          .map((step, index) => {
+            const status = index < cycle.scheduleIndex ? "done" : index === cycle.scheduleIndex ? "active" : "";
+            return `<div class="slice-step ${status}">${escapeHtml(step.label)}</div>`;
+          })
+          .join("");
       }
 
       function syncCountdown() {
-        state.remaining = secondsUntilNextDistribution();
+        const cycle = distributionCycle();
+        state.cycle = cycle;
+        state.remaining = cycle.remaining;
         countdownEl.textContent = formatTime(state.remaining);
+        intervalEl.textContent = cycle.label;
+        cycleStatusEl.textContent = cycle.repeatsDaily
+          ? `Epoch ${cycle.epochIndex + 1} daily`
+          : `Epoch ${cycle.epochIndex + 1}`;
+        renderSliceSchedule(cycle);
       }
 
       function formatAmount(value, suffix = "") {
@@ -1612,7 +1691,6 @@
       }
 
       function renderShell() {
-        intervalEl.textContent = state.config?.distributionIntervalLabel || "10 minutes";
         syncCountdown();
 
         const contractAddress = state.config?.contractAddress || "";
