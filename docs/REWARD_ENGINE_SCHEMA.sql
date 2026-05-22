@@ -7,7 +7,7 @@ create table if not exists reward_epochs (
   starts_at timestamptz not null,
   ends_at timestamptz not null,
   interval_seconds integer not null,
-  holder_cap integer not null default 128,
+  holder_cap integer not null default 5,
   token_mint text not null,
   reward_mint text not null,
   fee_wallet text,

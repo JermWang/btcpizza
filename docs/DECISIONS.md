@@ -41,7 +41,7 @@ Default:
 
 ```text
 interval_n = 3 minutes * 2^epoch_index
-holder_cap_n = 128 holders * 2^epoch_index
+holder_cap_n = 5 holders * 2^epoch_index
 ```
 
 Both values continue doubling unless admin/governance changes the schedule.

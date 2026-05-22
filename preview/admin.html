@@ -1054,11 +1054,11 @@
               <label class="field"><span class="label">Reward pool WBTC</span><input id="rewardPool" inputmode="decimal" placeholder="0.00000000" /></label>
               <label class="field"><span class="label">Minimum payout</span><input id="minPayout" inputmode="decimal" placeholder="0.00000001" /></label>
               <label class="field"><span class="label">Batch size</span><input id="batchSize" inputmode="numeric" placeholder="12" /></label>
-              <label class="field"><span class="label">Round cap</span><input id="roundCap" inputmode="numeric" placeholder="128" /></label>
+              <label class="field"><span class="label">Round cap</span><input id="roundCap" inputmode="numeric" placeholder="5" /></label>
               <label class="field"><span class="label">Slippage bps</span><input id="slippageBps" inputmode="numeric" placeholder="100" /></label>
               <label class="field"><span class="label">Snapshot ID</span><input id="snapshotId" placeholder="optional" /></label>
             </div>
-            <label class="field" style="margin-top:10px;"><span class="label">Raw JSON payload</span><textarea id="payload" spellcheck="false" placeholder='{"wallet":"","roundCap":128}'></textarea></label>
+            <label class="field" style="margin-top:10px;"><span class="label">Raw JSON payload</span><textarea id="payload" spellcheck="false" placeholder='{"wallet":"","roundCap":5}'></textarea></label>
             <details class="advanced-actions">
               <summary>Advanced manual actions</summary>
               <div class="advanced-body">
@@ -1707,7 +1707,7 @@
 
       function computeDistribution() {
         const holders = state.holders?.holders || [];
-        const roundCap = Number(roundCapEl.value || state.holders?.roundCap || state.status?.weighting?.defaultRoundCap || 128);
+        const roundCap = Number(roundCapEl.value || state.holders?.roundCap || state.status?.weighting?.defaultRoundCap || 5);
         const rewardPool = Number(rewardPoolEl.value || state.wbtc?.balance || 0);
         const minPayout = Number(minPayoutEl.value || state.status?.weighting?.minPayout || 0);
         const candidates = holders.slice(0, roundCap).map((holder, index) => {

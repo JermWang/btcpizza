@@ -48,7 +48,7 @@ Recommended default:
 ```text
 base_interval = 3m
 interval_multiplier = 2
-base_holder_cap = 128
+base_holder_cap = 5
 holder_cap_multiplier = 2
 ```
 

@@ -1657,7 +1657,7 @@
             </div>
             <div class="next-metrics">
               <div class="metric"><span>Interval</span><strong class="green" id="interval">10 minutes</strong></div>
-              <div class="metric"><span>Holder Cap</span><strong class="green" id="epochHolderCap">128</strong></div>
+              <div class="metric"><span>Holder Cap</span><strong class="green" id="epochHolderCap">5</strong></div>
               <div class="metric status"><span>Epoch Status</span><strong class="green" id="cycleStatus">Syncing</strong></div>
             </div>
             <div class="slice-schedule" id="sliceSchedule" aria-label="Distribution schedule"></div>
@@ -1705,7 +1705,7 @@
           <h2>Holders</h2>
           <div class="info-grid">
             <div class="info-item"><b>Reward Share</b><span>Every wallet's slice is based on its share of the token supply held at the epoch snapshot.</span></div>
-            <div class="info-item"><b>Visible Cutoff</b><span>The board shows the balance needed to make the top 128 snapshot.</span></div>
+            <div class="info-item"><b>Visible Cutoff</b><span>The board shows the balance needed to make the current holder-cap snapshot.</span></div>
             <div class="info-item"><b>Proof</b><span>Snapshots, formula inputs, manifest hash, and transfer txs stay public.</span></div>
           </div>
           <div class="draw-board">
@@ -1722,7 +1722,7 @@
               <h3>How to get a bigger slice</h3>
               <ul class="boost-list">
                 <li><span>1</span><div><b>Hold more.</b> Reward share is wallet balance / total eligible snapshot balance.</div></li>
-                <li><span>2</span><div><b>Make the cut.</b> The top 128 wallets at snapshot time are included first.</div></li>
+                <li><span>2</span><div><b>Make the cut.</b> Wallets inside the current holder cap at snapshot time are included first.</div></li>
                 <li><span>3</span><div><b>Stay ready.</b> WBTC ATA readiness keeps eligible wallets from getting skipped.</div></li>
               </ul>
             </div>
@@ -1914,7 +1914,7 @@
         const holderCaps = Array.isArray(state.config?.distributionHolderCaps) ? state.config.distributionHolderCaps : [];
         const baseInterval = Number(state.config?.distributionBaseIntervalSeconds || secondsList[0] || 180);
         const intervalMultiplier = Number(state.config?.distributionIntervalMultiplier || 2);
-        const baseHolderCap = Number(state.config?.distributionBaseHolderCap || holderCaps[0] || 128);
+        const baseHolderCap = Number(state.config?.distributionBaseHolderCap || holderCaps[0] || 5);
         const holderCapMultiplier = Number(state.config?.distributionHolderCapMultiplier || 2);
         const secondsValue = Number(secondsList[index]) || boundedPower(baseInterval, intervalMultiplier, index);
         const holderCap = Number(holderCaps[index]) || boundedPower(baseHolderCap, holderCapMultiplier, index);
@@ -1952,7 +1952,7 @@
             epochIndex: Number(rewardEpoch.epoch_index || 0),
             interval,
             label: formatDurationLabel(interval),
-            holderCap: Number(rewardEpoch.holder_cap || 128),
+            holderCap: Number(rewardEpoch.holder_cap || 5),
             status: rewardEpoch.status,
             stage: rewardEpoch.stage,
             remaining,
