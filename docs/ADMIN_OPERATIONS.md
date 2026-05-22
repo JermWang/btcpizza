@@ -6,7 +6,7 @@ The admin page lives at `/admin` and talks to `/api/admin`.
 
 Set either `ADMIN_PASSWORD` or `ADMIN_API_TOKEN`. The static admin page keeps the password in `sessionStorage` for the current browser session and sends it to the API as `x-admin-password`. The API refuses every admin request when no admin secret is configured.
 
-For Vercel/mainnet, add the variables from `.env.mainnet.example` to the project environment. At minimum, the live admin page needs `ADMIN_PASSWORD` or `ADMIN_API_TOKEN`, `DATABASE_URL`, `SOLANA_RPC_URL` or `HELIUS_RPC_URL`, and the public wallet/mint values. After changing Vercel env vars, redeploy the project so `/api/admin` receives the new server environment.
+For Vercel/mainnet, add the variables from `.env.mainnet.example` to the project environment. At minimum, the live admin page needs `ADMIN_PASSWORD` or `ADMIN_API_TOKEN`, `DATABASE_URL`, `SOLANA_RPC_URL`, and the public wallet/mint values. After changing Vercel env vars, redeploy the project so `/api/admin` receives the new server environment.
 
 ## Direct Built-In Actions
 
@@ -120,9 +120,8 @@ For direct holder snapshots through an indexed RPC, set:
 ```env
 HOLDER_SNAPSHOT_PROVIDER=helius
 ENABLE_RPC_HOLDER_FALLBACK=true
-HELIUS_RPC_URL=https://mainnet.helius-rpc.com/?api-key=YOUR_KEY
+SOLANA_RPC_URL=https://solana-mainnet.gateway.tatum.io
 TOKEN_MINT=...
-SOLANA_RPC_URL=...
 ```
 
 Use a paid or dedicated Solana RPC for large holder lists. Public RPC nodes may reject or throttle `getProgramAccounts`, and many do not expose Token-2022 account indexes.
