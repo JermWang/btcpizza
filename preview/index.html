@@ -2265,10 +2265,27 @@
         roundCapEl.textContent = snapshot?.roundCap?.toLocaleString?.() || "--";
         holderCutoffEl.textContent = snapshot?.cutoffScore?.toLocaleString?.() || "--";
         eligibleShownEl.textContent = snapshot?.eligibleCount?.toLocaleString?.() || "--";
-        snapshotAgeEl.textContent = snapshot?.updatedAt ? new Date(snapshot.updatedAt).toLocaleTimeString() : "--";
-        holderSourceEl.textContent = snapshot ? (snapshot.fallback ? "Unavailable" : snapshot.sourceLabel || "Live holder indexer") : "Loading holders";
-        holderSourceEl.classList.toggle("fallback", !snapshot || Boolean(snapshot.fallback));
-        holderSourceEl.title = snapshot?.notice || snapshot?.fallbackReason || "";
+        snapshotAgeEl.textContent = snapshot?.updatedAt
+          ? new Date(snapshot.updatedAt).toLocaleTimeString()
+          : _lastLoadedAt ? `API ${new Date(_lastLoadedAt).toLocaleTimeString()}` : "--";
+
+        if (snapshot?.degraded) {
+          holderSourceEl.textContent = snapshot.message || "Showing last confirmed snapshot. RPC refresh is catching up.";
+          holderSourceEl.classList.add("fallback");
+          holderSourceEl.title = snapshot.last_successful_snapshot_at
+            ? `Last good: ${new Date(snapshot.last_successful_snapshot_at).toLocaleTimeString()}`
+            : "";
+        } else if (snapshot?.reason === "no_snapshot_yet") {
+          holderSourceEl.textContent = "First epoch not closed yet";
+          holderSourceEl.classList.add("fallback");
+          holderSourceEl.title = "";
+        } else {
+          holderSourceEl.textContent = snapshot
+            ? (snapshot.fallback ? "Unavailable" : snapshot.sourceLabel || "Stored snapshot")
+            : "Loading holders";
+          holderSourceEl.classList.toggle("fallback", !snapshot || Boolean(snapshot.fallback));
+          holderSourceEl.title = snapshot?.notice || snapshot?.fallbackReason || "";
+        }
 
         holderTableEl.innerHTML = `
           <div class="holder-row header">
@@ -2294,7 +2311,17 @@
                     `;
                   })
                   .join("")
-              : `<div class="holder-empty">${snapshot?.configured === false ? snapshot.reason : "No holder snapshot available yet."}</div>`
+              : `<div class="holder-empty">${
+                  snapshot?.reason === "no_snapshot_yet"
+                    ? "First holder snapshot begins when the first reward epoch closes."
+                    : state.rewardsStatus?.current_epoch?.status === "snapshotting"
+                      ? "Cutting slices. Holder board will update after the snapshot finalizes."
+                      : snapshot?.degraded
+                        ? (snapshot.message || "Showing last confirmed snapshot. RPC refresh is catching up.")
+                        : snapshot?.configured === false
+                          ? (snapshot.reason || "No holder snapshot available yet.")
+                          : "No holder snapshot available yet."
+                }</div>`
           }
         `;
       }
@@ -2399,29 +2426,71 @@
         renderShell();
       }
 
+      // Polling state — one AbortController per load cycle, overlap guard, visibility awareness.
+      let _chainAbort = null;
+      let _chainBusy = false;
+      let _chainIntervalId = null;
+      let _lastLoadedAt = 0;
+
+      function startPollingInterval() {
+        if (_chainIntervalId) window.clearInterval(_chainIntervalId);
+        // 15 s when visible, 60 s when hidden — avoids piling up requests on background tabs.
+        const delay = document.hidden ? 60_000 : 15_000;
+        _chainIntervalId = window.setInterval(() => {
+          // Skip hidden-tab ticks that fired too soon (transition race).
+          if (document.hidden && Date.now() - _lastLoadedAt < 55_000) return;
+          loadChainData();
+        }, delay);
+      }
+
+      document.addEventListener("visibilitychange", () => {
+        startPollingInterval();
+        if (!document.hidden) loadChainData(); // Refresh immediately when user returns to tab.
+      });
+
       async function loadChainData() {
-        if (!state.config) await loadConfig();
-        await Promise.allSettled([loadRewardsStatus(), loadHolderSnapshot(), loadRewardReceipts(), loadOperationsSummary()]);
+        if (_chainBusy) return; // Overlap guard: skip if previous load is still in flight.
+        if (!state.config) await loadConfig().catch(() => {});
+        _chainBusy = true;
+        if (_chainAbort) _chainAbort.abort(); // Cancel any stale in-flight requests.
+        _chainAbort = new AbortController();
+        const signal = _chainAbort.signal;
+        try {
+          await Promise.allSettled([
+            loadRewardsStatus(signal),
+            loadHolderSnapshot(signal),
+            loadRewardReceipts(signal),
+            loadOperationsSummary(signal)
+          ]);
+          _lastLoadedAt = Date.now();
+        } finally {
+          _chainBusy = false;
+        }
         renderReceipts();
       }
 
-      async function loadRewardsStatus() {
-        const response = await fetch("/api/rewards/status", { cache: "no-store" });
-        state.rewardsStatus = await response.json();
-        const status = state.rewardsStatus;
-        const epoch = status.current_epoch || {};
-        state.wbtcPoolBalance = Number(status.total_wbtc_pool || 0);
-        poolEl.textContent = status.total_wbtc_pool && status.total_wbtc_pool !== "0" ? `${status.total_wbtc_pool} WBTC` : "--";
-        creatorFeesEl.textContent = status.creator_fees_collected === "cache-first" ? "--" : status.creator_fees_collected || "--";
-        feeStatusEl.textContent = epoch.status === "scheduled" ? "Watching" : "Synced";
-        swapStatusEl.textContent = Number(state.wbtcPoolBalance || 0) > 0 ? "Ready" : "Waiting";
-        batchEl.textContent = epoch.status === "distributing" ? "Delivering" : epoch.status === "completed" ? "Done" : "Queued";
-        renderShell();
+      async function loadRewardsStatus(signal) {
+        try {
+          const response = await fetch("/api/rewards/status", { cache: "no-store", signal });
+          if (!response.ok) return;
+          state.rewardsStatus = await response.json();
+          const status = state.rewardsStatus;
+          const epoch = status.current_epoch || {};
+          state.wbtcPoolBalance = Number(status.total_wbtc_pool || 0);
+          poolEl.textContent = status.total_wbtc_pool && status.total_wbtc_pool !== "0" ? `${status.total_wbtc_pool} WBTC` : "--";
+          creatorFeesEl.textContent = status.creator_fees_collected === "cache-first" ? "--" : status.creator_fees_collected || "--";
+          feeStatusEl.textContent = epoch.status === "scheduled" ? "Watching" : "Synced";
+          swapStatusEl.textContent = Number(state.wbtcPoolBalance || 0) > 0 ? "Ready" : "Waiting";
+          batchEl.textContent = epoch.status === "distributing" ? "Delivering" : epoch.status === "completed" ? "Done" : "Queued";
+          renderShell();
+        } catch (error) {
+          if (error.name === "AbortError") return;
+        }
       }
 
-      async function loadOperationsSummary() {
+      async function loadOperationsSummary(signal) {
         try {
-          const response = await fetch("/api/operations", { cache: "no-store" });
+          const response = await fetch("/api/operations", { cache: "no-store", signal });
           state.operations = await response.json();
           renderOperations();
         } catch {
@@ -2429,22 +2498,33 @@
         }
       }
 
-      async function loadHolderSnapshot() {
-        const params = new URLSearchParams();
-        const walletQuery = holderSearchEl.value.trim();
-        if (walletQuery) params.set("wallet", walletQuery);
-        const response = await fetch(`/api/rewards/holders?${params}`, { cache: "no-store" });
-        state.holderSnapshot = await response.json();
-        renderHolderViews();
-        syncCountdown();
-        holderStatusEl.textContent = state.holderSnapshot.rows?.length ? "Snapshot" : "Pending";
+      async function loadHolderSnapshot(signal) {
+        try {
+          const params = new URLSearchParams();
+          const walletQuery = holderSearchEl.value.trim();
+          if (walletQuery) params.set("wallet", walletQuery);
+          const response = await fetch(`/api/rewards/holders?${params}`, { cache: "no-store", signal });
+          if (!response.ok) return;
+          state.holderSnapshot = await response.json();
+          renderHolderViews();
+          syncCountdown();
+          const snap = state.holderSnapshot;
+          holderStatusEl.textContent = snap?.rows?.length ? (snap.degraded ? "Cached" : "Snapshot") : "Pending";
+        } catch (error) {
+          if (error.name === "AbortError") return;
+        }
       }
 
-      async function loadRewardReceipts() {
-        const response = await fetch("/api/rewards/receipts", { cache: "no-store" });
-        const body = await response.json();
-        state.rewardReceipts = body.receipts || [];
-        if (state.rewardReceipts[0]?.created_at) lastReceiptEl.textContent = new Date(state.rewardReceipts[0].created_at).toLocaleTimeString();
+      async function loadRewardReceipts(signal) {
+        try {
+          const response = await fetch("/api/rewards/receipts", { cache: "no-store", signal });
+          if (!response.ok) return;
+          const body = await response.json();
+          state.rewardReceipts = body.receipts || [];
+          if (state.rewardReceipts[0]?.created_at) lastReceiptEl.textContent = new Date(state.rewardReceipts[0].created_at).toLocaleTimeString();
+        } catch (error) {
+          if (error.name === "AbortError") return;
+        }
       }
 
       async function copyContractAddress() {
@@ -2511,7 +2591,7 @@
       loadConfig().then(loadChainData);
       updateMarketTicker();
       window.setInterval(updateMarketTicker, 60_000);
-      window.setInterval(loadChainData, 30_000);
+      startPollingInterval();
       window.setInterval(syncCountdown, 1000);
     </script>
   </body>
