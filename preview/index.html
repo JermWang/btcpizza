@@ -714,17 +714,15 @@
       }
 
       .receipt-row {
-        position: absolute;
-        z-index: 3;
+        position: relative;
+        z-index: 2;
         display: grid;
-        grid-template-columns: repeat(5, minmax(0, 1fr)) 146px;
-        gap: 12px;
-        left: 1.2%;
-        right: 1.2%;
-        bottom: 2.4%;
-        margin: 0;
+        grid-template-columns: repeat(5, minmax(150px, 1fr)) minmax(220px, 320px);
+        gap: 14px;
+        width: min(1480px, calc(100% - 48px));
+        margin: 52px auto 72px;
         align-items: stretch;
-        padding: 42px 20px 18px;
+        padding: 54px 22px 22px;
         border: 1px solid rgba(255, 242, 190, 0.2);
         border-radius: 20px;
         background:
@@ -734,6 +732,7 @@
           inset 0 1px 0 rgba(255, 255, 255, 0.1),
           0 18px 44px rgba(0, 0, 0, 0.44);
         backdrop-filter: blur(18px) saturate(1.2);
+        scroll-margin-top: 124px;
       }
 
       .receipt-row::before {
@@ -834,6 +833,7 @@
         display: grid;
         gap: 10px;
         align-content: end;
+        grid-column: 6;
       }
 
       .button {
@@ -848,6 +848,7 @@
 
       .empty-state {
         display: grid;
+        grid-column: 1 / span 5;
         align-content: center;
         min-height: 82px;
         border: 1px dashed rgba(255, 242, 190, 0.24);
@@ -1346,7 +1347,6 @@
         }
 
         .dashboard,
-        .receipt-row,
         .lower-info {
           position: relative;
           left: auto;
@@ -1391,7 +1391,15 @@
 
         .receipt-row {
           width: calc(100% - 32px);
-          margin: 16px;
+          margin: 28px 16px 52px;
+          grid-template-columns: 1fr;
+          padding: 54px 18px 18px;
+        }
+
+        .receipt,
+        .empty-state,
+        .controls {
+          grid-column: 1;
         }
 
         .side-sign,
@@ -1529,14 +1537,14 @@
             </div>
           </article>
         </section>
+      </section>
 
-        <section class="receipt-row" id="receipts" aria-live="polite">
-          <div class="empty-state" id="receiptEmpty">Fee wallet is being watched. Confirmed fee receipts will appear here as soon as Solana returns them.</div>
-          <div class="controls">
-            <button class="button primary" id="refreshData" type="button">Refresh chain data</button>
-            <a class="button secondary" href="#holders">Search holders</a>
-          </div>
-        </section>
+      <section class="receipt-row" id="receipts" aria-live="polite">
+        <div class="empty-state" id="receiptEmpty">Fee wallet is being watched. Confirmed fee receipts will appear here as soon as Solana returns them.</div>
+        <div class="controls">
+          <button class="button primary" id="refreshData" type="button">Refresh chain data</button>
+          <a class="button secondary" href="#holders">Search holders</a>
+        </div>
       </section>
 
       <section class="info-pages" aria-label="BTC Pizza Day information pages">
