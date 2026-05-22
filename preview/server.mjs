@@ -90,7 +90,7 @@ createServer(async (request, response) => {
 
     try {
       if (request.method === "GET") {
-        json(response, 200, adminStatus());
+        json(response, 200, await adminStatus());
         return;
       }
 

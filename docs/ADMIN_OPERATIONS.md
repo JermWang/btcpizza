@@ -6,7 +6,7 @@ The admin page lives at `/admin` and talks to `/api/admin`.
 
 Set either `ADMIN_PASSWORD` or `ADMIN_API_TOKEN`. The static admin page keeps the password in `sessionStorage` for the current browser session and sends it to the API as `x-admin-password`. The API refuses every admin request when no admin secret is configured.
 
-For Vercel/mainnet, add the variables from `.env.mainnet.example` to the project environment. At minimum, the live admin page needs `ADMIN_PASSWORD` or `ADMIN_API_TOKEN`, `SOLANA_RPC_URL` or `HELIUS_RPC_URL`, and the public wallet/mint values. After changing Vercel env vars, redeploy the project so `/api/admin` receives the new server environment.
+For Vercel/mainnet, add the variables from `.env.mainnet.example` to the project environment. At minimum, the live admin page needs `ADMIN_PASSWORD` or `ADMIN_API_TOKEN`, `DATABASE_URL`, `SOLANA_RPC_URL` or `HELIUS_RPC_URL`, and the public wallet/mint values. After changing Vercel env vars, redeploy the project so `/api/admin` receives the new server environment.
 
 ## Direct Built-In Actions
 
@@ -181,15 +181,24 @@ Recommended first live test:
 
 Use small `MAX_RECIPIENTS_PER_BATCH` values first because creating recipient ATAs and transferring in the same transaction can exceed Solana transaction size if the batch is too large.
 
-## Durable Local Storage
+## Durable Admin Storage
 
-The admin server writes append-only audit entries plus JSON records for receipts, snapshots, manifests, and batches under:
+For production, set `DATABASE_URL` to a Neon/Postgres connection string. The admin backend creates these tables automatically on first use:
+
+```sql
+admin_records
+admin_audit_events
+```
+
+When `DATABASE_URL` is set, snapshots, locked manifests, prepared batches, receipts, and audit events persist in Postgres. The admin status response reports `storage.backend = "postgres"` so operators can confirm the durable path is active.
+
+Without `DATABASE_URL`, the admin server writes append-only audit entries plus JSON records for receipts, snapshots, manifests, and batches under:
 
 ```env
 ADMIN_STORAGE_PATH=./.admin-data
 ```
 
-This is enough for local demo and operational proof, and it prevents accidental duplicate manifest/batch preparation by hashing the locked manifest and batch window. For production deployment, point `ADMIN_STORAGE_PATH` at persistent disk or replace `lib/admin-store.js` with database storage.
+This is enough for local demo and operational proof, and it prevents accidental duplicate manifest/batch preparation by hashing the locked manifest and batch window. For production deployment, use `DATABASE_URL` so Vercel serverless restarts do not lose launch state.
 
 Stored objects:
 

@@ -22,7 +22,7 @@ module.exports = async function handler(request, response) {
 
   try {
     if (request.method === "GET") {
-      sendJson(response, 200, adminStatus());
+      sendJson(response, 200, await adminStatus());
       return;
     }
 
