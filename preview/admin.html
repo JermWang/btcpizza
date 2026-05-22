@@ -1520,7 +1520,7 @@
       const errorFixes = [
         [/ADMIN_PASSWORD|ADMIN_API_TOKEN/i, "Set ADMIN_PASSWORD or ADMIN_API_TOKEN in the server environment, redeploy, then unlock again."],
         [/Admin password is incorrect/i, "Re-enter the admin password or API token. The page sends it as x-admin-password."],
-        [/SOLANA_RPC_URL|RPC.*not configured|RPC.*not healthy/i, "Set SOLANA_RPC_URL to a healthy Solana RPC endpoint, then rerun the checklist."],
+        [/SOLANA_RPC_URL|HELIUS_RPC_URL|RPC/i, "Set SOLANA_RPC_URL or HELIUS_RPC_URL to a healthy Solana endpoint, then rerun the checklist."],
         [/TOKEN_MINT|PUBLIC_TOKEN_MINT/i, "Set TOKEN_MINT to the live token mint before scanning holders."],
         [/WALLET|PUBLIC_FEE_WALLET/i, "Set WALLET to the creator-fee wallet that receives fee income and controls distribution by default."],
         [/REWARD_MINT|PUBLIC_WBTC_MINT/i, "Set REWARD_MINT to the WBTC mint used for holder payouts."],
