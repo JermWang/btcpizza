@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Bitcoin Pizza Strategy - Admin Operations</title>
+    <title>Jensen Strategy Admin</title>
     <meta name="robots" content="noindex,nofollow" />
     <meta name="theme-color" content="#0b0d10" />
     <link rel="icon" type="image/png" href="/assets/pizza-slice-favicon-256.png" />
@@ -950,7 +950,7 @@
     <section class="login" id="loginScreen">
       <form class="login-card" id="loginForm">
         <h1>Admin Operations</h1>
-        <p>Unlock the creator-fee, WBTC purchase, snapshot, and distribution console.</p>
+        <p>Unlock the creator-fee, NVDAx distribution, snapshot, and epoch console.</p>
         <div class="field">
           <span class="label">Admin password or API token</span>
           <input id="password" type="password" autocomplete="current-password" required />
@@ -966,7 +966,7 @@
       <aside class="side">
         <a class="brand" href="/">
           <span class="brand-mark">P</span>
-          <span><strong>Bitcoin Pizza Strategy</strong><span>Admin console</span></span>
+          <span><strong>Jensen Strategy</strong><span>Admin console</span></span>
         </a>
         <nav class="nav" aria-label="Admin sections">
           <a href="#overview" data-icon="gauge">Overview</a>
@@ -988,7 +988,7 @@
       <section class="main">
         <header class="topbar">
           <div>
-            <h1>Treasury Operations</h1>
+            <h1>Jensen Strategy — Treasury Ops</h1>
             <p>Run the launch checklist, review blockers, and keep manual controls out of the way unless they are needed.</p>
           </div>
           <div class="top-actions">
@@ -1025,7 +1025,7 @@
             <button class="btn go" id="goLiveButton" type="button" data-run-action="official-live-go"
               style="display:flex;flex-direction:column;align-items:flex-start;padding:16px 20px;height:auto;text-align:left;">
               <span style="font-size:1.1em;font-weight:700;">🚀 Go Live</span>
-              <span style="font-size:0.78em;font-weight:400;opacity:0.85;margin-top:4px;">Arm the epoch clock. Cron will auto-claim fees, buy WBTC, and airdrop on schedule.</span>
+              <span style="font-size:0.78em;font-weight:400;opacity:0.85;margin-top:4px;">Arm the epoch clock. Cron will auto-claim fees, acquire NVDAx, and airdrop on schedule.</span>
             </button>
 
             <button class="btn primary" type="button" data-run-action="run-due-epoch"
@@ -1081,7 +1081,7 @@
               </div>
             </div>
             <div class="form-grid">
-              <label class="field"><span class="label">Reward pool WBTC</span><input id="rewardPool" inputmode="decimal" placeholder="0.00000000" /></label>
+              <label class="field"><span class="label">Reward pool NVDAx</span><input id="rewardPool" inputmode="decimal" placeholder="0.00000000" /></label>
               <label class="field"><span class="label">Minimum payout</span><input id="minPayout" inputmode="decimal" placeholder="0.00000001" /></label>
               <label class="field"><span class="label">Batch size</span><input id="batchSize" inputmode="numeric" placeholder="12" /></label>
               <label class="field"><span class="label">Round cap</span><input id="roundCap" inputmode="numeric" placeholder="5" /></label>
@@ -1117,7 +1117,7 @@
               <div class="table-wrap">
                 <table>
                   <thead>
-                    <tr><th>Rank</th><th>Wallet</th><th class="right">Balance</th><th class="right">Held</th><th class="right">Multiplier</th><th class="right">Weight</th><th class="right">Est WBTC</th><th>Status</th></tr>
+                    <tr><th>Rank</th><th>Wallet</th><th class="right">Balance</th><th class="right">Held</th><th class="right">Multiplier</th><th class="right">Weight</th><th class="right">Est NVDAx</th><th>Status</th></tr>
                   </thead>
                   <tbody id="holderRows"></tbody>
                 </table>
@@ -1159,7 +1159,7 @@
               <div class="section-head">
                 <div>
                   <h2>Distribution Builder</h2>
-                  <span>Preview exact payout math before generating or executing a WBTC batch.</span>
+                  <span>Preview exact payout math before generating or executing a NVDAx batch.</span>
                 </div>
                 <button class="btn success" id="recalcDistribution" type="button" data-icon="calculator">Recalculate</button>
               </div>
@@ -1178,7 +1178,7 @@
                 <div class="section-head">
                   <div>
                     <h2>Launch Output</h2>
-                    <span>Batch generation and WBTC sends are handled by Official Live GO.</span>
+                    <span>Batch generation and NVDAx sends are handled by Official Live GO.</span>
                   </div>
                 </div>
                 <div class="muted" id="lastLaunchSummary">Run the checklist to see snapshot, manifest, batch, and transaction details here.</div>
@@ -1526,7 +1526,7 @@
         const automation = state.status?.automation || {};
         const cards = [
           ["Claimable fees", state.fees?.configured ? `${formatNumber(state.fees.totalSolAndWsolBalance ?? state.fees.solBalance, 6)} SOL` : "--", state.fees?.configured ? `${formatNumber(state.fees.solBalance, 6)} SOL + ${formatNumber(state.fees.wsolBalance, 6)} WSOL` : config.feeWallet ? shortAddress(config.feeWallet) : "Fee wallet missing"],
-          ["WBTC pool", state.wbtc?.configured ? `${formatWbtc(state.wbtc.balance)} WBTC` : "--", config.distributorWallet ? shortAddress(config.distributorWallet) : "Distributor missing"],
+          ["NVDAx pool", state.wbtc?.configured ? `${formatWbtc(state.wbtc.balance)} NVDAx` : "--", config.distributorWallet ? shortAddress(config.distributorWallet) : "Distributor missing"],
           ["Eligible holders", state.holders?.eligibleCount ?? holders.length ?? "--", state.holders?.updatedAt ? new Date(state.holders.updatedAt).toLocaleString() : "No snapshot"],
           ["Epoch runner", automation.active ? `Epoch ${automation.nextEpochNumber}` : "Not armed", automation.active ? `Next ${new Date(automation.nextEpochEndsAt).toLocaleString()}` : "Live GO arms cron"],
           ["Pending receipts", receipts.length, receipts[0]?.signature ? shortAddress(receipts[0].signature) : "No recent signatures"],
@@ -1553,8 +1553,8 @@
         [/SOLANA_RPC_URL|HELIUS_RPC_URL|RPC/i, "Set SOLANA_RPC_URL or HELIUS_RPC_URL to a healthy Solana endpoint, then rerun the checklist."],
         [/TOKEN_MINT|PUBLIC_TOKEN_MINT/i, "Set TOKEN_MINT to the live token mint before scanning holders."],
         [/WALLET|PUBLIC_FEE_WALLET/i, "Set WALLET to the creator-fee wallet that receives fee income and controls distribution by default."],
-        [/REWARD_MINT|PUBLIC_WBTC_MINT/i, "Set REWARD_MINT to the WBTC mint used for holder payouts."],
-        [/WBTC reward pool is zero|reward pool is zero|positive WBTC/i, "Fund the distributor WBTC account or enter a Reward pool WBTC override in Run Options."],
+        [/REWARD_MINT|PUBLIC_WBTC_MINT/i, "Set REWARD_MINT to the NVDAx mint used for holder payouts."],
+        [/WBTC reward pool is zero|reward pool is zero|positive WBTC/i, "Fund the distributor NVDAx account or enter a Reward pool NVDAx override in Run Options."],
         [/no payable recipients|No recipients|No holder snapshot|holder/i, "Refresh holder data, check TOKEN_MINT, and lower Minimum payout if needed."],
         [/Snapshot .* not found|No locked manifest|No prepared distribution batch/i, "The automated cron runner creates snapshot, manifest, and batch records when an epoch is due."],
         [/requires explicit confirmation|Confirm live/i, "Turn off Dry run, enable Confirm live, then run the live action only when ready."],
@@ -1578,13 +1578,13 @@
         const labels = {
           "validate-config": "Setup",
           "refresh-fee-receipts": "Fee wallet",
-          "check-wbtc-vault": "WBTC pool",
+          "check-wbtc-vault": "NVDAx pool",
           "refresh-holder-list": "Holder scan",
           "simulate-distribution": "Payout math",
           "create-holder-snapshot": "Snapshot",
           "finalize-manifest": "Manifest lock",
           "generate-distribution-batch": "Batch",
-          "distribute-wbtc": "WBTC send"
+          "distribute-wbtc": "NVDAx send"
         };
         return labels[id] || actionLabel(id);
       }
@@ -1644,9 +1644,9 @@
           },
           {
             id: "check-wbtc-vault",
-            title: "WBTC pool",
+            title: "NVDAx pool",
             ok: rewardPool > 0,
-            note: rewardPool > 0 ? `${formatWbtc(rewardPool)} WBTC available for this run.` : state.wbtc?.error || "No WBTC reward pool is available.",
+            note: rewardPool > 0 ? `${formatWbtc(rewardPool)} NVDAx available for this run.` : state.wbtc?.error || "No NVDAx reward pool is available.",
             fix: friendlyFix(state.wbtc?.error || "WBTC reward pool is zero")
           },
           {
@@ -1802,12 +1802,12 @@
         const rewardTotal = payable.reduce((sum, holder) => sum + holder.reward, 0);
         const batchSize = Math.max(1, Number(batchSizeEl.value || state.status?.weighting?.maxRecipientsPerBatch || 12));
         const stats = [
-          ["Reward pool", `${formatWbtc(rewardPoolEl.value || state.wbtc?.balance || 0)} WBTC`, "Selected for this run"],
+          ["Reward pool", `${formatWbtc(rewardPoolEl.value || state.wbtc?.balance || 0)} NVDAx`, "Selected for this run"],
           ["Recipients", payable.length, `${rows.length - payable.length} skipped by threshold`],
           ["Total weight", formatNumber(rows.reduce((sum, holder) => sum + holder.weight, 0), 4), "Balance x time"],
           ["Batch count", Math.ceil(payable.length / batchSize), `${batchSize} recipients per batch`],
-          ["Planned payout", `${formatWbtc(rewardTotal)} WBTC`, "After dust filtering"],
-          ["Minimum payout", `${formatWbtc(minPayoutEl.value || 0)} WBTC`, "Dust threshold"]
+          ["Planned payout", `${formatWbtc(rewardTotal)} NVDAx`, "After dust filtering"],
+          ["Minimum payout", `${formatWbtc(minPayoutEl.value || 0)} NVDAx`, "Dust threshold"]
         ];
         $("#distributionStats").innerHTML = stats
           .map(([label, value, note]) => `<article class="kpi"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong><small>${escapeHtml(note)}</small></article>`)
@@ -1950,7 +1950,7 @@
           `<span class="badge ${action?.configured ? "ok" : "warn"}">${escapeHtml(action?.configured ? "ready" : "missing config")}</span>`,
           `<span class="badge">${escapeHtml(mode)}</span>`,
           `<span class="badge ${holders ? "ok" : "warn"}">${escapeHtml(`${holders} eligible`)}</span>`,
-          `<span class="badge ${wbtc > 0 ? "ok" : "warn"}">${escapeHtml(`${formatWbtc(wbtc)} WBTC`)}</span>`,
+          `<span class="badge ${wbtc > 0 ? "ok" : "warn"}">${escapeHtml(`${formatWbtc(wbtc)} NVDAx`)}</span>`,
           `<span class="badge ${automation.active ? "ok" : "warn"}">${escapeHtml(automation.active ? `epoch ${automation.nextEpochNumber} armed` : "cron not armed")}</span>`
         ];
         $("#launchStatus").innerHTML = badges.join("");
@@ -2030,14 +2030,14 @@
 
       function exportSnapshot() {
         const rows = computeDistribution();
-        exportCsv("bitcoin-pizza-strategy-holder-snapshot.csv", [
-          ["rank", "wallet", "balance", "holding_days", "multiplier", "weight", "estimated_wbtc", "status"],
+        exportCsv("jensen-strategy-holder-snapshot.csv", [
+          ["rank", "wallet", "balance", "holding_days", "multiplier", "weight", "estimated_nvdax", "status"],
           ...rows.map((holder) => [holder.rank, holder.wallet || holder.address, holder.balance, holder.days, holder.multiplier, holder.weight, holder.reward, holder.distributionStatus])
         ]);
       }
 
       function exportAudit() {
-        exportCsv("bitcoin-pizza-strategy-admin-audit.csv", [
+        exportCsv("jensen-strategy-admin-audit.csv", [
           ["timestamp", "status", "action", "title", "mode", "tx_hash", "details"],
           ...state.audit.map((entry) => [entry.timestamp, entry.status, entry.action || "", entry.title || "", entry.mode || "", entry.txHash || "", JSON.stringify(entry.details || {})])
         ]);

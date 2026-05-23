@@ -164,12 +164,12 @@ const checks = [
     }
   },
   {
-    name: "WBTC vault read",
+    name: "NVDAx vault read",
     run: async () => await adminAction({ baseUrl, adminSecret, action: "check-wbtc-vault" }),
-    detail: (result) => `WBTC=${result.result.balance} accounts=${result.result.accountCount}`
+    detail: (result) => `NVDAx=${result.result.balance} accounts=${result.result.accountCount}`
   },
   {
-    name: "Jupiter WBTC quote",
+    name: "Jupiter NVDAx quote",
     run: async () => await adminAction({ baseUrl, adminSecret, action: "quote-wbtc-buy", payload: tinyBuyPayload }),
     detail: (result) => `in=${result.result.inAmount} out=${result.result.outAmount}`
   },

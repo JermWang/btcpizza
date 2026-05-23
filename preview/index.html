@@ -3,19 +3,19 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Bitcoin Pizza Strategy - Live Dashboard</title>
-    <meta name="description" content="Bitcoin Pizza Strategy is a Saylor-style Bitcoin treasury parody tracking Pump.fun creator fees, WBTC buys, holder draw eligibility, and onchain airdrop receipts." />
+    <title>Jensen Strategy</title>
+    <meta name="description" content="Creator fees route into NVDAx reward pools and distribute to holders through transparent Solana epoch airdrops." />
     <meta name="theme-color" content="#f56600" />
     <link rel="icon" type="image/png" href="/assets/pizza-slice-favicon-256.png" />
     <link rel="apple-touch-icon" href="/assets/pizza-slice-favicon-256.png" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Bitcoin Pizza Strategy" />
-    <meta property="og:description" content="A Michael Saylor-inspired Bitcoin treasury parody where Pump.fun creator fees become transparent WBTC holder airdrops on Solana." />
+    <meta property="og:title" content="Jensen Strategy" />
+    <meta property="og:description" content="Creator fees route into NVDAx reward pools and distribute to holders through transparent Solana epoch airdrops." />
     <meta property="og:image" content="/assets/btc-strategy-banner.jpg" />
-    <meta property="og:site_name" content="Bitcoin Pizza Strategy" />
+    <meta property="og:site_name" content="Jensen Strategy" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Bitcoin Pizza Strategy" />
-    <meta name="twitter:description" content="A Saylor-style Bitcoin treasury parody with creator fees, WBTC pool status, holder draws, and onchain receipts in one dashboard." />
+    <meta name="twitter:title" content="Jensen Strategy" />
+    <meta name="twitter:description" content="Creator fees route into NVDAx reward pools and distribute to holders through transparent Solana epoch airdrops." />
     <meta name="twitter:image" content="/assets/btc-strategy-banner.jpg" />
     <style>
       :root {
@@ -820,7 +820,7 @@
       }
 
       .receipt-row::before {
-        content: "Receipt Tickets";
+        content: "Distribution Receipts";
         position: absolute;
         left: 22px;
         top: 14px;
@@ -1586,13 +1586,13 @@
   </head>
   <body>
     <main class="page">
-      <section class="stage" id="dashboard" aria-label="Bitcoin Pizza Strategy public dashboard">
+      <section class="stage" id="dashboard" aria-label="Jensen Strategy public dashboard">
         <div class="parlor"></div>
 
         <header class="top">
           <a class="brand" href="#">
             <span class="slice-mark" aria-hidden="true"></span>
-            <span class="wordmark">Bitcoin Pizza Strategy</span>
+            <span class="wordmark">Jensen Strategy</span>
           </a>
           <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open navigation" aria-controls="primaryNav" aria-expanded="false">
             <span aria-hidden="true"></span>
@@ -1625,24 +1625,24 @@
         </section>
 
         <section class="hero-copy">
-          <h1>Bitcoin Pizza Strategy</h1>
-          <p>Saylor-Style WBTC Airdrop Dashboard</p>
+          <h1>Jensen Strategy</h1>
+          <p>AI equity exposure, delivered onchain.</p>
           <div class="hero-actions">
             <a class="button primary" href="#dashboard">See live pool</a>
             <a class="button secondary" href="#receipts">View receipts</a>
           </div>
         </section>
 
-        <aside class="side-sign">Pump fees in.<span>WBTC slices out.</span></aside>
-        <aside class="chalk-sign">Baking freedom<br />one slice<br />at a time</aside>
+        <aside class="side-sign">Pump fees in.<span>NVDAx rewards out.</span></aside>
+        <aside class="chalk-sign">Routing fees<br />into NVDAx<br />rewards</aside>
 
         <section class="dashboard">
           <article class="art-panel panel-pool">
-            <h2>Pizza Pool</h2>
+            <h2>NVDAx Reward Pool</h2>
             <div class="pool-layout">
-              <img class="pizza-pool" src="assets/pizza-pie-3d.png" alt="Glossy 3D pepperoni pizza representing the WBTC reward pool" />
+              <img class="pizza-pool" src="assets/pizza-pie-3d.png" alt="NVDAx reward pool" />
               <div>
-                <div class="metric"><span>Total WBTC</span><strong id="pool">--</strong></div>
+                <div class="metric"><span>Total NVDAx</span><strong id="pool">--</strong></div>
                 <div class="metric"><span>Creator Fees</span><strong id="creatorFees">--</strong></div>
                 <div class="metric"><span>Last Receipt</span><strong class="green" id="lastReceipt">--</strong></div>
               </div>
@@ -1650,7 +1650,7 @@
           </article>
 
           <article class="art-panel panel-next">
-            <h2>Next Slice</h2>
+            <h2>Next NVDAx Drop</h2>
             <div class="next-countdown">
               <div class="countdown" id="countdown" aria-live="polite">08:42</div>
               <div class="countdown-rail" aria-hidden="true"><span id="countdownProgress"></span></div>
@@ -1667,20 +1667,20 @@
             <h2>Order Flow</h2>
             <div class="flow-list">
               <div class="flow-row"><b>1 Fees</b><span>Pump.fun fee wallet</span><strong id="feeStatus">Syncing</strong></div>
-              <div class="flow-row"><b>2 Swap</b><span>WBTC pool wallet</span><strong id="swapStatus">Syncing</strong></div>
+              <div class="flow-row"><b>2 Swap</b><span>NVDAx pool wallet</span><strong id="swapStatus">Syncing</strong></div>
               <div class="flow-row"><b>3 List</b><span>Holder board</span><strong id="holderStatus">Snapshot</strong></div>
               <div class="flow-row"><b>4 Drop</b><span>Distributor receipts</span><strong id="batch">Queued</strong></div>
             </div>
           </article>
 
           <article class="art-panel panel-ticket" id="ticket">
-            <h2>Ticket Check</h2>
+            <h2>Allocation Check</h2>
             <strong class="ticket-status" id="ticketStatus">Search</strong>
             <div class="ticket-list">
               <div class="ticket-row"><b>Wallet Balance</b><span>Snapshot share</span><strong id="score">--</strong></div>
               <div class="ticket-row"><b>Round Rank</b><span>Current list</span><strong id="holderRank">--</strong></div>
               <div class="ticket-row"><b>Cutoff</b><span>Score needed</span><strong id="cutoffScore">--</strong></div>
-              <div class="ticket-row"><b>Est. WBTC</b><span>Projected slice</span><strong id="estimate">--</strong></div>
+              <div class="ticket-row"><b>Est. NVDAx</b><span>Projected allocation</span><strong id="estimate">--</strong></div>
             </div>
           </article>
         </section>
@@ -1694,23 +1694,23 @@
         </div>
       </section>
 
-      <section class="info-pages" aria-label="Bitcoin Pizza Strategy information pages">
+      <section class="info-pages" aria-label="Jensen Strategy information pages">
         <div class="lower-info">
-          <article class="info-card"><h3>What it does</h3><p>Creator fees convert into WBTC and distribute to holders.</p></article>
+          <article class="info-card"><h3>What it does</h3><p>Routes creator fees into NVDAx rewards and distributes to holders.</p></article>
           <article class="info-card"><h3>Live utility</h3><p>Pool, countdown, holder estimate, receipts, and batches update live.</p></article>
-          <article class="info-card"><h3>Public proof</h3><p>Every fee, swap, manifest, and transfer links to onchain receipts.</p></article>
+          <article class="info-card"><h3>Public proof</h3><p>Every fee, manifest, and NVDAx transfer links to onchain receipts.</p></article>
         </div>
 
         <section class="info-section" id="holders">
           <h2>Holders</h2>
           <div class="info-grid">
-            <div class="info-item"><b>Reward Share</b><span>Every wallet's slice is based on its share of the token supply held at the epoch snapshot.</span></div>
+            <div class="info-item"><b>Reward Share</b><span>Every wallet's allocation is based on its share of the token supply held at the epoch snapshot.</span></div>
             <div class="info-item"><b>Visible Cutoff</b><span>The board shows the balance needed to make the current holder-cap snapshot.</span></div>
             <div class="info-item"><b>Proof</b><span>Snapshots, formula inputs, manifest hash, and transfer txs stay public.</span></div>
           </div>
           <div class="draw-board">
             <div class="draw-card">
-              <h3>Searched Round Position</h3>
+              <h3>Your Round Position</h3>
               <div class="draw-meter" aria-label="Progress above current cutoff"><span id="drawMeter"></span></div>
               <div class="draw-numbers">
                 <div class="draw-number"><span>Rank</span><strong id="drawRank">--</strong></div>
@@ -1719,11 +1719,11 @@
               </div>
             </div>
             <div class="draw-card">
-              <h3>How to get a bigger slice</h3>
+              <h3>How to get a larger allocation</h3>
               <ul class="boost-list">
                 <li><span>1</span><div><b>Hold more.</b> Reward share is wallet balance / total eligible snapshot balance.</div></li>
                 <li><span>2</span><div><b>Make the cut.</b> Wallets inside the current holder cap at snapshot time are included first.</div></li>
-                <li><span>3</span><div><b>Stay ready.</b> WBTC ATA readiness keeps eligible wallets from getting skipped.</div></li>
+                <li><span>3</span><div><b>Stay ready.</b> NVDAx ATA readiness keeps eligible wallets from getting skipped.</div></li>
               </ul>
             </div>
           </div>
@@ -1733,14 +1733,14 @@
               <ul class="fair-list">
                 <li><span>✓</span><div><b>Same formula for everyone.</b> Reward share = wallet balance / total eligible snapshot balance.</div></li>
                 <li><span>✓</span><div><b>Public snapshot.</b> Round manifests prove the eligible wallet set once the holder indexer is configured.</div></li>
-                <li><span>✓</span><div><b>Onchain outcome.</b> Final WBTC transfers become clickable Solscan receipts when real batch signatures exist.</div></li>
+                <li><span>✓</span><div><b>Onchain outcome.</b> Final NVDAx transfers become clickable Solscan receipts when real batch signatures exist.</div></li>
               </ul>
             </div>
             <div class="draw-card">
               <h3>Round Rules</h3>
               <ul class="fair-list">
-                <li><span>•</span><div>Top balance wallets make the next WBTC drop until the round cap is filled.</div></li>
-                <li><span>•</span><div>Payout size follows token balance share, so a bigger snapshot balance means a larger slice.</div></li>
+                <li><span>•</span><div>Top balance wallets make the next NVDAx drop until the round cap is filled.</div></li>
+                <li><span>•</span><div>Payout size follows token balance share, so a bigger snapshot balance means a larger allocation.</div></li>
                 <li><span>•</span><div>If you miss this round, your wallet can qualify before the next snapshot.</div></li>
               </ul>
             </div>
@@ -1748,8 +1748,8 @@
           <div class="holder-board">
             <div class="holder-toolbar">
               <div>
-                <h3>Current Draw Board</h3>
-                <span>All eligible wallets for this epoch, ranked by token balance with projected WBTC slices.</span>
+                <h3>Holder Allocation Board</h3>
+                <span>All eligible wallets for this epoch, ranked by token balance with projected NVDAx allocations.</span>
                 <strong class="holder-source" id="holderSource">Loading holders</strong>
               </div>
               <input class="holder-search" id="holderSearch" type="search" placeholder="Search wallet or SOL domain" autocomplete="off" />
@@ -1765,20 +1765,23 @@
         </section>
 
         <section class="info-section" id="airdrops">
-          <h2>Airdrops</h2>
+          <h2>NVDAx Airdrops</h2>
           <div class="info-grid">
             <div class="info-item"><b>Intervals</b><span>Distribution windows expand from 3 minutes to longer cycles as the campaign grows.</span></div>
-            <div class="info-item"><b>Pool</b><span>Pump.fun creator fees are routed, swapped, and reserved for holder distribution.</span></div>
-            <div class="info-item"><b>Batches</b><span>Each airdrop posts a manifest hash and transfer receipts for public verification.</span></div>
+            <div class="info-item"><b>Pool</b><span>Creator fees are routed and reserved as NVDAx for holder distribution.</span></div>
+            <div class="info-item"><b>Batches</b><span>Each NVDAx airdrop posts a manifest hash and transfer receipts for public verification.</span></div>
           </div>
         </section>
 
         <section class="info-section" id="about">
           <h2>About</h2>
           <div class="info-grid">
-            <div class="info-item"><b>Theme</b><span>A Bitcoin treasury parody packaged as a transparent holder rewards dashboard.</span></div>
-            <div class="info-item"><b>Custody</b><span>Fee custody can be handled through Privy or a controlled treasury wallet flow.</span></div>
-            <div class="info-item"><b>Transparency</b><span>The site should expose receipts, swaps, manifests, and recipient batches live.</span></div>
+            <div class="info-item"><b>What is Jensen Strategy?</b><span>Jensen Strategy is an onchain reward system that routes project fees into NVDAx rewards and distributes them to holders through epoch-based snapshots.</span></div>
+            <div class="info-item"><b>What is NVDAx?</b><span>NVDAx is NVIDIA xStock, a tokenized NVIDIA exposure asset issued on Solana. It does not provide shareholder rights, voting rights, dividends, or direct ownership of NVIDIA common stock.</span></div>
+            <div class="info-item"><b>How are rewards calculated?</b><span>Each epoch snapshots eligible holders. Your reward share equals your wallet's token balance divided by the total eligible holder balance in that snapshot.</span></div>
+            <div class="info-item"><b>Why do epochs get longer?</b><span>Early epochs prove the system quickly. Later epochs are spaced farther apart so reward pools can accumulate larger NVDAx balances before distribution.</span></div>
+            <div class="info-item"><b>How do I verify rewards?</b><span>Each epoch publishes holder snapshot data, a manifest hash, distribution batches, and Solscan-verifiable transfer receipts.</span></div>
+            <div class="info-item"><b>Compliance</b><span>Jensen Strategy is not affiliated with or endorsed by NVIDIA Corporation. NVDAx is a tokenized representation and does not grant equity ownership.</span></div>
           </div>
         </section>
       </section>
@@ -2050,7 +2053,7 @@
         countdownProgressEl.style.setProperty("--countdown-progress", `${Math.round(cycle.progress * 100)}%`);
         intervalEl.textContent = cycle.label || "3 minutes";
         epochHolderCapEl.textContent = effectiveHolderCap(cycle).toLocaleString();
-        cycleStatusEl.textContent = cycle.stage || (cycle.active ? `Epoch ${cycle.epochIndex + 1} active` : "Baking");
+        cycleStatusEl.textContent = cycle.stage || (cycle.active ? `Epoch ${cycle.epochIndex + 1} active` : "Warming GPUs");
         renderSliceSchedule(cycle);
       }
 
@@ -2185,7 +2188,7 @@
         scoreEl.textContent = current?.balanceLabel || current?.balance || current?.score?.toLocaleString?.() || "--";
         holderRankEl.textContent = current?.rank ? `#${current.rank}` : "--";
         cutoffScoreEl.textContent = current?.cutoffScore?.toLocaleString?.() || "--";
-        estimateEl.textContent = current?.projected_reward ? `${current.projected_reward} WBTC` : Number.isFinite(Number(current?.estimatedWbtc)) ? Number(current.estimatedWbtc).toFixed(8) : "--";
+        estimateEl.textContent = current?.projected_reward ? `${current.projected_reward} NVDAx` : Number.isFinite(Number(current?.estimatedWbtc)) ? Number(current.estimatedWbtc).toFixed(8) : "--";
         ticketStatusEl.textContent = current ? (isEligible ? "Eligible" : "Not in cut") : query ? "No match" : "Search";
         ticketStatusEl.style.color = current && isEligible ? "var(--gold)" : "#ff6b58";
         ticketStatusEl.style.borderColor = current && isEligible ? "rgba(81, 244, 169, 0.42)" : "rgba(255, 107, 88, 0.5)";
@@ -2245,18 +2248,18 @@
 
       function epochEstimateLabel(holder, snapshot) {
         const eligible = holder.status === "eligible" || holder.eligible === true;
-        if (!eligible) return "0.00000000 WBTC";
+        if (!eligible) return "0.00000000 NVDAx";
 
-        if (holder.projected_reward) return `${holder.projected_reward} WBTC`;
-        if (state.wbtcPoolBalance === null) return "Pending WBTC";
+        if (holder.projected_reward) return `${holder.projected_reward} NVDAx`;
+        if (state.wbtcPoolBalance === null) return "Pending NVDAx";
         const pool = Number(state.wbtcPoolBalance);
         const totalScore = eligibleScoreTotal(snapshot);
         const score = Number(holder.score || 0);
-        if (!Number.isFinite(pool)) return "Pending WBTC";
-        if (pool <= 0 || totalScore <= 0 || score <= 0) return "0.00000000 WBTC";
+        if (!Number.isFinite(pool)) return "Pending NVDAx";
+        if (pool <= 0 || totalScore <= 0 || score <= 0) return "0.00000000 NVDAx";
 
         const estimate = (pool * score) / totalScore;
-        return `${estimate.toLocaleString(undefined, { minimumFractionDigits: 8, maximumFractionDigits: 8 })} WBTC`;
+        return `${estimate.toLocaleString(undefined, { minimumFractionDigits: 8, maximumFractionDigits: 8 })} NVDAx`;
       }
 
       function renderHolderBoard(current = resolveCurrentHolder()) {
@@ -2294,7 +2297,7 @@
 
         holderTableEl.innerHTML = `
           <div class="holder-row header">
-            <span>Rank</span><span>Eligible wallet and balance</span><span>Est. epoch WBTC</span>
+            <span>Rank</span><span>Eligible wallet and balance</span><span>Est. epoch NVDAx</span>
           </div>
           ${
             visible.length
@@ -2320,7 +2323,7 @@
                   snapshot?.reason === "no_snapshot_yet"
                     ? "First holder snapshot begins when the first reward epoch closes."
                     : state.rewardsStatus?.current_epoch?.status === "snapshotting"
-                      ? "Cutting slices. Holder board will update after the snapshot finalizes."
+                      ? "Cutting allocations. Holder board will update after the snapshot finalizes."
                       : snapshot?.degraded
                         ? (snapshot.message || "Showing last confirmed snapshot. RPC refresh is catching up.")
                         : snapshot?.configured === false
@@ -2390,7 +2393,7 @@
           status: receipt.status,
           time: receipt.created_at ? new Date(receipt.created_at).toLocaleString() : "",
           signature: receipt.signature,
-          label: receipt.signature ? `TX: ${shortAddress(receipt.signature)} view` : `${receipt.amount_ui || receipt.amount_raw || "0"} WBTC`
+          label: receipt.signature ? `TX: ${shortAddress(receipt.signature)} view` : `${receipt.amount_ui || receipt.amount_raw || "0"} NVDAx`
         }));
         const chainProofs = state.feeReceipts.map((receipt) => ({
           status: receipt.status,
@@ -2403,7 +2406,7 @@
         if (!cards.length) {
           receiptEmptyEl.style.display = "grid";
           receiptEmptyEl.textContent = state.rewardsStatus?.current_epoch?.status === "snapshotting"
-            ? "Cutting slices. Holder board will update after the snapshot finalizes."
+            ? "Cutting allocations. Holder board will update after the snapshot finalizes."
             : "First holder snapshot begins when the first reward epoch closes.";
           return;
         }
@@ -2482,7 +2485,7 @@
           const status = state.rewardsStatus;
           const epoch = status.current_epoch || {};
           state.wbtcPoolBalance = Number(status.total_wbtc_pool || 0);
-          poolEl.textContent = status.total_wbtc_pool && status.total_wbtc_pool !== "0" ? `${status.total_wbtc_pool} WBTC` : "--";
+          poolEl.textContent = status.total_wbtc_pool && status.total_wbtc_pool !== "0" ? `${status.total_wbtc_pool} NVDAx` : "--";
           creatorFeesEl.textContent = status.creator_fees_collected === "cache-first" ? "--" : status.creator_fees_collected || "--";
           feeStatusEl.textContent = epoch.status === "scheduled" ? "Watching" : "Synced";
           swapStatusEl.textContent = Number(state.wbtcPoolBalance || 0) > 0 ? "Ready" : "Waiting";

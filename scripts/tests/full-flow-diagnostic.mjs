@@ -103,7 +103,7 @@ async function testAdminSystem() {
   console.log("  distributorWallet:", cfg.distributorWallet ? cfg.distributorWallet.slice(0, 16) + "..." : "(not set)");
   console.log("  rpcConfigured:", cfg.rpcConfigured);
 
-  console.log("\n--- WBTC Pool Balance (Treasury) ---");
+  console.log("\n--- NVDAx Pool Balance (Treasury) ---");
   try {
     const pool = await getConfirmedRewardPoolBalance(process.env);
     console.log("  raw:", pool.raw);
@@ -142,7 +142,7 @@ async function testLiveAutomationReadiness() {
   console.log("  Distributor signer:", distributorReady ? "CONFIGURED" : "MISSING");
 
   if (!creatorReady || !swapReady || !distributorReady) {
-    console.log("  NOTE: Without signers, fee claiming, WBTC buying, and distribution cannot execute.");
+    console.log("  NOTE: Without signers, fee claiming, NVDAx buying, and distribution cannot execute.");
     console.log("  The system can still snapshot holders and build manifests in dry-run mode.");
   }
 }
@@ -157,7 +157,7 @@ async function testCronEndpointBehavior() {
   console.log("\n--- What the cron currently does ---");
   console.log("  1. Calls epochTick() -> creates/manages reward_epochs in PostgreSQL");
   console.log("  2. Updates public dashboard status + holder board");
-  console.log("  3. Does NOT claim fees, buy WBTC, or distribute");
+  console.log("  3. Does NOT claim fees, buy NVDAx, or distribute");
 
   console.log("\n--- What happens when 'Go' is clicked ---");
   console.log("  1. officialLiveGo() arms admin automation in admin-store");
