@@ -198,22 +198,22 @@ const checks = [
   },
   {
     name: "Holder snapshot from token mint",
-    optional: !env.PUBLIC_TOKEN_MINT,
-    skipReason: "PUBLIC_TOKEN_MINT is not set.",
+    optional: !env.TOKEN_MINT,
+    skipReason: "TOKEN_MINT is not set.",
     run: async () => await adminAction({ baseUrl, adminSecret, action: "refresh-holder-list" }),
     detail: (result) => `holders=${result.result.totalEligible} fetched=${result.result.totalFetched}`
   },
   {
     name: "Create holder snapshot",
-    optional: !env.PUBLIC_TOKEN_MINT,
-    skipReason: "PUBLIC_TOKEN_MINT is not set.",
+    optional: !env.TOKEN_MINT,
+    skipReason: "TOKEN_MINT is not set.",
     run: async () => await adminAction({ baseUrl, adminSecret, action: "create-holder-snapshot" }),
     detail: (result) => `snapshot=${result.result.snapshotId} holders=${result.result.totalEligible}`
   },
   {
     name: "Simulate distribution math",
-    optional: !env.PUBLIC_TOKEN_MINT,
-    skipReason: "PUBLIC_TOKEN_MINT is not set.",
+    optional: !env.TOKEN_MINT,
+    skipReason: "TOKEN_MINT is not set.",
     run: async () =>
       await adminAction({
         baseUrl,
@@ -229,8 +229,8 @@ const checks = [
 ];
 
 console.log(`Admin smoke target: ${baseUrl}`);
-console.log(`Wallet: ${short(env.DEV_CREATOR_WALLET || env.PUBLIC_FEE_WALLET || "")}`);
-console.log(`Token mint: ${env.PUBLIC_TOKEN_MINT ? short(env.PUBLIC_TOKEN_MINT) : "not set yet"}`);
+console.log(`Wallet: ${short(env.WALLET || "")}`);
+console.log(`Token mint: ${env.TOKEN_MINT ? short(env.TOKEN_MINT) : "not set yet"}`);
 
 const results = [];
 for (const check of checks) {

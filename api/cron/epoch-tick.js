@@ -32,14 +32,25 @@ module.exports = async function handler(request, response) {
     task: body.task || "epoch-tick"
   });
 
-  // 2. If admin automation is armed, also run the money-ops epoch
+  // 2. If admin automation is armed, also run the money-ops epoch.
+  // Wrapped in Promise.race so a hanging RPC call (e.g. dead Helius key causing
+  // confirmTransaction to poll forever) cannot exceed the Vercel function timeout.
+  const ADMIN_EPOCH_TIMEOUT_MS = 25_000;
   let adminResult = null;
   try {
-    adminResult = await runScheduledEpoch({
-      force: false,
-      source: body.source || "cron-job.org",
-      payload: body.payload || {}
-    });
+    adminResult = await Promise.race([
+      runScheduledEpoch({
+        force: false,
+        source: body.source || "cron-job.org",
+        payload: body.payload || {}
+      }),
+      new Promise((_, reject) =>
+        setTimeout(
+          () => reject(new Error("runScheduledEpoch timed out after 25s — RPC may be unavailable")),
+          ADMIN_EPOCH_TIMEOUT_MS
+        )
+      )
+    ]);
   } catch (adminError) {
     adminResult = { ok: false, status: "failed", error: adminError.message || "Admin epoch failed." };
   }
