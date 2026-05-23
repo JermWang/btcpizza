@@ -1,4 +1,4 @@
-# Web App
+﻿# Web App
 
 Next.js dashboard for holders, receipts, airdrop verification, and operator actions.
 
@@ -15,7 +15,7 @@ Next.js dashboard for holders, receipts, airdrop verification, and operator acti
 - Solana program accounts via `packages/sdk`.
 - Indexed receipt and manifest API from `apps/indexer`.
 - Wallet balance reads from Solana RPC.
-- WBTC associated token account status.
+- nvdax associated token account status.
 
 ## UX Requirements
 

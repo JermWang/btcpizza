@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -1314,7 +1314,7 @@
         status: null,
         fees: null,
         holders: null,
-        wbtc: null,
+        nvdax: null,
         audit: JSON.parse(sessionStorage.getItem("btcPizzaAuditLog") || "[]"),
         lastLaunchResult: null,
         lastFeedback: null,
@@ -1373,7 +1373,7 @@
         return number.toLocaleString(undefined, { maximumFractionDigits: decimals });
       }
 
-      function formatWbtc(value) {
+      function formatNvdax(value) {
         const number = Number(value);
         if (!Number.isFinite(number)) return "--";
         return number.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 8 });
@@ -1416,7 +1416,7 @@
           const number = Number(value);
           if (Number.isFinite(number)) payload[key] = number;
         };
-        addNumber("rewardPoolWbtc", rewardPoolEl.value);
+        addNumber("rewardPoolNvdax", rewardPoolEl.value);
         addNumber("minPayout", minPayoutEl.value);
         addNumber("batchSize", batchSizeEl.value);
         addNumber("roundCap", roundCapEl.value);
@@ -1495,9 +1495,9 @@
           fetchJson("/api/fee-receipts").then((body) => (state.fees = body)).catch((error) => (state.fees = { error: error.message, receipts: [] })),
           loadHolders().catch((error) => (state.holders = { configured: false, error: error.message, holders: [] }))
         ];
-        if (config?.distributorWallet && config?.wbtcMint) {
-          const params = new URLSearchParams({ owner: config.distributorWallet, mint: config.wbtcMint });
-          tasks.push(fetchJson(`/api/token-balance?${params}`).then((body) => (state.wbtc = body)).catch((error) => (state.wbtc = { error: error.message })));
+        if (config?.distributorWallet && config?.nvdaxMint) {
+          const params = new URLSearchParams({ owner: config.distributorWallet, mint: config.nvdaxMint });
+          tasks.push(fetchJson(`/api/token-balance?${params}`).then((body) => (state.nvdax = body)).catch((error) => (state.nvdax = { error: error.message })));
         }
         await Promise.all(tasks);
         renderAll();
@@ -1526,7 +1526,7 @@
         const automation = state.status?.automation || {};
         const cards = [
           ["Claimable fees", state.fees?.configured ? `${formatNumber(state.fees.totalSolAndWsolBalance ?? state.fees.solBalance, 6)} SOL` : "--", state.fees?.configured ? `${formatNumber(state.fees.solBalance, 6)} SOL + ${formatNumber(state.fees.wsolBalance, 6)} WSOL` : config.feeWallet ? shortAddress(config.feeWallet) : "Fee wallet missing"],
-          ["NVDAx pool", state.wbtc?.configured ? `${formatWbtc(state.wbtc.balance)} NVDAx` : "--", config.distributorWallet ? shortAddress(config.distributorWallet) : "Distributor missing"],
+          ["NVDAx pool", state.nvdax?.configured ? `${formatNvdax(state.nvdax.balance)} NVDAx` : "--", config.distributorWallet ? shortAddress(config.distributorWallet) : "Distributor missing"],
           ["Eligible holders", state.holders?.eligibleCount ?? holders.length ?? "--", state.holders?.updatedAt ? new Date(state.holders.updatedAt).toLocaleString() : "No snapshot"],
           ["Epoch runner", automation.active ? `Epoch ${automation.nextEpochNumber}` : "Not armed", automation.active ? `Next ${new Date(automation.nextEpochEndsAt).toLocaleString()}` : "Live GO arms cron"],
           ["Pending receipts", receipts.length, receipts[0]?.signature ? shortAddress(receipts[0].signature) : "No recent signatures"],
@@ -1553,8 +1553,8 @@
         [/SOLANA_RPC_URL|HELIUS_RPC_URL|RPC/i, "Set SOLANA_RPC_URL or HELIUS_RPC_URL to a healthy Solana endpoint, then rerun the checklist."],
         [/TOKEN_MINT|PUBLIC_TOKEN_MINT/i, "Set TOKEN_MINT to the live token mint before scanning holders."],
         [/WALLET|PUBLIC_FEE_WALLET/i, "Set WALLET to the creator-fee wallet that receives fee income and controls distribution by default."],
-        [/REWARD_MINT|PUBLIC_WBTC_MINT/i, "Set REWARD_MINT to the NVDAx mint used for holder payouts."],
-        [/WBTC reward pool is zero|reward pool is zero|positive WBTC/i, "Fund the distributor NVDAx account or enter a Reward pool NVDAx override in Run Options."],
+        [/REWARD_MINT|PUBLIC_NVDAX_MINT/i, "Set REWARD_MINT to the NVDAx mint used for holder payouts."],
+        [/nvdax reward pool is zero|reward pool is zero|positive nvdax/i, "Fund the distributor NVDAx account or enter a Reward pool NVDAx override in Run Options."],
         [/no payable recipients|No recipients|No holder snapshot|holder/i, "Refresh holder data, check TOKEN_MINT, and lower Minimum payout if needed."],
         [/Snapshot .* not found|No locked manifest|No prepared distribution batch/i, "The automated cron runner creates snapshot, manifest, and batch records when an epoch is due."],
         [/requires explicit confirmation|Confirm live/i, "Turn off Dry run, enable Confirm live, then run the live action only when ready."],
@@ -1578,13 +1578,13 @@
         const labels = {
           "validate-config": "Setup",
           "refresh-fee-receipts": "Fee wallet",
-          "check-wbtc-vault": "NVDAx pool",
+          "check-nvdax-vault": "NVDAx pool",
           "refresh-holder-list": "Holder scan",
           "simulate-distribution": "Payout math",
           "create-holder-snapshot": "Snapshot",
           "finalize-manifest": "Manifest lock",
           "generate-distribution-batch": "Batch",
-          "distribute-wbtc": "NVDAx send"
+          "distribute-nvdax": "NVDAx send"
         };
         return labels[id] || actionLabel(id);
       }
@@ -1619,7 +1619,7 @@
       function renderWorkflow() {
         const requiredMissing = (state.status?.required || []).filter((item) => !item.configured).map((item) => item.name);
         const holders = state.holders?.eligibleCount ?? state.holders?.holders?.length ?? 0;
-        const rewardPool = Number(rewardPoolEl.value || state.wbtc?.balance || 0);
+        const rewardPool = Number(rewardPoolEl.value || state.nvdax?.balance || 0);
         const payable = computeDistribution().filter((holder) => holder.distributionStatus === "pay").length;
         const stepMap = new Map((state.lastLaunchResult?.steps || []).map((step) => [step.name, step]));
         const fromStep = (id) => {
@@ -1643,11 +1643,11 @@
             fix: friendlyFix(state.fees?.error || "WALLET")
           },
           {
-            id: "check-wbtc-vault",
+            id: "check-nvdax-vault",
             title: "NVDAx pool",
             ok: rewardPool > 0,
-            note: rewardPool > 0 ? `${formatWbtc(rewardPool)} NVDAx available for this run.` : state.wbtc?.error || "No NVDAx reward pool is available.",
-            fix: friendlyFix(state.wbtc?.error || "WBTC reward pool is zero")
+            note: rewardPool > 0 ? `${formatNvdax(rewardPool)} NVDAx available for this run.` : state.nvdax?.error || "No NVDAx reward pool is available.",
+            fix: friendlyFix(state.nvdax?.error || "nvdax reward pool is zero")
           },
           {
             id: "refresh-holder-list",
@@ -1738,7 +1738,7 @@
       function computeDistribution() {
         const holders = state.holders?.holders || [];
         const roundCap = Number(roundCapEl.value || state.holders?.roundCap || state.status?.weighting?.defaultRoundCap || 5);
-        const rewardPool = Number(rewardPoolEl.value || state.wbtc?.balance || 0);
+        const rewardPool = Number(rewardPoolEl.value || state.nvdax?.balance || 0);
         const minPayout = Number(minPayoutEl.value || state.status?.weighting?.minPayout || 0);
         const candidates = holders.slice(0, roundCap).map((holder, index) => {
           const balance = holderBalance(holder);
@@ -1783,7 +1783,7 @@
                 <td class="right">${formatNumber(holder.days, 0)}d</td>
                 <td class="right">${formatNumber(holder.multiplier, 2)}x</td>
                 <td class="right">${formatNumber(holder.weight, 4)}</td>
-                <td class="right">${formatWbtc(holder.reward)}</td>
+                <td class="right">${formatNvdax(holder.reward)}</td>
                 <td><span class="badge ${holder.eligible || holder.status === "eligible" ? "ok" : "warn"}">${escapeHtml(holder.eligible || holder.status === "eligible" ? "eligible" : "below cut")}</span></td>
               </tr>
             `).join("")
@@ -1802,12 +1802,12 @@
         const rewardTotal = payable.reduce((sum, holder) => sum + holder.reward, 0);
         const batchSize = Math.max(1, Number(batchSizeEl.value || state.status?.weighting?.maxRecipientsPerBatch || 12));
         const stats = [
-          ["Reward pool", `${formatWbtc(rewardPoolEl.value || state.wbtc?.balance || 0)} NVDAx`, "Selected for this run"],
+          ["Reward pool", `${formatNvdax(rewardPoolEl.value || state.nvdax?.balance || 0)} NVDAx`, "Selected for this run"],
           ["Recipients", payable.length, `${rows.length - payable.length} skipped by threshold`],
           ["Total weight", formatNumber(rows.reduce((sum, holder) => sum + holder.weight, 0), 4), "Balance x time"],
           ["Batch count", Math.ceil(payable.length / batchSize), `${batchSize} recipients per batch`],
-          ["Planned payout", `${formatWbtc(rewardTotal)} NVDAx`, "After dust filtering"],
-          ["Minimum payout", `${formatWbtc(minPayoutEl.value || 0)} NVDAx`, "Dust threshold"]
+          ["Planned payout", `${formatNvdax(rewardTotal)} NVDAx`, "After dust filtering"],
+          ["Minimum payout", `${formatNvdax(minPayoutEl.value || 0)} NVDAx`, "Dust threshold"]
         ];
         $("#distributionStats").innerHTML = stats
           .map(([label, value, note]) => `<article class="kpi"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong><small>${escapeHtml(note)}</small></article>`)
@@ -1818,7 +1818,7 @@
             <td class="right">${formatNumber(holder.balance, 4)}</td>
             <td class="right">${formatNumber(holder.days, 0)}d</td>
             <td class="right">${formatNumber(holder.weight, 4)}</td>
-            <td class="right">${formatWbtc(holder.reward)}</td>
+            <td class="right">${formatNvdax(holder.reward)}</td>
             <td><span class="badge ${holder.distributionStatus === "pay" ? "ok" : "warn"}">${escapeHtml(holder.distributionStatus)}</span></td>
           </tr>
         `).join("") || `<tr><td colspan="6" class="muted">No distribution preview yet.</td></tr>`;
@@ -1845,7 +1845,7 @@
           ["WALLET", config.feeWallet || "missing", Boolean(config.feeWallet)],
           ["Distributor route", config.distributorWallet || "missing", Boolean(config.distributorWallet)],
           ["TOKEN_MINT", config.tokenMint || "missing", Boolean(config.tokenMint)],
-          ["REWARD_MINT", config.wbtcMint || "missing", Boolean(config.wbtcMint)],
+          ["REWARD_MINT", config.nvdaxMint || "missing", Boolean(config.nvdaxMint)],
           ["WSOL mint", config.wsolMint || "missing", Boolean(config.wsolMint)],
           ["Holder indexer", config.holderIndexerUrlConfigured ? "configured" : "fallback or missing", true],
           ["Admin secret", state.status?.adminConfigured ? "configured" : "missing", state.status?.adminConfigured],
@@ -1943,14 +1943,14 @@
       function renderLaunchStatus() {
         const action = actionById("official-live-go");
         const holders = state.holders?.eligibleCount ?? state.holders?.holders?.length ?? 0;
-        const wbtc = Number(state.wbtc?.balance || 0);
+        const nvdax = Number(state.nvdax?.balance || 0);
         const automation = state.status?.automation || {};
         const mode = dryRunEl.checked ? "dry run" : confirmLiveEl.checked ? "live confirmed" : "live needs confirm";
         const badges = [
           `<span class="badge ${action?.configured ? "ok" : "warn"}">${escapeHtml(action?.configured ? "ready" : "missing config")}</span>`,
           `<span class="badge">${escapeHtml(mode)}</span>`,
           `<span class="badge ${holders ? "ok" : "warn"}">${escapeHtml(`${holders} eligible`)}</span>`,
-          `<span class="badge ${wbtc > 0 ? "ok" : "warn"}">${escapeHtml(`${formatWbtc(wbtc)} NVDAx`)}</span>`,
+          `<span class="badge ${nvdax > 0 ? "ok" : "warn"}">${escapeHtml(`${formatNvdax(nvdax)} NVDAx`)}</span>`,
           `<span class="badge ${automation.active ? "ok" : "warn"}">${escapeHtml(automation.active ? `epoch ${automation.nextEpochNumber} armed` : "cron not armed")}</span>`
         ];
         $("#launchStatus").innerHTML = badges.join("");

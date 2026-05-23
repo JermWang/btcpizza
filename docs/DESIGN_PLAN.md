@@ -1,8 +1,8 @@
-# Design Plan
+﻿# Design Plan
 
 ## Direction
 
-The site should feel like a pixel-art pizza parlor dashboard, not a literal game screen. The parlor is the visual metaphor; the product is still a public DeFi dashboard for Pump.fun creator fees, WBTC acquisition, holder scoring, receipts, and airdrop batches.
+The site should feel like a pixel-art pizza parlor dashboard, not a literal game screen. The parlor is the visual metaphor; the product is still a public DeFi dashboard for Pump.fun creator fees, nvdax acquisition, holder scoring, receipts, and airdrop batches.
 
 ## Visual References
 
@@ -27,17 +27,17 @@ Do not copy the references directly. Use them to guide shape language, typograph
 
 - Pixel-art `Pizza Pit`-style brand mark.
 - Pizza parlor storefront or counter scene.
-- Clear headline: `Public WBTC airdrop dashboard.`
-- Short explanation: Pump.fun creator fees -> WBTC -> holder airdrops.
-- Live stats: WBTC pool, next slice, recipients, live status.
+- Clear headline: `Public nvdax airdrop dashboard.`
+- Short explanation: Pump.fun creator fees -> nvdax -> holder airdrops.
+- Live stats: nvdax pool, next slice, recipients, live status.
 - Pixel-style CTA buttons.
 
 ## Core Modules
 
-- Pizza Pool: live WBTC amount and slice visualization.
+- Pizza Pool: live nvdax amount and slice visualization.
 - Next Slice: countdown, epoch, and current interval.
 - Order Flow: Fees, Swap, List, Drop.
-- Your Ticket: holder score, estimated WBTC, WBTC ATA status.
+- Your Ticket: holder score, estimated nvdax, nvdax ATA status.
 - Receipt Tickets: fee intake, swap, manifest, batch events.
 - Slice Strip: expanding cadence from 3m through 1h+.
 
@@ -72,7 +72,7 @@ Use code-native UI for:
 ## Live Behavior
 
 - Countdown ticks every second.
-- WBTC pool updates without refresh.
+- nvdax pool updates without refresh.
 - Receipt tickets append without refresh.
 - Slice cadence updates as epochs advance.
 - Holder estimate updates after new manifests.
@@ -81,12 +81,12 @@ Use code-native UI for:
 
 Good:
 
-- `Pump fees in. WBTC slices out.`
+- `Pump fees in. nvdax slices out.`
 - `Next slice`
 - `Pizza pool`
 - `Receipt tickets`
 - `Order flow`
-- `WBTC slice served`
+- `nvdax slice served`
 
 Avoid:
 

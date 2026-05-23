@@ -1,4 +1,4 @@
-# Product Spec
+﻿# Product Spec
 
 ## One-Liner
 
@@ -32,7 +32,7 @@ A Michael Saylor-inspired Bitcoin treasury parody whose Pump.fun creator fees ar
 - Estimated snapshot balance share.
 - Estimated next airdrop amount by epoch.
 - Distribution status and transaction links.
-- WBTC associated token account status.
+- nvdax associated token account status.
 - Live updates when a batch lands or fails.
 
 ### Receipts Page
@@ -41,7 +41,7 @@ Receipt types:
 
 - Pump.fun creator-fee intake.
 - Swap execution.
-- WBTC vault deposit.
+- nvdax vault deposit.
 - Snapshot finalized.
 - Airdrop manifest finalized.
 - Airdrop batch executed.
@@ -94,7 +94,7 @@ holder cap = base holder cap * 2^epoch_index
 
 The interval and holder cap keep doubling by epoch unless the admin/governance config changes it.
 
-For failed transfers, dust amounts, or holders with missing WBTC token accounts, the project can either:
+For failed transfers, dust amounts, or holders with missing nvdax token accounts, the project can either:
 
 - Pay ATA rent and send anyway.
 - Skip amounts below a minimum threshold and roll them to the next epoch.

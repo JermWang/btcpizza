@@ -2,7 +2,7 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "btc-pizza-preview",
+      "name": "jensen-preview",
       "runtimeExecutable": "node",
       "runtimeArgs": ["preview/server.mjs"],
       "port": 4199

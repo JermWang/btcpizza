@@ -1,4 +1,4 @@
-# Security And Legal Notes
+﻿# Security And Legal Notes
 
 ## Security Risks
 
@@ -30,12 +30,12 @@
 
 ## Legal/Compliance Risks
 
-Automatic WBTC airdrops funded by creator fees can resemble revenue sharing, dividends, or investment returns if marketed poorly. That creates securities, tax, and consumer protection risk depending on jurisdiction.
+Automatic nvdax airdrops funded by creator fees can resemble revenue sharing, dividends, or investment returns if marketed poorly. That creates securities, tax, and consumer protection risk depending on jurisdiction.
 
 Safer language:
 
 - "Transparent fee recycling."
-- "Promotional WBTC airdrops."
+- "Promotional nvdax airdrops."
 - "BTC exposure acquired by the project."
 - "Conditional community rewards."
 
@@ -66,7 +66,7 @@ The project should publish:
 - Keeper addresses.
 - Distributor addresses.
 - Swap transaction signatures.
-- WBTC vault address.
+- nvdax vault address.
 - Distribution manifest hashes.
 - Airdrop batch transaction signatures.
 - Snapshot source files.

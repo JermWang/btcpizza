@@ -1,8 +1,8 @@
-{
-  "name": "bitcoin-pizza-strategy",
+﻿{
+  "name": "jensen-strategy",
   "private": true,
   "version": "0.1.0",
-  "description": "Solana Bitcoin Pizza Strategy parody creator-fee to WBTC airdrop blueprint and implementation scaffold.",
+  "description": "Solana Jensen Strategy parody creator-fee to nvdax airdrop blueprint and implementation scaffold.",
   "scripts": {
     "dev": "node preview/server.mjs",
     "start": "node preview/server.mjs",

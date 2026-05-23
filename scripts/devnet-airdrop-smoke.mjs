@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+﻿import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { createRequire } from "node:module";
 import {
@@ -15,7 +15,7 @@ import {
 const require = createRequire(import.meta.url);
 const { fetchHolderSnapshot } = require("../lib/rpc-holders.js");
 const { rpcRequest } = require("../lib/solana-rpc.js");
-const { associatedTokenAddress, distributeWbtcBatch } = require("../lib/wbtc-distributor.js");
+const { associatedTokenAddress, distributeNvdaxBatch } = require("../lib/nvdax-distributor.js");
 
 const TOKEN_PROGRAM_ID = new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
 const ASSOCIATED_TOKEN_PROGRAM_ID = new PublicKey("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL");
@@ -172,14 +172,14 @@ async function main() {
       process.env.DISTRIBUTOR_PRIVATE_KEY_BASE58 = "";
       process.env.CREATE_RECIPIENT_ATAS = "true";
 
-      const result = await distributeWbtcBatch({
+      const result = await distributeNvdaxBatch({
         batch: {
           id: `devnet_dry_run_${Date.now()}`,
           manifestId: "devnet_dry_run_manifest",
           recipients
         },
         config: {
-          wbtcMint: mint.publicKey.toBase58(),
+          nvdaxMint: mint.publicKey.toBase58(),
           distributorWallet: distributor.publicKey.toBase58()
         },
         payload: {
@@ -259,14 +259,14 @@ async function main() {
     process.env.DISTRIBUTOR_PRIVATE_KEY_BASE58 = "";
     process.env.CREATE_RECIPIENT_ATAS = "true";
 
-    const result = await distributeWbtcBatch({
+    const result = await distributeNvdaxBatch({
       batch: {
         id: `devnet_test_${Date.now()}`,
         manifestId: "devnet_test_manifest",
         recipients
       },
       config: {
-        wbtcMint: mint.publicKey.toBase58(),
+        nvdaxMint: mint.publicKey.toBase58(),
         distributorWallet: distributor.publicKey.toBase58()
       },
       payload: {

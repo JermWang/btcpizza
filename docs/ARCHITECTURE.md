@@ -1,4 +1,4 @@
-# Architecture
+﻿# Architecture
 
 ## System Overview
 
@@ -7,12 +7,12 @@ flowchart LR
   Pump["Pump.fun creator fees"] --> Treasury["Creator-fee treasury"]
   Treasury --> Keeper["4-hour keeper"]
   Keeper --> Dex["Swap route"]
-  Dex --> BtcVault["WBTC vault"]
+  Dex --> BtcVault["nvdax vault"]
   Keeper --> Program["Fee vault program"]
   Program --> Receipts["Receipt accounts"]
   Indexer["Indexer"] --> Manifest["Distribution manifest"]
   Manifest --> Distributor["Airdrop distributor"]
-  Distributor --> Holders["Holder WBTC ATAs"]
+  Distributor --> Holders["Holder nvdax ATAs"]
   Distributor --> Program
   Program --> Indexer
   BtcVault --> Indexer
@@ -49,9 +49,9 @@ Possible alternative if available and appropriate at launch.
 
 Tradeoffs:
 
-- Less custom control over WBTC conversion.
+- Less custom control over nvdax conversion.
 - Requires confirming launch-time support and permanence of the setting.
-- May not support the exact Bitcoin Pizza Strategy narrative.
+- May not support the exact Jensen Strategy narrative.
 
 ### Manual Treasury Deposits
 
@@ -92,7 +92,7 @@ The keeper should:
 - Run every 4 hours.
 - Detect and collect available Pump.fun creator fees.
 - Quote and execute swap route.
-- Deposit acquired WBTC into the vault.
+- Deposit acquired nvdax into the vault.
 - Submit on-chain receipts.
 - Trigger batched airdrop distribution after snapshot finalization.
 - Alert if slippage, liquidity, or transaction confirmation fails.
@@ -111,8 +111,8 @@ Keeper execution can start centralized, but authority should be constrained by:
 The distributor should:
 
 - Read finalized distribution manifests.
-- Create recipient WBTC associated token accounts when policy allows.
-- Send WBTC in bounded batches.
+- Create recipient nvdax associated token accounts when policy allows.
+- Send nvdax in bounded batches.
 - Record each batch transaction signature.
 - Retry failed recipients.
 - Produce a failed-recipient list for fallback claims or rollover.
@@ -162,5 +162,5 @@ The safer custody split is:
 
 - Treasury fee-owner wallet: Privy-controlled or multisig.
 - Keeper hot wallet: limited balance, can swap and submit receipts.
-- Distributor wallet: limited WBTC funding per batch.
-- WBTC vault: multisig or program-owned token account.
+- Distributor wallet: limited nvdax funding per batch.
+- nvdax vault: multisig or program-owned token account.

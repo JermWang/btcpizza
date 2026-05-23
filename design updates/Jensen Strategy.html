@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Jensen Strategy — Fees in. NVDAx out.</title>
+    <meta name="description" content="Creator fees route into NVDAx reward pools and distribute to holders through transparent Solana epoch airdrops." />
+    <meta name="theme-color" content="#000000" />
+    <link rel="icon" type="image/png" href="assets/nvdax-coin.png?v=3" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+
+    <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="styles.css?v=8" />
+  </head>
+  <body data-accent="green" data-density="comfy">
+    <!-- ============== ATMOSPHERE ============== -->
+    <div class="atmosphere" aria-hidden="true">
+      <div class="atmosphere-grid"></div>
+      <div class="atmosphere-orb atmosphere-orb-1"></div>
+      <div class="atmosphere-orb atmosphere-orb-2"></div>
+      <div class="atmosphere-scan"></div>
+    </div>
+
+    <main class="page">
+      <!-- ============== TOP BAR ============== -->
+      <header class="top" id="topBar">
+        <a class="brand" href="#dashboard">
+          <span class="brand-mark" aria-hidden="true">
+            <img src="assets/nvdax-coin.png?v=3" alt="" />
+          </span>
+          <span class="brand-text">
+            <span class="brand-name">JENSEN</span>
+            <span class="brand-name brand-name-accent">STRATEGY</span>
+          </span>
+        </a>
+
+        <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open navigation" aria-controls="primaryNav" aria-expanded="false">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </button>
+
+        <nav class="nav" id="primaryNav" aria-label="Primary">
+          <a class="active" href="#dashboard">Dashboard</a>
+          <a href="#receipts">Receipts</a>
+          <a href="#holders">Holders</a>
+          <a href="#airdrops">Airdrops</a>
+          <a href="#about">About</a>
+        </nav>
+
+        <div class="top-actions">
+          <button class="contract-pill" id="copyContract" type="button" disabled>
+            <span class="ca-label">CA</span>
+            <span class="ca-value">pending</span>
+            <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M5 3h7a1 1 0 0 1 1 1v9h-2V5H5V3zm-3 3h7a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1zm1 2v6h5V8H3z" fill="currentColor"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- ============== MARKET TICKER ============== -->
+      <section class="market-ticker" aria-label="Live crypto prices">
+        <div class="ticker-edge ticker-edge-left" aria-hidden="true"></div>
+        <div class="ticker-track" id="tickerTrack">
+          <div class="ticker-set">
+            <span class="ticker-item" data-symbol="bitcoin"><b>BTC</b><span class="price">—</span><span class="change up">live</span></span>
+            <span class="ticker-divider" aria-hidden="true"></span>
+            <span class="ticker-item" data-symbol="solana"><b>SOL</b><span class="price">—</span><span class="change up">live</span></span>
+            <span class="ticker-divider" aria-hidden="true"></span>
+            <span class="ticker-item" data-symbol="ethereum"><b>ETH</b><span class="price">—</span><span class="change up">live</span></span>
+            <span class="ticker-divider" aria-hidden="true"></span>
+            <span class="ticker-item" data-symbol="jupiter-exchange-solana"><b>JUP</b><span class="price">—</span><span class="change up">live</span></span>
+            <span class="ticker-divider" aria-hidden="true"></span>
+            <span class="ticker-item" data-symbol="dogwifcoin"><b>WIF</b><span class="price">—</span><span class="change up">live</span></span>
+            <span class="ticker-divider" aria-hidden="true"></span>
+            <span class="ticker-item" data-symbol="bonk"><b>BONK</b><span class="price">—</span><span class="change up">live</span></span>
+          </div>
+        </div>
+        <div class="ticker-edge ticker-edge-right" aria-hidden="true"></div>
+      </section>
+
+      <!-- ============== HERO + DASHBOARD ============== -->
+      <section class="stage" id="dashboard" aria-label="Jensen Strategy dashboard">
+
+        <!-- HERO -->
+        <div class="hero">
+          <div class="hero-jensen">
+            <img class="hero-jensen-glow" src="assets/jensen-glow.png" alt="" aria-hidden="true" />
+            <img class="hero-jensen-img" src="assets/jensen-avatar.png" alt="Jensen — Strategy mascot" />
+            <img class="hero-jensen-coin" src="assets/nvdax-coin.png?v=3" alt="" aria-hidden="true" />
+          </div>
+
+          <div class="hero-copy">
+            <h1 class="hero-title">
+              <span>JENSEN</span>
+              <span class="hero-title-accent">STRATEGY</span>
+            </h1>
+            <p class="hero-tagline">
+              <span>Fees in.</span>
+              <span class="hero-accent">NVDA<i>x</i> out.</span>
+            </p>
+            <p class="hero-sub">Creator fees auto-convert to NVDAx (NVIDIA xStock on Solana) and airdrop to holders every epoch. Onchain, transparent, automatic.</p>
+
+            <div class="hero-flow">
+              <div class="hero-flow-step">
+                <span class="hero-flow-icon">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M16 6.5H10a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6H7"/></svg>
+                </span>
+                <div>
+                  <b>FEES</b>
+                  <span>Compounded</span>
+                </div>
+              </div>
+              <span class="hero-flow-arrow" aria-hidden="true">→</span>
+              <div class="hero-flow-step">
+                <span class="hero-flow-icon hero-flow-icon-coin">
+                  <img src="assets/nvidia-eye.png" alt="" />
+                </span>
+                <div>
+                  <b>NVDA<i>x</i></b>
+                  <span>Acquired</span>
+                </div>
+              </div>
+              <span class="hero-flow-arrow" aria-hidden="true">→</span>
+              <div class="hero-flow-step">
+                <span class="hero-flow-icon">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><circle cx="7" cy="8" r="2.6"/><circle cx="17" cy="8" r="2.6"/><circle cx="12" cy="7" r="3"/><path d="M2 18.5c0-2.8 2.2-4.5 5-4.5s5 1.7 5 4.5V20H2v-1.5zm10 0c0-2.8 2.2-4.5 5-4.5s5 1.7 5 4.5V20H12v-1.5z"/></svg>
+                </span>
+                <div>
+                  <b>HOLDERS</b>
+                  <span>Rewarded</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <img class="hero-chart" src="assets/chart-rise.png" alt="" aria-hidden="true" />
+        </div>
+
+        <!-- Trust strip: brands powering Jensen Strategy -->
+        <section class="brand-strip" aria-label="Built on">
+          <div class="brand-strip-label">
+            <span class="brand-strip-dot"></span>
+            <span>Built on the stack</span>
+          </div>
+          <div class="brand-strip-track">
+            <div class="brand-strip-set">
+
+              <span class="brand-strip-item" title="Solana">
+                <img src="https://cdn.simpleicons.org/solana/ffffff" alt="" onerror="this.style.display='none'" />
+                <b>Solana</b>
+              </span>
+
+              <span class="brand-strip-item" title="Jupiter">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10" fill="none" stroke="#ffffff" stroke-width="2"/>
+                  <ellipse cx="12" cy="12" rx="11" ry="3" fill="none" stroke="#ffffff" stroke-width="1.6"/>
+                </svg>
+                <b>Jupiter</b>
+              </span>
+
+              <span class="brand-strip-item" title="Pump.fun">
+                <img src="https://cdn.simpleicons.org/pumpdotfun/ffffff" alt="" onerror="this.style.display='none'" />
+                <b>pump.fun</b>
+              </span>
+
+              <span class="brand-strip-item" title="Phantom">
+                <img src="https://cdn.simpleicons.org/phantom/ffffff" alt="" onerror="this.style.display='none'" />
+                <b>Phantom</b>
+              </span>
+
+              <span class="brand-strip-item" title="Backpack">
+                <img src="https://cdn.simpleicons.org/backpack/ffffff" alt="" onerror="this.style.display='none'" />
+                <b>Backpack</b>
+              </span>
+
+              <span class="brand-strip-item" title="Helius">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="12" cy="12" r="5" fill="#ffffff"/>
+                  <g stroke="#ffffff" stroke-width="2" stroke-linecap="round">
+                    <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1l2.1-2.1M17 7l2.1-2.1"/>
+                  </g>
+                </svg>
+                <b>Helius</b>
+              </span>
+
+              <span class="brand-strip-item" title="Solscan">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9" fill="none" stroke="#ffffff" stroke-width="2"/>
+                  <circle cx="12" cy="12" r="3.6" fill="#ffffff"/>
+                </svg>
+                <b>Solscan</b>
+              </span>
+
+              <span class="brand-strip-item" title="Anchor">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <g fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="5" r="2" fill="#ffffff"/>
+                    <path d="M12 7v15M6 13h12M3 16c0 4 4 7 9 7s9-3 9-7"/>
+                  </g>
+                </svg>
+                <b>Anchor</b>
+              </span>
+
+              <span class="brand-strip-item" title="xStocks">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <g stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" fill="none">
+                    <path d="M5 5l14 14M19 5L5 19"/>
+                  </g>
+                </svg>
+                <b>xStocks</b>
+              </span>
+
+              <span class="brand-strip-item" title="Vercel">
+                <img src="https://cdn.simpleicons.org/vercel/ffffff" alt="" onerror="this.style.display='none'" />
+                <b>Vercel</b>
+              </span>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- KPI ROW -->
+        <div class="kpi-row">
+          <article class="kpi kpi-feature">
+            <div class="kpi-label"><span class="kpi-dot"></span>Next NVDA<i>x</i> Drop</div>
+            <div class="kpi-value kpi-value-mono" id="countdown" aria-live="polite">03:00</div>
+            <div class="kpi-bar" aria-hidden="true"><span id="countdownProgress"></span></div>
+            <div class="kpi-meta">
+              <span class="kpi-unit">interval</span>
+              <span class="kpi-delta" id="interval">3 minutes</span>
+            </div>
+          </article>
+
+          <article class="kpi">
+            <div class="kpi-label"><span class="kpi-dot"></span>Creator Fees Collected</div>
+            <div class="kpi-value" id="creatorFees">$0</div>
+            <div class="kpi-meta">
+              <span class="kpi-unit">total</span>
+              <span class="kpi-delta kpi-delta-neutral" id="lastReceipt">no receipts yet</span>
+            </div>
+          </article>
+
+          <article class="kpi">
+            <div class="kpi-label"><span class="kpi-dot"></span>Eligible Holders</div>
+            <div class="kpi-value" id="eligibleShown">0</div>
+            <div class="kpi-meta">
+              <span class="kpi-unit">snapshotted</span>
+              <span class="kpi-delta kpi-delta-neutral" id="snapshotAge">pre-snapshot</span>
+            </div>
+          </article>
+
+          <article class="kpi">
+            <div class="kpi-label"><span class="kpi-dot"></span>NVDA<i>x</i> Reward Pool</div>
+            <div class="kpi-value" id="pool">0.00</div>
+            <div class="kpi-meta">
+              <span class="kpi-unit">NVDAx</span>
+              <span class="kpi-delta kpi-delta-neutral">awaiting first deposit</span>
+            </div>
+          </article>
+        </div>
+
+        <!-- MAIN GRID -->
+        <div class="grid">
+          <!-- Pool card with image -->
+          <article class="card card-pool">
+            <header class="card-head">
+              <h2><span class="card-num">01</span>NVDA<i>x</i> Reward Pool</h2>
+              <span class="card-status status-pending">EMPTY</span>
+            </header>
+            <div class="pool-layout">
+              <div class="pool-coin">
+                <img src="assets/nvdax-coin.png?v=3" alt="NVDAx token" />
+                <div class="pool-coin-ring" aria-hidden="true"></div>
+              </div>
+              <div class="pool-stats">
+                <div class="pool-stat">
+                  <span>Pool balance</span>
+                  <strong>0.00 <em>NVDAx</em></strong>
+                </div>
+                <div class="pool-stat">
+                  <span>USD equivalent</span>
+                  <strong>$0.00</strong>
+                </div>
+                <div class="pool-stat">
+                  <span>Last fee receipt</span>
+                  <strong class="muted">never</strong>
+                </div>
+              </div>
+            </div>
+            <div class="pool-meter">
+              <div class="pool-meter-rail" aria-hidden="true"><span style="width:0%"></span></div>
+              <div class="pool-meter-labels">
+                <span>Threshold $50 · enables first swap</span>
+                <span>0%</span>
+              </div>
+            </div>
+          </article>
+
+          <!-- Next drop schedule -->
+          <article class="card card-schedule">
+            <header class="card-head">
+              <h2><span class="card-num">02</span>Epoch Schedule</h2>
+              <span class="card-status status-armed" id="cycleStatus">WARMING UP</span>
+            </header>
+            <div class="schedule-grid">
+              <div class="schedule-metric">
+                <span>Interval</span>
+                <strong id="interval-mirror">3 min</strong>
+              </div>
+              <div class="schedule-metric">
+                <span>Holder cap</span>
+                <strong id="epochHolderCap">5</strong>
+              </div>
+              <div class="schedule-metric">
+                <span>Multiplier</span>
+                <strong>×2 / epoch</strong>
+              </div>
+              <div class="schedule-metric">
+                <span>Cap base</span>
+                <strong>×2 / epoch</strong>
+              </div>
+            </div>
+            <div class="schedule-rail" id="sliceSchedule" aria-label="Upcoming epoch intervals"></div>
+            <p class="card-note">Intervals double every epoch — early rounds prove the system, later rounds pool larger NVDAx reserves.</p>
+          </article>
+
+          <!-- Order flow -->
+          <article class="card card-flow" id="flow">
+            <header class="card-head">
+              <h2><span class="card-num">03</span>Order Flow</h2>
+              <span class="card-status status-pending">SYNCING</span>
+            </header>
+            <ol class="flow-list">
+              <li class="flow-row">
+                <span class="flow-index">01</span>
+                <span class="flow-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2L3 7l9 5 9-5-9-5zm0 8.18L3.27 5l8.73 4.85L20.73 5 12 10.18zM3 17l9 5 9-5v-7l-9 5-9-5v7z"/></svg></span>
+                <div class="flow-body">
+                  <b>Fees</b>
+                  <span>Pump.fun fee wallet</span>
+                </div>
+                <strong class="flow-status" id="feeStatus">Pending</strong>
+              </li>
+              <li class="flow-row">
+                <span class="flow-index">02</span>
+                <span class="flow-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M3 7h13l-3-3M21 17H8l3 3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                <div class="flow-body">
+                  <b>Swap</b>
+                  <span>Jupiter → NVDAx</span>
+                </div>
+                <strong class="flow-status" id="swapStatus">Pending</strong>
+              </li>
+              <li class="flow-row">
+                <span class="flow-index">03</span>
+                <span class="flow-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M3 5h18v3H3V5zm0 6h18v3H3v-3zm0 6h18v3H3v-3z"/></svg></span>
+                <div class="flow-body">
+                  <b>Snapshot</b>
+                  <span>Holder board indexed</span>
+                </div>
+                <strong class="flow-status" id="holderStatus">Pending</strong>
+              </li>
+              <li class="flow-row flow-row-final">
+                <span class="flow-index">04</span>
+                <span class="flow-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2l-1.5 6.5L4 7l4.5 5L4 17l6.5-1.5L12 22l1.5-6.5L20 17l-4.5-5L20 7l-6.5 1.5z"/></svg></span>
+                <div class="flow-body">
+                  <b>Airdrop</b>
+                  <span>Batched onchain</span>
+                </div>
+                <strong class="flow-status" id="batch">Queued</strong>
+              </li>
+            </ol>
+          </article>
+
+          <!-- Allocation check -->
+          <article class="card card-ticket" id="ticket">
+            <header class="card-head">
+              <h2><span class="card-num">04</span>Allocation Check</h2>
+              <span class="card-status status-info" id="ticketStatus">SEARCH</span>
+            </header>
+            <div class="ticket-search">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/></svg>
+              <input class="holder-search" id="holderSearch" type="search" placeholder="Paste wallet or .sol domain…" autocomplete="off" />
+            </div>
+            <div class="ticket-stats">
+              <div class="ticket-stat">
+                <span>Wallet balance</span>
+                <strong id="score">—</strong>
+              </div>
+              <div class="ticket-stat">
+                <span>Round rank</span>
+                <strong id="holderRank">—</strong>
+              </div>
+              <div class="ticket-stat">
+                <span>Cutoff</span>
+                <strong id="cutoffScore">—</strong>
+              </div>
+              <div class="ticket-stat ticket-stat-feature">
+                <span>Est. NVDAx</span>
+                <strong id="estimate">—</strong>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- RECEIPTS -->
+        <section class="receipts-section" id="receipts" aria-live="polite">
+          <header class="receipts-head">
+            <div>
+              <h2><span class="card-num">05</span>Distribution Receipts</h2>
+              <p>Every fee intake, swap, snapshot, and NVDAx batch posts an onchain receipt here.</p>
+            </div>
+            <div class="receipts-actions">
+              <button class="btn btn-primary" id="refreshData" type="button">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>
+                Refresh chain data
+              </button>
+              <a class="btn btn-secondary" href="#holders">View holder board</a>
+            </div>
+          </header>
+          <div class="receipts-grid" id="receiptsGrid">
+            <div class="empty-state" id="receiptEmpty">
+              <div class="empty-state-icon" aria-hidden="true">
+                <img src="assets/nvdax-coin.png?v=3" alt="" />
+              </div>
+              <div>
+                <b>Fee wallet is being watched.</b>
+                <span>Confirmed receipts will appear here as soon as the first epoch closes onchain.</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <!-- ============== INFO PAGES ============== -->
+      <section class="info-pages">
+
+        <!-- Squatting Jensen mascot — sits in the gap between sections -->
+        <div class="mascot-strip" aria-hidden="true">
+          <div class="mascot-caption">
+            <span>Jensen says:</span>
+            <b>Hold tight. NVDA<i>x</i> is coming.</b>
+          </div>
+          <img src="assets/jensen-squat.png" alt="" />
+        </div>
+
+        <!-- HOLDERS -->
+        <section class="info-section" id="holders">
+          <header class="info-head">
+            <div class="info-tag">06</div>
+            <h2>Holders</h2>
+            <p>Every wallet's allocation is its share of the eligible snapshot supply. Same formula for everyone, published manifest, onchain receipts.</p>
+          </header>
+
+          <div class="info-grid info-grid-3">
+            <article class="info-card">
+              <header><span>·</span><b>Reward share</b></header>
+              <p>Allocation = wallet balance ÷ total eligible snapshot balance at epoch close.</p>
+            </article>
+            <article class="info-card">
+              <header><span>·</span><b>Visible cutoff</b></header>
+              <p>The board surfaces the balance required to make the current holder-cap snapshot.</p>
+            </article>
+            <article class="info-card">
+              <header><span>·</span><b>Public proof</b></header>
+              <p>Snapshots, manifest hash, batch signatures stay public and reproducible.</p>
+            </article>
+          </div>
+
+          <div class="info-grid info-grid-2">
+            <article class="info-card info-card-feature">
+              <header><span>·</span><b>Your round position</b></header>
+              <div class="meter">
+                <span id="drawMeter"></span>
+              </div>
+              <div class="meter-grid">
+                <div><span>Rank</span><strong id="drawRank">—</strong></div>
+                <div><span>Above cutoff</span><strong id="drawEdge">—</strong></div>
+                <div><span>Snapshot</span><strong id="drawOdds">—</strong></div>
+              </div>
+            </article>
+
+            <article class="info-card">
+              <header><span>·</span><b>How to get a larger allocation</b></header>
+              <ul class="ordered-list">
+                <li><span>1</span><div><b>Hold more.</b> Reward share scales linearly with balance.</div></li>
+                <li><span>2</span><div><b>Make the cut.</b> Top wallets fill the holder cap first.</div></li>
+                <li><span>3</span><div><b>Stay ready.</b> Keep your NVDAx token account open so distributions land.</div></li>
+              </ul>
+            </article>
+          </div>
+
+          <div class="holder-board">
+            <div class="holder-toolbar">
+              <div class="holder-toolbar-info">
+                <h3>Holder allocation board</h3>
+                <span>All eligible wallets for this epoch, ranked by token balance with projected NVDAx allocations.</span>
+                <strong class="holder-source" id="holderSource">Awaiting first snapshot</strong>
+              </div>
+            </div>
+            <div class="holder-stats">
+              <div class="holder-stat"><span>Round cap</span><strong id="roundCap">5</strong></div>
+              <div class="holder-stat"><span>Cutoff balance</span><strong id="holderCutoff">—</strong></div>
+              <div class="holder-stat"><span>Eligible shown</span><strong id="eligibleShown-mirror">0</strong></div>
+              <div class="holder-stat"><span>Snapshot age</span><strong id="snapshotAge-mirror">—</strong></div>
+            </div>
+            <div class="holder-table" id="holderTable" aria-live="polite"></div>
+          </div>
+        </section>
+
+        <!-- AIRDROPS -->
+        <section class="info-section" id="airdrops">
+          <header class="info-head">
+            <div class="info-tag">07</div>
+            <h2>NVDA<i>x</i> Airdrops</h2>
+            <p>Distribution windows start frequent and expand exponentially so reward pools can compound.</p>
+          </header>
+          <div class="info-grid info-grid-3">
+            <article class="info-card"><header><span>·</span><b>Intervals</b></header><p>3 minutes → 6 min → 12 min → 24 min … doubling each epoch.</p></article>
+            <article class="info-card"><header><span>·</span><b>Pool</b></header><p>Creator fees swap to NVDAx and reserve in the distribution wallet.</p></article>
+            <article class="info-card"><header><span>·</span><b>Batches</b></header><p>Each airdrop posts a manifest hash plus per-recipient transfer receipts.</p></article>
+          </div>
+        </section>
+
+        <!-- ABOUT -->
+        <section class="info-section" id="about">
+          <header class="info-head">
+            <div class="info-tag">08</div>
+            <h2>About</h2>
+            <p>Plain-language answers to the questions every holder asks first.</p>
+          </header>
+          <div class="info-grid info-grid-2">
+            <article class="info-card"><header><span>·</span><b>What is Jensen Strategy?</b></header><p>An onchain reward system that routes project creator fees into NVDAx and distributes to holders via epoch-based snapshots.</p></article>
+            <article class="info-card"><header><span>·</span><b>What is NVDAx?</b></header><p>NVDAx is NVIDIA xStock — a tokenized NVIDIA exposure asset on Solana. It does not grant equity, voting, dividends, or direct ownership of NVIDIA common stock.</p></article>
+            <article class="info-card"><header><span>·</span><b>How are rewards calculated?</b></header><p>Reward share = wallet balance ÷ total eligible balance at the epoch's snapshot. Same formula for every wallet.</p></article>
+            <article class="info-card"><header><span>·</span><b>Why do epochs get longer?</b></header><p>Early epochs prove the system fast. Later epochs space out so reward pools can compound into larger NVDAx batches.</p></article>
+            <article class="info-card"><header><span>·</span><b>How do I verify rewards?</b></header><p>Each epoch publishes holder snapshot data, a manifest hash, distribution batches, and Solscan-verifiable transfer receipts.</p></article>
+            <article class="info-card info-card-warning"><header><span>·</span><b>Compliance</b></header><p>Jensen Strategy is a parody/community project. Not affiliated with or endorsed by NVIDIA Corporation. NVDAx is a tokenized representation and does not grant equity ownership.</p></article>
+          </div>
+        </section>
+      </section>
+
+      <!-- ============== FOOTER ============== -->
+      <footer class="footer">
+        <div class="footer-grid">
+          <div class="footer-brand">
+            <div class="brand">
+              <span class="brand-mark"><img src="assets/nvdax-coin.png?v=3" alt="" /></span>
+              <span class="brand-text">
+                <span class="brand-name">JENSEN</span>
+                <span class="brand-name brand-name-accent">STRATEGY</span>
+              </span>
+            </div>
+            <p>Fees in. NVDAx out. Onchain since the first epoch.</p>
+          </div>
+          <div>
+            <h4>Product</h4>
+            <a href="#dashboard">Dashboard</a>
+            <a href="#receipts">Receipts</a>
+            <a href="#holders">Holders</a>
+            <a href="#airdrops">Airdrops</a>
+          </div>
+          <div>
+            <h4>Onchain</h4>
+            <a href="#" data-disabled>Solscan</a>
+            <a href="#" data-disabled>Manifest</a>
+            <a href="#" data-disabled>Pump.fun</a>
+          </div>
+          <div>
+            <h4>Legal</h4>
+            <a href="#about">Parody disclaimer</a>
+            <a href="#about">Terms</a>
+            <a href="#about">Risk</a>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <span>Built on Solana · Routed through Jupiter</span>
+          <span>Not affiliated with NVIDIA Corporation.</span>
+        </div>
+      </footer>
+    </main>
+
+    <!-- intercept api fetches so pre-launch state renders without backend -->
+    <script src="mock-api.js"></script>
+    <!-- the original JS scaffold (countdown, polling, holders, receipts) -->
+    <script src="app.js"></script>
+
+    <!-- Tweaks -->
+    <div id="tweaks-root"></div>
+    <script type="text/babel" src="tweaks-panel.jsx"></script>
+    <script type="text/babel" src="tweaks-app.jsx"></script>
+  </body>
+</html>

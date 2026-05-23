@@ -1,8 +1,8 @@
-# HTML-In-Canvas Game UI Plan
+﻿# HTML-In-Canvas Game UI Plan
 
 ## Product Fantasy
 
-Bitcoin Pizza Strategy Shop: a 90s console-style DeFi game where each utility function is a pizza shop station.
+Jensen Strategy Shop: a 90s console-style DeFi game where each utility function is a pizza shop station.
 
 ## Architecture
 
@@ -32,20 +32,20 @@ Render:
 - Countdown.
 - Current interval.
 - Epoch.
-- Pool WBTC.
+- Pool nvdax.
 - Creator fees.
 - Recipient count.
 - Holder score.
-- Estimated WBTC.
+- Estimated nvdax.
 - Receipt feed.
 - Utility station buttons.
 
 ## Utility Stations
 
 - Fees: Pump.fun creator fee intake.
-- Swap: SOL/fee asset to WBTC.
+- Swap: SOL/fee asset to nvdax.
 - Manifest: holder scoring and manifest hash.
-- Airdrop: batched WBTC transfers.
+- Airdrop: batched nvdax transfers.
 
 ## Interaction Model
 
@@ -62,7 +62,7 @@ Render:
 - No large paragraph blocks in the app UI.
 - Warm pizza colors for emotion.
 - Mint/cyan for live DeFi states.
-- Gold for WBTC/BTC value.
+- Gold for nvdax/BTC value.
 
 ## Production Notes
 

@@ -1,4 +1,4 @@
-# Distributor
+﻿# Distributor
 
 Batch sender for automatic wrapped-BTC airdrops.
 
@@ -18,7 +18,7 @@ The distributor must support:
 
 - Minimum payout threshold.
 - Maximum recipients per transaction.
-- Maximum WBTC per batch.
+- Maximum nvdax per batch.
 - ATA creation enabled/disabled.
 - Retry count.
 - Rollover or fallback-claim behavior for failed recipients.

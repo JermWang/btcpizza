@@ -6,7 +6,7 @@ import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
 
-const root = mkdtempSync(join(tmpdir(), "btc-pizza-rewards-"));
+const root = mkdtempSync(join(tmpdir(), "jensen-rewards-"));
 process.env.ADMIN_STORAGE_PATH = root;
 // Force file-based store (no DB) so tests are fully self-contained — no network.
 delete process.env.DATABASE_URL;
@@ -403,7 +403,7 @@ try {
   // ─── Fresh store returns no_snapshot_yet ─────────────────────────────────────
 
   await test("holdersPayload returns no_snapshot_yet on empty store", async () => {
-    const freshRoot = mkdtempSync(join(tmpdir(), "btc-pizza-fresh-"));
+    const freshRoot = mkdtempSync(join(tmpdir(), "jensen-fresh-"));
     const savedPath = process.env.ADMIN_STORAGE_PATH;
     process.env.ADMIN_STORAGE_PATH = freshRoot;
     try {

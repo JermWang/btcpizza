@@ -1,4 +1,4 @@
-# Open Decisions
+﻿# Open Decisions
 
 These decisions should be finalized before production implementation.
 
@@ -19,7 +19,7 @@ Decision: wrapped BTC on Solana.
 
 Open details:
 
-- Choose exact WBTC / BTC asset mint.
+- Choose exact nvdax / BTC asset mint.
 - Confirm liquidity route and slippage limits.
 - Decide whether failed/dust rewards roll over or become fallback claims.
 
@@ -30,8 +30,8 @@ Current preference: Privy or equivalent operational wallet, with production hard
 Recommended:
 
 - Fee-owner wallet: Privy-controlled or multisig.
-- WBTC vault: multisig or program-owned token account.
-- Distributor wallet: hot wallet with limited WBTC funding per batch.
+- nvdax vault: multisig or program-owned token account.
+- Distributor wallet: hot wallet with limited nvdax funding per batch.
 
 ## Airdrop Cadence
 
@@ -65,6 +65,6 @@ Choose one:
 Choose one:
 
 - Send to every eligible holder and pay ATA creation rent.
-- Set a minimum WBTC amount and roll dust forward.
+- Set a minimum nvdax amount and roll dust forward.
 - Set a minimum token holding score threshold.
 - Direct-send above threshold and fallback-claim below threshold.

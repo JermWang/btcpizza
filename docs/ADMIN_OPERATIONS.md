@@ -1,4 +1,4 @@
-# Admin Operations
+﻿# Admin Operations
 
 The admin page lives at `/admin` and talks to `/api/admin`.
 
@@ -15,19 +15,19 @@ These buttons run directly through Solana RPC and do not need third-party credit
 - `Validate Config`: checks admin, RPC, wallet, mint, and action readiness.
 - `Refresh Fee Receipts`: reads recent `WALLET` signatures and SOL balance.
 - `Refresh Holder List`: scans token accounts for `TOKEN_MINT` through the configured holder provider.
-- `Check WBTC Vault`: reads the configured `WALLET` balance for `REWARD_MINT`.
+- `Check nvdax Vault`: reads the configured `WALLET` balance for `REWARD_MINT`.
 - `Official Live GO`: validates live readiness and arms continuous epochs. Cron performs the actual epoch work after that.
 - `Run Due Epoch`: cron/manual tick that only runs when the next displayed epoch time is due.
 - `Create Holder Snapshot`: same holder-source path as refresh, exposed in the snapshot workflow.
-- `Simulate Distribution`: computes holder weights, dust skips, payout estimates, and batch count without sending WBTC.
+- `Simulate Distribution`: computes holder weights, dust skips, payout estimates, and batch count without sending nvdax.
 - `Publish Receipt`: stores a durable local receipt record when no receipt webhook is configured.
 - `Lock Snapshot`: stores a locked manifest with a deterministic manifest hash.
 - `Generate Batch`: stores an idempotent prepared batch from the locked manifest.
-- `Execute WBTC Batch`: signs and submits SPL Token WBTC transfers from `DISTRIBUTOR_KEYPAIR_PATH` when dry-run is disabled.
-- `Retry Failed Sends`: reruns the latest prepared/failed WBTC batch, with duplicate-confirmed protection.
-- `Preview WBTC Buy`: quotes SOL -> WBTC through Jupiter.
+- `Execute nvdax Batch`: signs and submits SPL Token nvdax transfers from `DISTRIBUTOR_KEYPAIR_PATH` when dry-run is disabled.
+- `Retry Failed Sends`: reruns the latest prepared/failed nvdax batch, with duplicate-confirmed protection.
+- `Preview nvdax Buy`: quotes SOL -> nvdax through Jupiter.
 - `Approve Swap Spend`: direct no-op on Solana because Jupiter swaps are authorized by signing the transaction.
-- `Buy WBTC`: builds an unsigned Jupiter swap transaction for the configured signer to sign and submit.
+- `Buy nvdax`: builds an unsigned Jupiter swap transaction for the configured signer to sign and submit.
 - `Simulate Fee Claim`: builds the PumpPortal `collectCreatorFee` transaction locally without signing.
 - `Claim Creator Fees`: signs and submits the PumpPortal `collectCreatorFee` transaction with `CREATOR_KEYPAIR_PATH` when dry-run is disabled.
 
@@ -38,12 +38,12 @@ Confirmed live GO stores an `epoch-automation` record and starts the epoch clock
 The cron runner owns every post-start epoch action:
 
 1. Claim Pump.fun creator fees for the configured wallet.
-2. Buy WBTC through Jupiter using the configured signer and spend limit.
-3. Read the distributor WBTC pool.
+2. Buy nvdax through Jupiter using the configured signer and spend limit.
+3. Read the distributor nvdax pool.
 4. Snapshot holders for the configured token mint.
 5. Compute proportional payouts.
 6. Lock the manifest and prepare the next batch.
-7. Send WBTC to payable holders.
+7. Send nvdax to payable holders.
 8. Record receipts, epoch status, and optional screenshot evidence.
 
 Do not use admin buttons as part of normal epoch operation after `Official Live GO` is armed. Admin remains for setup, emergency pause/retry, and manual diagnostics.
@@ -70,11 +70,11 @@ Each due epoch runs this sequence:
 
 1. Claim Pump.fun creator fees for the configured coin.
 2. Refresh fee-wallet receipts.
-3. Buy WBTC through Jupiter using the configured cycle spend and signer.
-4. Read the distributor WBTC pool.
+3. Buy nvdax through Jupiter using the configured cycle spend and signer.
+4. Read the distributor nvdax pool.
 5. Snapshot holders for `TOKEN_MINT`.
 6. Compute proportional payouts using token balance at the epoch snapshot.
-7. Lock the manifest, prepare the batch, and distribute WBTC to payable holders.
+7. Lock the manifest, prepare the batch, and distribute nvdax to payable holders.
 8. If `ADMIN_EPOCH_SCREENSHOT_WEBHOOK_URL` is configured, call it with the dashboard URL and epoch record so a screenshot can be stored.
 
 Required live epoch env:
@@ -95,7 +95,7 @@ CREATOR_FEE_DRY_RUN=false
 DISTRIBUTOR_DRY_RUN=false
 ```
 
-The default routing is intentionally simple: `WALLET` receives/controls fees, swaps, and WBTC distribution, and `WALLET_PRIVATE_KEY` signs those live actions. Only set `CREATOR_*`, `JUPITER_SWAP_*`, or `DISTRIBUTOR_*` overrides if those responsibilities are intentionally split across different wallets.
+The default routing is intentionally simple: `WALLET` receives/controls fees, swaps, and nvdax distribution, and `WALLET_PRIVATE_KEY` signs those live actions. Only set `CREATOR_*`, `JUPITER_SWAP_*`, or `DISTRIBUTOR_*` overrides if those responsibilities are intentionally split across different wallets.
 
 The screenshot webhook receives:
 
@@ -154,7 +154,7 @@ Live signing operations are webhook-backed until the keeper and distributor are 
 
 ```json
 {
-  "action": "distribute-wbtc",
+  "action": "distribute-nvdax",
   "dryRun": true,
   "requestedAt": "2026-05-21T00:00:00.000Z",
   "payload": {}
@@ -168,14 +168,14 @@ Configure a shared `ADMIN_ACTION_WEBHOOK_URL`, or per-action URLs:
 - `ADMIN_SYNC_INDEXER_WEBHOOK_URL`
 - `ADMIN_SIMULATE_CLAIM_CREATOR_FEES_WEBHOOK_URL`
 - `ADMIN_CLAIM_CREATOR_FEES_WEBHOOK_URL`
-- `ADMIN_QUOTE_WBTC_BUY_WEBHOOK_URL`
-- `ADMIN_APPROVE_WBTC_BUY_WEBHOOK_URL`
-- `ADMIN_EXECUTE_WBTC_BUY_WEBHOOK_URL`
+- `ADMIN_QUOTE_NVDAX_BUY_WEBHOOK_URL`
+- `ADMIN_APPROVE_NVDAX_BUY_WEBHOOK_URL`
+- `ADMIN_EXECUTE_NVDAX_BUY_WEBHOOK_URL`
 - `ADMIN_RECORD_RECEIPT_WEBHOOK_URL`
 - `ADMIN_CREATE_HOLDER_SNAPSHOT_WEBHOOK_URL`
 - `ADMIN_FINALIZE_MANIFEST_WEBHOOK_URL`
 - `ADMIN_GENERATE_DISTRIBUTION_BATCH_WEBHOOK_URL`
-- `ADMIN_DISTRIBUTE_WBTC_WEBHOOK_URL`
+- `ADMIN_DISTRIBUTE_NVDAX_WEBHOOK_URL`
 - `ADMIN_RETRY_FAILED_AIRDROPS_WEBHOOK_URL`
 - `ADMIN_OPEN_FALLBACK_CLAIMS_WEBHOOK_URL`
 - `ADMIN_CLOSE_FALLBACK_CLAIMS_WEBHOOK_URL`
@@ -184,9 +184,9 @@ Configure a shared `ADMIN_ACTION_WEBHOOK_URL`, or per-action URLs:
 
 Dangerous actions require the admin page's `Confirm live actions` toggle. Keep `Dry run` enabled when testing webhooks.
 
-## Jupiter WBTC Buy Setup
+## Jupiter nvdax Buy Setup
 
-The admin console uses Jupiter by default for SOL -> WBTC routing:
+The admin console uses Jupiter by default for SOL -> nvdax routing:
 
 ```env
 JUPITER_API_BASE_URL=https://api.jup.ag/swap/v1
@@ -196,9 +196,9 @@ MAX_CYCLE_SPEND_UI_AMOUNT=0.01
 MAX_SLIPPAGE_BPS=100
 ```
 
-Use `Preview WBTC Buy` first. It calls Jupiter `/quote` with `inputMint=So11111111111111111111111111111111111111112` and `outputMint=REWARD_MINT`. That input mint is Solana WSOL, which Jupiter also uses for native SOL routes.
+Use `Preview nvdax Buy` first. It calls Jupiter `/quote` with `inputMint=So11111111111111111111111111111111111111112` and `outputMint=REWARD_MINT`. That input mint is Solana WSOL, which Jupiter also uses for native SOL routes.
 
-Use `Buy WBTC` to build an unsigned Jupiter `/swap` transaction. The dashboard does not sign the transaction; your keeper, wallet, Squads signer, or custody service must sign and submit the returned `swapTransaction`.
+Use `Buy nvdax` to build an unsigned Jupiter `/swap` transaction. The dashboard does not sign the transaction; your keeper, wallet, Squads signer, or custody service must sign and submit the returned `swapTransaction`.
 
 If your creator fees are already sitting in a WSOL token account, use:
 
@@ -214,7 +214,7 @@ JUPITER_INPUT_SOURCE=sol
 JUPITER_WRAP_AND_UNWRAP_SOL=true
 ```
 
-On Solana there is no ERC-20-style approval step for the standard SOL/WSOL -> WBTC Jupiter flow, so `Approve Swap Spend` records `not_required`.
+On Solana there is no ERC-20-style approval step for the standard SOL/WSOL -> nvdax Jupiter flow, so `Approve Swap Spend` records `not_required`.
 
 ## Creator Fee Claim Setup
 
@@ -240,9 +240,9 @@ Do not paste private keys into chat. `WALLET_PRIVATE_KEY` is the default signer.
 
 For Pump.fun claims, PumpPortal notes that creator fees are claimed all at once and `mint` is not required. For Meteora DBC claims, pass `pool=meteora-dbc` and `mint=<token mint>` in the admin payload.
 
-## Direct WBTC Airdrops
+## Direct nvdax Airdrops
 
-The distributor button now runs inside this repo. It reads the latest prepared batch, derives each recipient's WBTC associated token account, creates ATAs idempotently when `CREATE_RECIPIENT_ATAS=true`, and sends SPL Token `TransferChecked` instructions.
+The distributor button now runs inside this repo. It reads the latest prepared batch, derives each recipient's nvdax associated token account, creates ATAs idempotently when `CREATE_RECIPIENT_ATAS=true`, and sends SPL Token `TransferChecked` instructions.
 
 Default live-send env:
 
@@ -260,7 +260,7 @@ Recommended first live test:
 
 1. Keep the admin UI `Dry run` toggle enabled.
 2. Lock a tiny manifest and generate a batch of `1`.
-3. Click `Execute WBTC Batch`; confirm it builds the transfer transaction.
+3. Click `Execute nvdax Batch`; confirm it builds the transfer transaction.
 4. Disable the UI `Dry run` toggle, enable `Confirm live`, and execute a one-recipient batch.
 5. Confirm the saved receipt signature on Solscan.
 
@@ -315,16 +315,16 @@ Stored objects:
 Manual admin actions are diagnostics and emergency controls, not the normal epoch path:
 
 ```text
-Claim Fees -> Buy WBTC -> Snapshot Holders -> Lock Snapshot -> Simulate Distribution -> Execute Distribution -> Verify Results
+Claim Fees -> Buy nvdax -> Snapshot Holders -> Lock Snapshot -> Simulate Distribution -> Execute Distribution -> Verify Results
 ```
 
-The `Official Live GO` control only validates setup and arms automation. With `Dry run` off and `Confirm live` enabled, it does not claim fees, buy WBTC, snapshot holders, lock manifests, generate batches, or send WBTC. Cron owns those steps after the first epoch is started.
+The `Official Live GO` control only validates setup and arms automation. With `Dry run` off and `Confirm live` enabled, it does not claim fees, buy nvdax, snapshot holders, lock manifests, generate batches, or send nvdax. Cron owns those steps after the first epoch is started.
 
-Launch arming is manual-only. `PUBLIC_DISTRIBUTION_STARTED_AT` is display and schedule metadata for the public dashboard; setting that timestamp does not claim fees, buy WBTC, create snapshots, lock manifests, or send distributions. The live epoch sequence runs from cron after pressing `Official Live GO` with `Dry run` off and `Confirm live` enabled.
+Launch arming is manual-only. `PUBLIC_DISTRIBUTION_STARTED_AT` is display and schedule metadata for the public dashboard; setting that timestamp does not claim fees, buy nvdax, create snapshots, lock manifests, or send distributions. The live epoch sequence runs from cron after pressing `Official Live GO` with `Dry run` off and `Confirm live` enabled.
 
 Use the payload builder for values that should travel with the next action:
 
-- `rewardPoolWbtc`: WBTC amount to allocate in simulation or distribution.
+- `rewardPoolNvdax`: nvdax amount to allocate in simulation or distribution.
 - `minPayout`: dust threshold below which recipients are skipped.
 - `batchSize`: max recipients per distribution batch.
 - `roundCap`: max ranked holders included in the run. The effective eligible count is always capped at the current total holder count.

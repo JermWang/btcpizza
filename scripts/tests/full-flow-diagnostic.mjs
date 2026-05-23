@@ -1,4 +1,4 @@
-import { createRequire } from "node:module";
+﻿import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 
 // Load local .env
@@ -62,7 +62,7 @@ async function testRewardsEngine() {
   console.log("  current_epoch.index:", status.current_epoch?.epoch_index);
   console.log("  current_epoch.status:", status.current_epoch?.status);
   console.log("  next_epoch_countdown_seconds:", status.next_epoch_countdown_seconds);
-  console.log("  total_wbtc_pool:", status.total_wbtc_pool);
+  console.log("  total_nvdax_pool:", status.total_nvdax_pool);
   console.log("  token_mint:", status.token_mint);
 
   console.log("\n--- Holder Board Payload ---");
@@ -98,7 +98,7 @@ async function testAdminSystem() {
   console.log("\n--- Public Config ---");
   const cfg = publicConfig();
   console.log("  tokenMint:", cfg.tokenMint ? cfg.tokenMint.slice(0, 16) + "..." : "(not set)");
-  console.log("  wbtcMint:", cfg.wbtcMint ? cfg.wbtcMint.slice(0, 16) + "..." : "(not set)");
+  console.log("  nvdaxMint:", cfg.nvdaxMint ? cfg.nvdaxMint.slice(0, 16) + "..." : "(not set)");
   console.log("  feeWallet:", cfg.feeWallet ? cfg.feeWallet.slice(0, 16) + "..." : "(not set)");
   console.log("  distributorWallet:", cfg.distributorWallet ? cfg.distributorWallet.slice(0, 16) + "..." : "(not set)");
   console.log("  rpcConfigured:", cfg.rpcConfigured);
@@ -167,7 +167,7 @@ async function testCronEndpointBehavior() {
 }
 
 async function main() {
-  console.log("BTC PIZZA FULL FLOW DIAGNOSTIC");
+  console.log("JENSEN STRATEGY FULL FLOW DIAGNOSTIC");
   console.log(new Date().toISOString());
 
   try {

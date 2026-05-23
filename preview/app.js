@@ -1,5 +1,5 @@
-// app.js — Jensen Strategy dashboard scaffold (countdown, polling, holders, receipts)
-// Adapted from BTC Pizza Strategy / Jensen Strategy preview index. Pre-launch friendly.
+﻿// app.js — Jensen Strategy dashboard scaffold (countdown, polling, holders, receipts)
+// Adapted from Jensen Strategy / Jensen Strategy preview index. Pre-launch friendly.
 
 const state = {
   config: null,
@@ -8,7 +8,7 @@ const state = {
   rewardReceipts: [],
   rewardsStatus: null,
   operations: null,
-  wbtcPoolBalance: 0,
+  nvdaxPoolBalance: 0,
   remaining: 0,
   cycle: null,
   configSyncedAtMs: Date.now(),
@@ -383,12 +383,12 @@ async function loadRewardsStatus() {
     if (!r.ok) return;
     state.rewardsStatus = await r.json();
     const s = state.rewardsStatus;
-    state.wbtcPoolBalance = Number(s.total_wbtc_pool || 0);
-    const poolLabel = s.total_wbtc_pool && s.total_wbtc_pool !== "0" ? s.total_wbtc_pool : "0.00";
+    state.nvdaxPoolBalance = Number(s.total_nvdax_pool || 0);
+    const poolLabel = s.total_nvdax_pool && s.total_nvdax_pool !== "0" ? s.total_nvdax_pool : "0.00";
     if (els.pool) els.pool.textContent = poolLabel;
     if (els.poolCardBalance) els.poolCardBalance.innerHTML = `${escapeHtml(poolLabel)} <em>NVDAx</em>`;
     if (els.poolUsd) els.poolUsd.textContent = "$0.00";
-    const meterPercent = Math.max(0, Math.min(100, (Number(state.wbtcPoolBalance || 0) / 50) * 100));
+    const meterPercent = Math.max(0, Math.min(100, (Number(state.nvdaxPoolBalance || 0) / 50) * 100));
     if (els.poolMeter) els.poolMeter.style.width = `${meterPercent}%`;
     if (els.poolMeterLabel) els.poolMeterLabel.textContent = `${Math.round(meterPercent)}%`;
     if (els.creatorFees) els.creatorFees.textContent = s.creator_fees_collected || "$0";

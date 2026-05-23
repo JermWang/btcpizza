@@ -1,9 +1,9 @@
-# Implementation Prompt
+﻿# Implementation Prompt
 
 Use this prompt to build the repo from this blueprint.
 
 ```text
-You are building a production-grade Solana project called Bitcoin Pizza Strategy.
+You are building a production-grade Solana project called Jensen Strategy.
 
 Goal:
 Create a public website, Solana Anchor program, indexer, keeper, airdrop distributor, and TypeScript SDK for a Michael Saylor-inspired Bitcoin treasury parody token whose Pump.fun creator fees are periodically converted into wrapped BTC on Solana and automatically airdropped to holders through transparent receipt records.
@@ -29,7 +29,7 @@ Core product requirements:
    - active and historical airdrop epochs.
    - on-chain receipt feed.
    - live updates without manual refresh.
-   - editable pizza-pool visual showing slice count, active epoch, distributed slices, pending slices, and WBTC pool amount.
+   - editable pizza-pool visual showing slice count, active epoch, distributed slices, pending slices, and nvdax pool amount.
 2. Holder dashboard displays:
    - connected wallet token balance.
    - estimated epoch score.
@@ -78,7 +78,7 @@ Core product requirements:
    - structured logs.
 7. Distributor supports:
    - batched SPL token transfers.
-   - recipient WBTC ATA creation policy.
+   - recipient nvdax ATA creation policy.
    - minimum payout threshold.
    - retry handling.
    - failed-recipient fallback manifest.

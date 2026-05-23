@@ -1,4 +1,4 @@
-# Pump.fun Creator Fee To WBTC Airdrop Flow
+﻿# Pump.fun Creator Fee To nvdax Airdrop Flow
 
 ## Objective
 
@@ -15,7 +15,7 @@ Automatically track token holders and distribute wrapped BTC on Solana using Pum
 7. Indexer calculates each holder's time-weighted score.
 8. Indexer creates a deterministic distribution manifest.
 9. Program/admin records the manifest hash.
-10. Distributor sends WBTC to holders in batches.
+10. Distributor sends nvdax to holders in batches.
 11. Distributor records each batch transaction.
 12. Indexer streams the new receipt and batch status to connected browsers.
 13. Website shows every wallet's status: included, sent, failed, rolled over, or fallback-claimable without requiring refresh.
@@ -45,9 +45,9 @@ Each epoch produces a canonical JSON manifest:
 
 ```json
 {
-  "epoch": "2026-bitcoin-pizza-strategy-001",
+  "epoch": "2026-jensen-strategy-001",
   "projectTokenMint": "...",
-  "wbtcMint": "...",
+  "nvdaxMint": "...",
   "rewardPoolAmount": "123456",
   "snapshotStartSlot": 0,
   "snapshotEndSlot": 0,
@@ -87,24 +87,24 @@ Each interval creates one distribution epoch:
 ```text
 epoch_start = previous_airdrop_at
 epoch_end = scheduled_airdrop_at
-reward_pool = WBTC acquired since previous epoch + rolled-over dust
+reward_pool = nvdax acquired since previous epoch + rolled-over dust
 ```
 
 This means the first airdrops are small and frequent, while later airdrops naturally get larger and broader because more creator fees accumulate between distributions and the inclusion cap expands.
 
 ## Airdrop Execution
 
-The distributor sends WBTC using bounded batches.
+The distributor sends nvdax using bounded batches.
 
 Batch rules:
 
 - Maximum recipients per transaction.
-- Maximum WBTC per batch.
+- Maximum nvdax per batch.
 - Minimum payout amount.
 - ATA creation enabled or disabled.
 - Retry count for failed rows.
 
-If a recipient has no WBTC associated token account, the project must choose:
+If a recipient has no nvdax associated token account, the project must choose:
 
 - Create the ATA and pay rent.
 - Skip and roll forward.
@@ -113,8 +113,8 @@ If a recipient has no WBTC associated token account, the project must choose:
 ## Recommended MVP Policy
 
 - Use exponential airdrop intervals and holder inclusion caps: both start from configured base values and double each epoch.
-- Swap creator fees into WBTC at each distribution epoch if the fee balance is above the minimum swap threshold.
-- Direct-send only above a minimum WBTC threshold.
+- Swap creator fees into nvdax at each distribution epoch if the fee balance is above the minimum swap threshold.
+- Direct-send only above a minimum nvdax threshold.
 - Create recipient ATAs only for payouts above the threshold.
 - Roll dust forward until it exceeds the threshold.
 - Use fallback claims only for failed transfers.

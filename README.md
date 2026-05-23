@@ -1,4 +1,4 @@
-# Bitcoin Pizza Strategy
+﻿# Jensen Strategy
 
 Public Solana dashboard and airdrop system for a Michael Saylor-inspired Bitcoin treasury parody token whose Pump.fun creator fees are periodically converted into wrapped BTC on Solana and automatically distributed to holders by token balance at the epoch snapshot.
 
@@ -8,16 +8,16 @@ This repository is intentionally structured as a full project brief plus impleme
 
 This is possible, with the right expectations.
 
-Pump.fun creator fees can be treated as the fee source of record. The creator-fee or fee-owner wallet receives fee value, a keeper converts those fees into wrapped BTC on Solana, and a distributor sends deterministic batched WBTC airdrops to eligible holders. The public website indexes every fee intake, swap, snapshot, distribution manifest, airdrop batch, and recipient transfer.
+Pump.fun creator fees can be treated as the fee source of record. The creator-fee or fee-owner wallet receives fee value, a keeper converts those fees into wrapped BTC on Solana, and a distributor sends deterministic batched nvdax airdrops to eligible holders. The public website indexes every fee intake, swap, snapshot, distribution manifest, airdrop batch, and recipient transfer.
 
 The hard part is automatic distribution at scale. A Solana program cannot iterate through every holder in one transaction. The practical model is deterministic off-chain snapshotting plus batched SPL-token transfers, with every manifest hash and batch transaction signature published on-chain and in the dashboard.
 
 ## Core Product
 
-- Token page with countdown to Bitcoin Pizza Strategy airdrop cycles, using an expanding interval schedule.
-- Public receipt feed for creator-fee intake, swaps, WBTC vault deposits, snapshots, and airdrop batches.
+- Token page with countdown to Jensen Strategy airdrop cycles, using an expanding interval schedule.
+- Public receipt feed for creator-fee intake, swaps, nvdax vault deposits, snapshots, and airdrop batches.
 - Holder dashboard showing current estimated airdrop entitlement.
-- Airdrop verification page where holders can see whether their wallet was included and whether the WBTC transfer landed.
+- Airdrop verification page where holders can see whether their wallet was included and whether the nvdax transfer landed.
 - Admin/keeper dashboard for authorized fee collection, buy cycles, and distribution batches.
 - Public API and indexer for transparent historical accounting.
 
@@ -35,7 +35,7 @@ The hard part is automatic distribution at scale. A Solana program cannot iterat
 
 The static preview includes a password-gated admin operations console at `/admin`.
 
-Built-in controls validate config, refresh fee receipts, scan holders directly through Solana RPC, check the WBTC vault, create holder snapshots, simulate weighted WBTC distributions, record receipts, lock manifests, and prepare idempotent distribution batches. `Official Live GO` is the only admin start button: after it arms automation, an external cron service calls the cron endpoint every minute. When an epoch is due, the cron runner claims creator fees, buys WBTC, snapshots holders for the token mint, distributes WBTC to holders by weighted balance, and records screenshot evidence through `ADMIN_EPOCH_SCREENSHOT_WEBHOOK_URL`.
+Built-in controls validate config, refresh fee receipts, scan holders directly through Solana RPC, check the nvdax vault, create holder snapshots, simulate weighted nvdax distributions, record receipts, lock manifests, and prepare idempotent distribution batches. `Official Live GO` is the only admin start button: after it arms automation, an external cron service calls the cron endpoint every minute. When an epoch is due, the cron runner claims creator fees, buys nvdax, snapshots holders for the token mint, distributes nvdax to holders by weighted balance, and records screenshot evidence through `ADMIN_EPOCH_SCREENSHOT_WEBHOOK_URL`.
 
 See `docs/ADMIN_OPERATIONS.md` and `.env.example` for the required `ADMIN_PASSWORD`, `CRON_SECRET`, RPC holder fallback, signing keys, and optional screenshot/per-action webhook variables.
 
@@ -66,7 +66,7 @@ Do not add Vercel Cron jobs. The endpoint is lock-protected, idempotent, and che
 4. The holder inclusion cap also doubles every epoch, starting from the configured base cap.
 5. At each scheduled epoch, keeper converts collected fees into wrapped BTC on Solana if balances meet minimum thresholds.
 6. Indexer computes holder-time-weighted allocations for the distribution epoch.
-7. Distributor sends WBTC airdrops in batches, creating recipient ATAs when policy allows.
+7. Distributor sends nvdax airdrops in batches, creating recipient ATAs when policy allows.
 8. Program records receipt hashes for the fee intake, swap, snapshot manifest, and each airdrop batch.
 
 ## Important Design Decision
@@ -89,7 +89,7 @@ programs/
   fee_vault/        # Anchor program scaffold
 scripts/
   keeper/           # 4-hour creator-fee collection and buy bot
-  distributor/      # batched WBTC airdrop sender
+  distributor/      # batched nvdax airdrop sender
 docs/
   PRODUCT_SPEC.md
   ARCHITECTURE.md

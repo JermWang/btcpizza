@@ -1,8 +1,8 @@
-# 3D Asset Pipeline
+﻿# 3D Asset Pipeline
 
 ## Goal
 
-Create tailored high-end 3D graphics for the Bitcoin Pizza Strategy dashboard while keeping the important visuals editable and data-driven.
+Create tailored high-end 3D graphics for the Jensen Strategy dashboard while keeping the important visuals editable and data-driven.
 
 ## Recommended Pipeline
 
@@ -35,7 +35,7 @@ Deliverables:
 Purpose:
 
 - Visually show how many pizza slices are in the reward pool.
-- Reflect live airdrop epochs, remaining pool, distributed WBTC, and rolled-over dust.
+- Reflect live airdrop epochs, remaining pool, distributed nvdax, and rolled-over dust.
 
 This should not be a single static AI image. Build it as an editable 3D or SVG/canvas component.
 
@@ -57,7 +57,7 @@ Live states:
 
 Purpose:
 
-- Small visual language for fee intake, swap, manifest, batch, WBTC transfer, failed transfer.
+- Small visual language for fee intake, swap, manifest, batch, nvdax transfer, failed transfer.
 
 Recommended implementation:
 
@@ -77,7 +77,7 @@ Recommended implementation:
 ## Prompt Template
 
 ```text
-Create a premium 3D Blender-style render for a futuristic Bitcoin Pizza Strategy Solana dashboard.
+Create a premium 3D Blender-style render for a futuristic Jensen Strategy Solana dashboard.
 
 Subject:
 A circular pizza pie designed like a live crypto reward pool. The pizza is divided into [N] clean slices. Each slice is slightly separated with beveled crust edges, glossy melted cheese, pepperoni details, and subtle Bitcoin coin embossing. One slice glows with Solana mint light to indicate the active airdrop epoch. A small wrapped-BTC coin hovers above the pie.
@@ -101,7 +101,7 @@ total_slices
 active_slice_index
 distributed_slices
 pending_slices
-wbtc_pool_amount
+nvdax_pool_amount
 current_epoch_amount
 next_airdrop_at
 ```
@@ -110,7 +110,7 @@ Component behavior:
 
 - Slice count is configurable.
 - Active slice pulses.
-- Hovering a slice shows epoch, interval, WBTC amount, and transaction status.
+- Hovering a slice shows epoch, interval, nvdax amount, and transaction status.
 - Completed slices collapse slightly or show a confirmed edge mark.
 - New fee intake increases the pool fill without refresh.
 
@@ -130,11 +130,11 @@ apps/web/src/components/visuals/
   ReceiptIcon.tsx
 
 assets/blender/
-  bitcoin-pizza-strategy-pool.blend
+  jensen-strategy-pool.blend
   exports/pizza-slice.glb
   exports/pizza-pool.glb
 ```
 
 ## Practical Recommendation
 
-Use generated images for mood and hero polish first. For the actual live pool graphic, build a reusable 3D component from Blender-exported slices so the site can show real slice counts and live WBTC pool states without regenerating images.
+Use generated images for mood and hero polish first. For the actual live pool graphic, build a reusable 3D component from Blender-exported slices so the site can show real slice counts and live nvdax pool states without regenerating images.

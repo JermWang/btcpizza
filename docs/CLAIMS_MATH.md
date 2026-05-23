@@ -1,4 +1,4 @@
-# Airdrop Math
+﻿# Airdrop Math
 
 ## Goal
 
@@ -65,7 +65,7 @@ The schedule does not roll into a fixed daily repeat. It continues doubling by e
 The reward pool grows naturally as intervals increase:
 
 ```text
-reward_pool_n = WBTC_acquired_during_interval_n + rolled_over_dust_n
+reward_pool_n = NVDAx_acquired_during_interval_n + rolled_over_dust_n
 ```
 
 This creates small early airdrops for attention and proof-of-execution, then progressively larger and broader later airdrops as fees accumulate for longer windows and more holders become eligible.
@@ -129,7 +129,7 @@ Use fallback Merkle claims only for:
 
 - Recipients whose transfers failed.
 - Dust below the direct airdrop threshold.
-- Recipients whose WBTC ATA could not be created under the distribution policy.
+- Recipients whose nvdax ATA could not be created under the distribution policy.
 
 Fallback claims should verify:
 

@@ -1,4 +1,4 @@
-import { readFile } from "node:fs/promises";
+﻿import { readFile } from "node:fs/promises";
 
 async function loadEnv(file = ".env") {
   const env = { ...process.env };
@@ -165,12 +165,12 @@ const checks = [
   },
   {
     name: "NVDAx vault read",
-    run: async () => await adminAction({ baseUrl, adminSecret, action: "check-wbtc-vault" }),
+    run: async () => await adminAction({ baseUrl, adminSecret, action: "check-nvdax-vault" }),
     detail: (result) => `NVDAx=${result.result.balance} accounts=${result.result.accountCount}`
   },
   {
     name: "Jupiter NVDAx quote",
-    run: async () => await adminAction({ baseUrl, adminSecret, action: "quote-wbtc-buy", payload: tinyBuyPayload }),
+    run: async () => await adminAction({ baseUrl, adminSecret, action: "quote-nvdax-buy", payload: tinyBuyPayload }),
     detail: (result) => `in=${result.result.inAmount} out=${result.result.outAmount}`
   },
   {
@@ -179,7 +179,7 @@ const checks = [
       await adminAction({
         baseUrl,
         adminSecret,
-        action: "execute-wbtc-buy",
+        action: "execute-nvdax-buy",
         payload: tinyBuyPayload,
         confirm: true
       }),
@@ -220,8 +220,8 @@ const checks = [
         adminSecret,
         action: "simulate-distribution",
         payload: {
-          rewardPool: Number(process.env.ADMIN_SMOKE_REWARD_WBTC || 0.000001),
-          minPayout: Number(process.env.ADMIN_SMOKE_MIN_PAYOUT_WBTC || 0)
+          rewardPool: Number(process.env.ADMIN_SMOKE_REWARD_NVDAX || 0.000001),
+          minPayout: Number(process.env.ADMIN_SMOKE_MIN_PAYOUT_NVDAX || 0)
         }
       }),
     detail: (result) => `payable=${result.result.payableCount} recipients=${result.result.recipientCount}`
