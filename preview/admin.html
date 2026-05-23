@@ -1028,6 +1028,7 @@
             </div>
             <div class="launch-actions">
               <button class="btn go" id="goLiveButton" type="button" data-run-action="official-live-go" data-icon="rocket">Run Go-Live Checklist</button>
+              <button class="btn danger" id="resetEpochsButton" type="button" data-run-action="go-live-reset" data-icon="refresh" style="margin-top:8px;">Reset Epochs (Fresh Start)</button>
             </div>
           </div>
         </section>
@@ -1059,8 +1060,8 @@
               <label class="field"><span class="label">Snapshot ID</span><input id="snapshotId" placeholder="optional" /></label>
             </div>
             <label class="field" style="margin-top:10px;"><span class="label">Raw JSON payload</span><textarea id="payload" spellcheck="false" placeholder='{"wallet":"","roundCap":5}'></textarea></label>
-            <details class="advanced-actions">
-              <summary>Advanced manual actions</summary>
+            <details class="advanced-actions" open>
+              <summary>Manual actions</summary>
               <div class="advanced-body">
                 <p>Use these only when you need to rerun a single backend operation instead of the full go-live checklist.</p>
                 <div class="grid action-grid" id="actionGrid"></div>
