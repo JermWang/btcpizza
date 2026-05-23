@@ -992,8 +992,6 @@
             <p>Run the launch checklist, review blockers, and keep manual controls out of the way unless they are needed.</p>
           </div>
           <div class="top-actions">
-            <label class="toggle"><input id="dryRun" type="checkbox" checked /> Dry run</label>
-            <label class="toggle"><input id="confirmLive" type="checkbox" /> Confirm live</label>
             <button class="btn" id="refreshAll" type="button" data-icon="refresh">Refresh</button>
             <a class="btn ghost" href="/" data-icon="external">Public</a>
           </div>
@@ -1010,25 +1008,56 @@
         </section>
 
         <section class="section" id="launch">
-          <div class="launch-panel">
+          <div class="section-head">
             <div>
-              <h2>Official Launch Control</h2>
-              <p>Dry run checks setup, live data, WBTC pool, holders, and payout math. Live mode starts the epoch clock, then cron keeps claiming fees, buying WBTC, snapshotting holders, and distributing on schedule.</p>
-              <div class="launch-status" id="launchStatus"></div>
-              <div class="feedback-panel hidden" id="errorFeedback">
-                <strong id="feedbackTitle">Checklist needs attention</strong>
-                <p id="feedbackMessage"></p>
-                <p id="feedbackFix"></p>
-                <div class="inline-actions">
-                  <button class="btn primary" id="retryChecklist" type="button" data-icon="refresh">Retry checklist</button>
-                  <button class="btn" id="copyFeedback" type="button" data-icon="file">Copy error</button>
-                  <a class="btn ghost" id="feedbackSettings" href="#settings" data-icon="settings">Settings</a>
-                </div>
-              </div>
+              <h2>Controls</h2>
+              <span>Main controls for the airdrop cycle. Switch off Dry run and check Confirm live before executing for real.</span>
             </div>
-            <div class="launch-actions">
-              <button class="btn go" id="goLiveButton" type="button" data-run-action="official-live-go" data-icon="rocket">Run Go-Live Checklist</button>
-              <button class="btn danger" id="resetEpochsButton" type="button" data-run-action="go-live-reset" data-icon="refresh" style="margin-top:8px;">Reset Epochs (Fresh Start)</button>
+            <div style="display:flex;gap:12px;align-items:center;">
+              <label class="toggle"><input id="dryRun" type="checkbox" checked /> Dry run</label>
+              <label class="toggle"><input id="confirmLive" type="checkbox" /> Confirm live</label>
+            </div>
+          </div>
+
+          <!-- Simple 4-button control panel -->
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:16px;">
+
+            <button class="btn go" id="goLiveButton" type="button" data-run-action="official-live-go"
+              style="display:flex;flex-direction:column;align-items:flex-start;padding:16px 20px;height:auto;text-align:left;">
+              <span style="font-size:1.1em;font-weight:700;">🚀 Go Live</span>
+              <span style="font-size:0.78em;font-weight:400;opacity:0.85;margin-top:4px;">Arm the epoch clock. Cron will auto-claim fees, buy WBTC, and airdrop on schedule.</span>
+            </button>
+
+            <button class="btn primary" type="button" data-run-action="run-due-epoch"
+              style="display:flex;flex-direction:column;align-items:flex-start;padding:16px 20px;height:auto;text-align:left;">
+              <span style="font-size:1.1em;font-weight:700;">▶ Run Epoch Now</span>
+              <span style="font-size:0.78em;font-weight:400;opacity:0.85;margin-top:4px;">Force the current epoch to close and distribute immediately without waiting for the timer.</span>
+            </button>
+
+            <button class="btn" type="button" data-run-action="pause-epoch-automation"
+              style="display:flex;flex-direction:column;align-items:flex-start;padding:16px 20px;height:auto;text-align:left;">
+              <span style="font-size:1.1em;font-weight:700;">⏸ Pause</span>
+              <span style="font-size:0.78em;font-weight:400;opacity:0.85;margin-top:4px;">Stop the epoch automation. Cron will keep running but skip distributions until resumed.</span>
+            </button>
+
+            <button class="btn danger" id="resetEpochsButton" type="button" data-run-action="go-live-reset"
+              style="display:flex;flex-direction:column;align-items:flex-start;padding:16px 20px;height:auto;text-align:left;">
+              <span style="font-size:1.1em;font-weight:700;">🔄 Reset &amp; Fresh Start</span>
+              <span style="font-size:0.78em;font-weight:400;opacity:0.85;margin-top:4px;">Wipe all test epochs and start a clean epoch 0 with the current token. Use before real launch.</span>
+            </button>
+
+          </div>
+
+          <!-- Feedback / checklist output (shown when Go Live runs) -->
+          <div class="launch-status" id="launchStatus"></div>
+          <div class="feedback-panel hidden" id="errorFeedback">
+            <strong id="feedbackTitle">Checklist needs attention</strong>
+            <p id="feedbackMessage"></p>
+            <p id="feedbackFix"></p>
+            <div class="inline-actions">
+              <button class="btn primary" id="retryChecklist" type="button" data-icon="refresh">Retry checklist</button>
+              <button class="btn" id="copyFeedback" type="button" data-icon="file">Copy error</button>
+              <a class="btn ghost" id="feedbackSettings" href="#settings" data-icon="settings">Settings</a>
             </div>
           </div>
         </section>
@@ -1060,8 +1089,8 @@
               <label class="field"><span class="label">Snapshot ID</span><input id="snapshotId" placeholder="optional" /></label>
             </div>
             <label class="field" style="margin-top:10px;"><span class="label">Raw JSON payload</span><textarea id="payload" spellcheck="false" placeholder='{"wallet":"","roundCap":5}'></textarea></label>
-            <details class="advanced-actions" open>
-              <summary>Manual actions</summary>
+            <details class="advanced-actions">
+              <summary>Advanced manual actions</summary>
               <div class="advanced-body">
                 <p>Use these only when you need to rerun a single backend operation instead of the full go-live checklist.</p>
                 <div class="grid action-grid" id="actionGrid"></div>
