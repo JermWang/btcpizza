@@ -1,0 +1,7 @@
+.agents/
+.claude/
+.admin-data/
+design updates/
+preview/qa/
+skills-lock.json
+supabase/.temp/
