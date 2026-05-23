@@ -6,7 +6,7 @@ The admin page lives at `/admin` and talks to `/api/admin`.
 
 Set either `ADMIN_PASSWORD` or `ADMIN_API_TOKEN`. The static admin page keeps the password in `sessionStorage` for the current browser session and sends it to the API as `x-admin-password`. The API refuses every admin request when no admin secret is configured.
 
-For Vercel/mainnet, add the variables from `.env.mainnet.example` to the project environment. At minimum, the live admin page needs `ADMIN_PASSWORD` or `ADMIN_API_TOKEN`, `DATABASE_URL`, `SOLANA_RPC_URL` or `HELIUS_RPC_URL`, and the public wallet/mint values. After changing Vercel env vars, redeploy the project so `/api/admin` receives the new server environment.
+For Vercel/mainnet, add the variables from `.env.mainnet.example` to the project environment. At minimum, the live admin page needs `ADMIN_PASSWORD` or `ADMIN_API_TOKEN`, `SUPABASE_DATABASE_URL` or `DATABASE_URL`, `SOLANA_RPC_URL` or `HELIUS_RPC_URL`, and the public wallet/mint values. After changing Vercel env vars, redeploy the project so `/api/admin` receives the new server environment.
 
 ## Direct Built-In Actions
 
@@ -268,22 +268,39 @@ Use small `MAX_RECIPIENTS_PER_BATCH` values first because creating recipient ATA
 
 ## Durable Admin Storage
 
-For production, set `DATABASE_URL` to a Neon/Postgres connection string. The Vercel/Neon aliases `POSTGRES_URL`, `POSTGRES_PRISMA_URL`, and `POSTGRES_URL_NON_POOLING` are also accepted. The admin backend creates these tables automatically on first use:
+For production, set `SUPABASE_DATABASE_URL` to the Supabase Postgres pooler connection string. `SUPABASE_DATABASE_URL` is preferred over the old `DATABASE_URL`, so the app can be moved off Neon without deleting the previous value immediately. Generic Postgres aliases `DATABASE_URL`, `POSTGRES_URL`, `POSTGRES_PRISMA_URL`, and `POSTGRES_URL_NON_POOLING` are still accepted as fallbacks.
+
+Use the Supabase pooler URL from Project Settings -> Database -> Connection string. Prefer the pooler connection for Vercel/serverless deployments and keep `DATABASE_POOL_MAX` low:
+
+```env
+SUPABASE_DATABASE_URL=postgresql://postgres.<project-ref>:<password>@aws-0-<region>.pooler.supabase.com:6543/postgres?sslmode=require
+DATABASE_POOL_MAX=3
+```
+
+The admin backend creates these tables automatically on first use:
 
 ```sql
 admin_records
 admin_audit_events
 ```
 
-When `DATABASE_URL` is set, snapshots, locked manifests, prepared batches, receipts, and audit events persist in Postgres. The admin status response reports `storage.backend = "postgres"` so operators can confirm the durable path is active.
+When a Postgres URL is set, snapshots, locked manifests, prepared batches, receipts, and audit events persist in Postgres. The admin status response reports `storage.backend = "postgres"` and `storage.root = "SUPABASE_DATABASE_URL env"` so operators can confirm the Supabase path is active.
 
-Without `DATABASE_URL`, the admin server writes append-only audit entries plus JSON records for receipts, snapshots, manifests, and batches under:
+After setting the Supabase URL locally, run:
+
+```bash
+npm run smoke:db
+```
+
+That command opens the active Postgres connection, creates the admin and rewards tables if needed, and prints the active env source without exposing the connection string.
+
+Without `SUPABASE_DATABASE_URL` or another Postgres URL, the admin server writes append-only audit entries plus JSON records for receipts, snapshots, manifests, and batches under:
 
 ```env
 ADMIN_STORAGE_PATH=./.admin-data
 ```
 
-This is enough for local demo and operational proof, and it prevents accidental duplicate manifest/batch preparation by hashing the locked manifest and batch window. For production deployment, use `DATABASE_URL` so Vercel serverless restarts do not lose launch state.
+This is enough for local demo and operational proof, and it prevents accidental duplicate manifest/batch preparation by hashing the locked manifest and batch window. For production deployment, use `SUPABASE_DATABASE_URL` so Vercel serverless restarts do not lose launch state.
 
 Stored objects:
 

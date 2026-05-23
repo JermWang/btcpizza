@@ -1561,7 +1561,7 @@
         [/not configured\. Set ([A-Z0-9_]+)|WEBHOOK_URL/i, "Set the named webhook env var or ADMIN_ACTION_WEBHOOK_URL, then rerun this action."],
         [/CRON_SECRET/i, "Set CRON_SECRET so the scheduled /api/epoch tick can run without exposing admin access."],
         [/SCREENSHOT_WEBHOOK/i, "Set ADMIN_EPOCH_SCREENSHOT_WEBHOOK_URL so the runner can capture dashboard screenshots at epoch close."],
-        [/DATABASE_URL/i, "Set DATABASE_URL for durable production admin storage, or configure ADMIN_STORAGE_PATH for local-only storage."]
+        [/SUPABASE_DATABASE_URL|DATABASE_URL/i, "Set SUPABASE_DATABASE_URL to the Supabase Postgres pooler URL for durable production admin storage, or configure ADMIN_STORAGE_PATH for local-only storage."]
       ];
 
       function friendlyFix(message) {

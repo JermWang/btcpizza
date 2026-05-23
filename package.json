@@ -8,6 +8,7 @@
     "start": "node preview/server.mjs",
     "preview": "node preview/server.mjs",
     "build": "node -e \"console.log('Static dashboard output: preview/')\"",
+    "smoke:db": "node scripts/db-smoke.mjs",
     "smoke:admin": "node scripts/admin-smoke.mjs",
     "smoke:rewards": "node scripts/tests/reward-engine-smoke.mjs",
     "smoke:devnet-airdrop": "node scripts/devnet-airdrop-smoke.mjs",

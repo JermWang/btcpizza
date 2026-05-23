@@ -3,2604 +3,587 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Jensen Strategy</title>
+    <title>Jensen Strategy — Fees in. NVDAx out.</title>
     <meta name="description" content="Creator fees route into NVDAx reward pools and distribute to holders through transparent Solana epoch airdrops." />
-    <meta name="theme-color" content="#f56600" />
-    <link rel="icon" type="image/png" href="/assets/pizza-slice-favicon-256.png" />
-    <link rel="apple-touch-icon" href="/assets/pizza-slice-favicon-256.png" />
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="Jensen Strategy" />
-    <meta property="og:description" content="Creator fees route into NVDAx reward pools and distribute to holders through transparent Solana epoch airdrops." />
-    <meta property="og:image" content="/assets/btc-strategy-banner.jpg" />
-    <meta property="og:site_name" content="Jensen Strategy" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Jensen Strategy" />
-    <meta name="twitter:description" content="Creator fees route into NVDAx reward pools and distribute to holders through transparent Solana epoch airdrops." />
-    <meta name="twitter:image" content="/assets/btc-strategy-banner.jpg" />
-    <style>
-      :root {
-        color-scheme: light;
-        --cream: #fff4df;
-        --paper: #fffaf0;
-        --gold: #ff7a00;
-        --orange: #f56600;
-        --red: #d93614;
-        --mint: #168a44;
-        --cyan: #0d5f75;
-        --purple: #802f00;
-        --ink: #16100b;
-        --panel: rgba(255, 250, 240, 0.82);
-        --glass: rgba(255, 250, 240, 0.68);
-        --glass-strong: rgba(255, 250, 240, 0.86);
-        --line: rgba(95, 46, 13, 0.16);
-        --soft: #715f50;
-        --font-display: Impact, "Arial Black", "Franklin Gothic Heavy", "Segoe UI Black", sans-serif;
-        --font-body: "Arial Narrow", "Aptos", "Segoe UI", Arial, sans-serif;
-      }
+    <meta name="theme-color" content="#000000" />
+    <link rel="icon" type="image/png" href="assets/nvdax-coin.png?v=3" />
 
-      * {
-        box-sizing: border-box;
-      }
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
 
-      html,
-      body {
-        margin: 0;
-        min-height: 100%;
-        background: #fff4df;
-        color: var(--ink);
-        font-family: var(--font-body);
-      }
-
-      body {
-        overflow-x: hidden;
-      }
-
-      button,
-      a {
-        font: inherit;
-      }
-
-      a {
-        color: inherit;
-        text-decoration: none;
-      }
-
-      .page {
-        min-height: 100vh;
-        padding: 0;
-        background: #fff4df;
-      }
-
-      .stage {
-        position: relative;
-        width: 100vw;
-        min-height: 100vh;
-        margin: 0 auto;
-        overflow: hidden;
-        background:
-          linear-gradient(180deg, rgba(255, 250, 240, 0.95), rgba(255, 244, 223, 0.88) 58%, #f56600 58%, #f56600 64%, #fff4df 64%),
-          #fff4df;
-        box-shadow: none;
-      }
-
-      .parlor {
-        position: absolute;
-        inset: 0;
-        background-image:
-          linear-gradient(90deg, rgba(245, 102, 0, 0.07) 0 1px, transparent 1px 84px),
-          linear-gradient(rgba(245, 102, 0, 0.05) 0 1px, transparent 1px 84px),
-          url("assets/btc-strategy-pizza-graphic.jpg");
-        background-size: auto, auto, min(760px, 52vw) auto;
-        background-repeat: repeat, repeat, no-repeat;
-        background-position: 0 0, 0 0, right 108px top 120px;
-        opacity: 1;
-      }
-
-      .parlor::after {
-        content: "";
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        height: 92px;
-        background:
-          linear-gradient(45deg, #fff4df 25%, transparent 25% 75%, #fff4df 75%),
-          linear-gradient(45deg, #fff4df 25%, transparent 25% 75%, #fff4df 75%),
-          #f56600;
-        background-size: 42px 42px;
-        background-position: 0 0, 21px 21px;
-        opacity: 0.32;
-      }
-
-      .top {
-        position: fixed;
-        inset: 0 0 auto;
-        z-index: 30;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 20px;
-        min-height: 76px;
-        padding: 0 32px;
-        border-bottom: 1px solid rgba(95, 46, 13, 0.12);
-        background: rgba(255, 250, 240, 0.78);
-        box-shadow: 0 18px 48px rgba(95, 46, 13, 0.12);
-        backdrop-filter: blur(18px) saturate(1.12);
-      }
-
-      .market-ticker {
-        position: fixed;
-        left: 0;
-        right: 0;
-        top: 76px;
-        z-index: 20;
-        height: 34px;
-        display: flex;
-        align-items: center;
-        overflow: hidden;
-        background: #0d0500;
-        border-top: 2px solid #f56600;
-        border-bottom: 1px solid rgba(245, 102, 0, 0.25);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
-      }
-
-      .ticker-track {
-        display: flex;
-        width: max-content;
-        min-width: 100%;
-        animation: ticker-scroll 34s linear infinite;
-      }
-
-      .ticker-set {
-        display: flex;
-        align-items: center;
-        gap: 28px;
-        padding-right: 28px;
-        white-space: nowrap;
-      }
-
-      .ticker-item {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        color: rgba(255, 255, 255, 0.75);
-        font-size: 12px;
-        font-weight: 600;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-      }
-
-      .ticker-item b {
-        color: #ff8c00;
-        font-weight: 800;
-      }
-
-      .ticker-item .price {
-        color: #ffffff;
-        font-weight: 700;
-      }
-
-      .ticker-item .change.up {
-        color: #00d68f;
-        font-weight: 700;
-      }
-
-      .ticker-item .change.down {
-        color: #ff5252;
-        font-weight: 700;
-      }
-
-      @keyframes ticker-scroll {
-        from {
-          transform: translateX(0);
-        }
-
-        to {
-          transform: translateX(-50%);
-        }
-      }
-
-      .brand {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        min-width: 260px;
-      }
-
-      .slice-mark {
-        width: 32px;
-        height: 32px;
-        border: 1px solid rgba(247, 183, 51, 0.42);
-        border-radius: 999px;
-        background:
-          radial-gradient(circle at 52% 48%, rgba(255, 183, 53, 0.18), transparent 66%),
-          #fff4df url("assets/pizza-slice-3d.png") center / 148% auto no-repeat;
-        box-shadow:
-          0 0 0 2px rgba(5, 6, 10, 0.9),
-          0 0 18px rgba(247, 183, 51, 0.22);
-      }
-
-      .wordmark {
-        color: var(--orange);
-        font-family: var(--font-display);
-        font-size: clamp(18px, 1.55vw, 27px);
-        font-weight: 800;
-        line-height: 1;
-        text-transform: uppercase;
-      }
-
-      .nav {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        flex: 1;
-      }
-
-      .menu-toggle {
-        display: inline-grid !important;
-        position: fixed;
-        top: 17px;
-        right: 14px;
-        width: 46px;
-        height: 42px;
-        border: 1px solid rgba(245, 102, 0, 0.32);
-        border-radius: 14px;
-        background: rgba(255, 250, 240, 0.78);
-        color: var(--orange);
-        box-shadow: 0 10px 24px rgba(95, 46, 13, 0.1);
-      }
-
-      @media (min-width: 1101px) {
-        .menu-toggle {
-          display: none !important;
-        }
-      }
-
-      .menu-toggle span {
-        position: absolute;
-        left: 10px;
-        right: 10px;
-        height: 3px;
-        background: currentColor;
-        transition:
-          transform 160ms ease,
-          opacity 160ms ease,
-          top 160ms ease;
-      }
-
-      .menu-toggle span:nth-child(1) {
-        top: 11px;
-      }
-
-      .menu-toggle span:nth-child(2) {
-        top: 18px;
-      }
-
-      .menu-toggle span:nth-child(3) {
-        top: 25px;
-      }
-
-      .top.menu-open .menu-toggle span:nth-child(1) {
-        top: 18px;
-        transform: rotate(45deg);
-      }
-
-      .top.menu-open .menu-toggle span:nth-child(2) {
-        opacity: 0;
-      }
-
-      .top.menu-open .menu-toggle span:nth-child(3) {
-        top: 18px;
-        transform: rotate(-45deg);
-      }
-
-      .nav a,
-      .button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 40px;
-        border: 1px solid rgba(95, 46, 13, 0.12);
-        border-radius: 999px;
-        background: rgba(255, 250, 240, 0.7);
-        color: var(--soft);
-        padding: 0 14px;
-        font-size: 12px;
-        font-weight: 1000;
-        text-transform: uppercase;
-        box-shadow: 0 10px 28px rgba(95, 46, 13, 0.08);
-        transition:
-          transform 140ms ease,
-          color 140ms ease,
-          background 140ms ease,
-          border-color 140ms ease,
-          box-shadow 140ms ease,
-          filter 140ms ease;
-      }
-
-      .nav a.active,
-      .button.primary {
-        background: var(--orange);
-        color: #fff;
-        border-color: var(--orange);
-      }
-
-      .nav a:hover,
-      .button:hover {
-        transform: translateY(-2px);
-        border-color: rgba(247, 183, 51, 0.72);
-        color: var(--ink);
-        background:
-          linear-gradient(145deg, rgba(245, 102, 0, 0.16), rgba(255, 250, 240, 0.9)),
-          rgba(255, 250, 240, 0.92);
-        box-shadow:
-          0 14px 32px rgba(245, 102, 0, 0.16);
-        filter: brightness(1.08);
-      }
-
-      .nav a.active:hover,
-      .button.primary:hover {
-        color: #fff;
-        background: #ff7a00;
-        box-shadow:
-          0 14px 34px rgba(245, 102, 0, 0.22);
-      }
-
-      .nav a:active,
-      .button:active {
-        transform: translateY(1px);
-        box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.48);
-        filter: brightness(0.96);
-      }
-
-      .nav a:focus-visible,
-      .button:focus-visible,
-      .menu-toggle:focus-visible,
-      .contract-pill:focus-visible {
-        outline: 3px solid var(--cyan);
-        outline-offset: 3px;
-      }
-      .top-actions {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        gap: 12px;
-        min-width: 160px;
-      }
-
-      .contract-pill {
-        display: inline-flex;
-        align-items: center;
-        min-height: 44px;
-        border: 3px solid rgba(247, 183, 51, 0.34);
-        background: rgba(4, 6, 10, 0.82);
-        padding: 0 16px;
-        color: var(--mint);
-        font-size: 12px;
-        font-weight: 1000;
-        line-height: 1.05;
-        text-transform: uppercase;
-        box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.35);
-        transition:
-          transform 140ms ease,
-          color 140ms ease,
-          background 140ms ease,
-          border-color 140ms ease,
-          box-shadow 140ms ease,
-          filter 140ms ease;
-      }
-
-      .contract-pill {
-        border-width: 1px;
-        border-radius: 999px;
-        background:
-          linear-gradient(145deg, rgba(255, 255, 255, 0.55), rgba(255, 250, 240, 0.2)),
-          rgba(255, 250, 240, 0.72);
-        color: var(--ink);
-        cursor: pointer;
-        min-width: 142px;
-        backdrop-filter: blur(14px) saturate(1.15);
-      }
-
-      .contract-pill.ready {
-        color: var(--cyan);
-      }
-
-      .contract-pill.copied {
-        color: var(--mint);
-        border-color: rgba(81, 244, 169, 0.48);
-      }
-
-      .contract-pill:disabled {
-        cursor: not-allowed;
-        opacity: 0.62;
-      }
-
-      .contract-pill:not(:disabled):hover {
-        transform: translateY(-2px);
-        border-color: rgba(85, 223, 255, 0.58);
-        color: var(--cyan);
-        background:
-          linear-gradient(145deg, rgba(85, 223, 255, 0.12), rgba(247, 183, 51, 0.06)),
-          rgba(8, 10, 16, 0.84);
-        box-shadow:
-          4px 6px 0 rgba(0, 0, 0, 0.42),
-          0 0 24px rgba(85, 223, 255, 0.18);
-        filter: brightness(1.08);
-      }
-
-      .contract-pill:not(:disabled):active {
-        transform: translateY(1px);
-        box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.48);
-        filter: brightness(0.96);
-      }
-
-      .hero-copy {
-        position: absolute;
-        z-index: 3;
-        left: 4%;
-        right: auto;
-        top: 148px;
-        width: min(520px, 43vw);
-        margin: 0;
-        padding: 0;
-        text-align: left;
-        border: 0;
-        background:
-          transparent;
-        box-shadow: none;
-      }
-
-      .hero-copy h1 {
-        margin: 0;
-        color: var(--orange);
-        font-family: var(--font-display);
-        font-size: clamp(52px, 6.7vw, 112px);
-        font-weight: 800;
-        line-height: 0.9;
-        text-transform: uppercase;
-      }
-
-      .hero-copy p {
-        display: inline-flex;
-        justify-content: center;
-        width: min(720px, 82%);
-        margin: 12px auto 0;
-        padding: 5px 14px 7px;
-        border: 0;
-        background: var(--orange);
-        color: #fff;
-        font-size: clamp(15px, 1.6vw, 26px);
-        line-height: 1;
-        font-weight: 1000;
-        text-transform: uppercase;
-      }
-
-      .hero-actions {
-        display: none;
-      }
-
-      .dashboard {
-        position: absolute;
-        z-index: 4;
-        display: grid;
-        grid-template-columns: 1.1fr 0.95fr 1.25fr 0.8fr;
-        gap: 14px;
-        left: 12.6%;
-        right: 7.6%;
-        top: clamp(372px, 56%, 520px);
-        margin: 0;
-      }
-
-      .art-panel {
-        position: relative;
-        min-height: 216px;
-        padding: 54px 28px 24px;
-        border: 1px solid rgba(255, 242, 190, 0.2);
-        border-radius: 16px;
-        background:
-          linear-gradient(145deg, rgba(255, 255, 255, 0.65), rgba(255, 250, 240, 0.22) 36%),
-          var(--glass);
-        box-shadow:
-          inset 0 1px 0 rgba(255, 255, 255, 0.12),
-          0 18px 44px rgba(95, 46, 13, 0.16);
-        backdrop-filter: blur(18px) saturate(1.2);
-        overflow: hidden;
-      }
-
-      .art-panel::after {
-        content: "";
-        position: absolute;
-        inset: 46px 18px 18px;
-        z-index: 0;
-        border-top: 1px solid var(--line);
-        background: linear-gradient(180deg, rgba(255, 242, 190, 0.04), transparent 42%);
-        pointer-events: none;
-      }
-
-      .art-panel > * {
-        position: relative;
-        z-index: 1;
-      }
-
-      .panel-pool {
-        border-color: rgba(245, 102, 0, 0.26);
-        background:
-          radial-gradient(circle at 28% 44%, rgba(247, 183, 51, 0.23), transparent 39%),
-          linear-gradient(145deg, rgba(226, 71, 49, 0.12), rgba(255, 242, 190, 0.025) 46%),
-          var(--glass);
-      }
-
-      .panel-next {
-        border-color: rgba(245, 102, 0, 0.26);
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 11px;
-        min-height: 216px;
-        padding: 56px 22px 18px;
-      }
-
-      .panel-flow {
-        border-color: rgba(247, 183, 51, 0.42);
-      }
-
-      .panel-ticket {
-        border-color: rgba(245, 102, 0, 0.26);
-      }
-
-      .art-panel h2 {
-        position: absolute;
-        left: 26px;
-        top: 22px;
-        z-index: 2;
-        margin: 0;
-        color: var(--orange);
-        font-size: clamp(12px, 1.05vw, 17px);
-        line-height: 1;
-        text-transform: uppercase;
-        letter-spacing: 0;
-      }
-
-      .panel-pool h2 {
-        left: 28px;
-        top: 22px;
-      }
-
-      .panel-flow h2,
-      .panel-ticket h2 {
-        left: 28px;
-        top: 22px;
-      }
-
-      .pool-layout {
-        display: grid;
-        grid-template-columns: 50% 1fr;
-        gap: 18px;
-        align-items: center;
-        min-height: 145px;
-      }
-
-      .pizza-pool {
-        width: 100%;
-        aspect-ratio: 1;
-        border: 1px solid rgba(247, 183, 51, 0.24);
-        border-radius: 18px;
-        object-fit: cover;
-        object-position: center;
-        box-shadow:
-          inset 0 1px 0 rgba(255, 255, 255, 0.1),
-          0 18px 32px rgba(0, 0, 0, 0.38),
-          0 0 30px rgba(247, 183, 51, 0.14);
-        filter: saturate(1.08) contrast(1.04);
-      }
-
-      .metric {
-        display: grid;
-        gap: 3px;
-        margin-top: 8px;
-      }
-
-      .next-countdown {
-        display: grid;
-        align-content: start;
-        gap: 8px;
-        min-width: 0;
-      }
-
-      .countdown {
-        color: var(--orange);
-        font-size: clamp(38px, 4.1vw, 68px);
-        font-weight: 1000;
-        line-height: 0.9;
-        margin-top: 2px;
-        font-variant-numeric: tabular-nums;
-        text-wrap: balance;
-      }
-
-      .countdown-rail {
-        position: relative;
-        height: 6px;
-        overflow: hidden;
-        border-radius: 999px;
-        background: rgba(255, 242, 190, 0.1);
-        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.45);
-      }
-
-      .countdown-rail span {
-        display: block;
-        width: var(--countdown-progress, 0%);
-        height: 100%;
-        border-radius: inherit;
-        background: linear-gradient(90deg, var(--orange), #ffb000);
-        transition: width 240ms ease;
-      }
-
-      .next-metrics {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        align-content: start;
-        gap: 8px;
-        min-width: 0;
-      }
-
-      .panel-next .metric {
-        min-width: 0;
-        margin-top: 0;
-        padding: 8px 9px;
-        border: 1px solid rgba(255, 242, 190, 0.1);
-        border-radius: 8px;
-        background: rgba(255, 242, 190, 0.045);
-      }
-
-      .panel-next .metric.status {
-        grid-column: 1 / -1;
-      }
-
-      .metric span,
-      .flow-row span,
-      .ticket-row span {
-        color: var(--soft);
-        font-size: 11px;
-        font-weight: 800;
-        text-transform: uppercase;
-      }
-
-      .metric strong {
-        color: var(--gold);
-        font-size: clamp(17px, 1.8vw, 28px);
-        line-height: 1;
-      }
-
-      .panel-next .metric strong {
-        overflow-wrap: anywhere;
-        font-size: clamp(15px, 1.15vw, 19px);
-      }
-
-      .metric .green {
-        color: var(--mint);
-      }
-
-      .slice-schedule {
-        display: grid;
-        grid-column: 1 / -1;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        align-self: end;
-        gap: 5px;
-        margin-top: 0;
-        min-height: 18px;
-      }
-
-      .slice-step {
-        min-height: 18px;
-        border: 1px solid rgba(255, 242, 190, 0.12);
-        border-radius: 999px;
-        background: rgba(255, 217, 79, 0.1);
-        color: #a87b48;
-        padding: 3px 2px 2px;
-        text-align: center;
-        font-size: 9px;
-        font-weight: 1000;
-        text-transform: uppercase;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .slice-step.done {
-        color: var(--mint);
-        background: rgba(81, 244, 169, 0.18);
-      }
-
-      .slice-step.active {
-        color: var(--gold);
-        background: rgba(247, 183, 51, 0.26);
-      }
-
-      .flow-list,
-      .ticket-list {
-        display: grid;
-        gap: 6px;
-      }
-
-      .flow-row,
-      .ticket-row {
-        display: grid;
-        grid-template-columns: 62px 1fr 52px;
-        gap: 10px;
-        align-items: center;
-        min-height: 35px;
-        border-bottom: 1px solid rgba(255, 242, 190, 0.14);
-      }
-
-      .flow-row b,
-      .ticket-row b {
-        color: var(--gold);
-        font-size: 12px;
-        line-height: 1.05;
-        text-transform: uppercase;
-      }
-
-      .flow-row strong,
-      .ticket-row strong {
-        color: var(--mint);
-        font-size: 11px;
-        text-align: right;
-        text-transform: uppercase;
-      }
-
-      .ticket-row {
-        grid-template-columns: minmax(86px, 1fr) auto;
-        min-height: 32px;
-      }
-
-      .ticket-row b {
-        grid-column: 1 / -1;
-      }
-
-      .ticket-row strong {
-        color: var(--gold);
-        font-size: clamp(14px, 1.35vw, 22px);
-      }
-
-      .panel-ticket {
-        padding: 50px 26px 18px;
-      }
-
-      .panel-ticket .ticket-row strong {
-        font-size: clamp(12px, 1vw, 17px);
-      }
-
-      .panel-ticket .ticket-list {
-        gap: 3px;
-      }
-
-      .panel-ticket .ticket-row {
-        min-height: 27px;
-      }
-
-      .ticket-status {
-        position: absolute;
-        right: 24px;
-        top: 18px;
-        z-index: 2;
-        display: inline-flex;
-        align-items: center;
-        min-height: 30px;
-        border-radius: 999px;
-        border: 1px solid rgba(81, 244, 169, 0.42);
-        background: rgba(81, 244, 169, 0.14);
-        color: var(--mint);
-        padding: 0 12px;
-        font-size: 11px;
-        font-weight: 1000;
-        text-transform: uppercase;
-      }
-
-      .receipt-row {
-        position: relative;
-        z-index: 2;
-        display: grid;
-        grid-template-columns: repeat(5, minmax(150px, 1fr)) minmax(220px, 320px);
-        gap: 14px;
-        width: min(1480px, calc(100% - 48px));
-        margin: -42px auto 48px;
-        align-items: stretch;
-        padding: 54px 22px 22px;
-        border: 1px solid rgba(255, 242, 190, 0.2);
-        border-radius: 20px;
-        background:
-          linear-gradient(145deg, rgba(255, 242, 190, 0.08), rgba(255, 242, 190, 0.02)),
-          var(--glass-strong);
-        box-shadow:
-          inset 0 1px 0 rgba(255, 255, 255, 0.1),
-          0 18px 44px rgba(0, 0, 0, 0.44);
-        backdrop-filter: blur(18px) saturate(1.2);
-        scroll-margin-top: 124px;
-      }
-
-      .receipt-row::before {
-        content: "Distribution Receipts";
-        position: absolute;
-        left: 22px;
-        top: 14px;
-        color: var(--gold);
-        font-size: 16px;
-        font-weight: 1000;
-        line-height: 1;
-        text-transform: uppercase;
-      }
-
-      .receipt {
-        min-height: 82px;
-        padding: 14px 18px;
-        border: 1px solid rgba(255, 242, 190, 0.18);
-        border-radius: 14px;
-        background:
-          linear-gradient(145deg, rgba(255, 242, 190, 0.12), rgba(255, 242, 190, 0.04)),
-          rgba(8, 10, 16, 0.52);
-        color: var(--cream);
-        box-shadow:
-          inset 0 1px 0 rgba(255, 255, 255, 0.08),
-          0 10px 22px rgba(0, 0, 0, 0.26);
-        backdrop-filter: blur(14px) saturate(1.15);
-        overflow: hidden;
-      }
-
-      .receipt b {
-        display: inline-flex;
-        border: 2px solid currentColor;
-        color: #188848;
-        padding: 1px 7px;
-        max-width: 100%;
-        font-size: 9px;
-        line-height: 1;
-        text-transform: uppercase;
-      }
-
-      .receipt span {
-        display: block;
-        margin-top: 9px;
-        color: var(--cream);
-        font-size: 11px;
-        font-weight: 1000;
-        line-height: 1.05;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .receipt code {
-        display: block;
-        margin-top: 5px;
-        color: #d8d6e6;
-        font-family: inherit;
-        font-size: 9px;
-        font-weight: 900;
-        line-height: 1;
-      }
-
-      .tx-link {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        margin-top: 5px;
-        color: #d8d6e6;
-        font-size: 9px;
-        font-weight: 1000;
-        line-height: 1;
-        text-transform: uppercase;
-        text-decoration: none;
-        transition:
-          color 140ms ease,
-          transform 140ms ease;
-      }
-
-      .tx-link:hover,
-      .tx-link:focus-visible {
-        color: var(--cyan);
-        transform: translateX(2px);
-      }
-
-      .proof-link {
-        color: var(--cyan);
-        font-weight: 1000;
-        text-decoration: none;
-      }
-
-      .proof-link:hover,
-      .proof-link:focus-visible {
-        color: var(--mint);
-      }
-
-      .controls {
-        display: grid;
-        gap: 10px;
-        align-content: end;
-        grid-column: 6;
-      }
-
-      .button {
-        cursor: pointer;
-        white-space: nowrap;
-      }
-
-      .button.secondary {
-        background: #432016;
-        color: var(--gold);
-      }
-
-      .empty-state {
-        display: grid;
-        grid-column: 1 / span 5;
-        align-content: center;
-        min-height: 82px;
-        border: 1px dashed rgba(255, 242, 190, 0.24);
-        border-radius: 14px;
-        color: var(--soft);
-        padding: 16px;
-        font-size: 12px;
-        font-weight: 900;
-        line-height: 1.35;
-      }
-
-      .side-sign,
-      .chalk-sign {
-        display: none !important;
-        position: absolute;
-        z-index: 2;
-        place-items: center;
-        border: 5px solid #05060a;
-        background: rgba(8, 9, 13, 0.82);
-        color: var(--mint);
-        text-align: center;
-        text-transform: uppercase;
-        font-weight: 1000;
-        line-height: 1.08;
-        box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.42);
-      }
-
-      .side-sign {
-        left: 2.1%;
-        top: 11%;
-        width: 8.1%;
-        min-height: 292px;
-        padding: 18px 10px;
-        color: var(--mint);
-        font-size: clamp(15px, 1.7vw, 29px);
-        border-color: #30100b;
-        box-shadow:
-          inset 0 0 0 4px #ef6f22,
-          8px 8px 0 rgba(0, 0, 0, 0.42);
-      }
-
-      .side-sign span {
-        color: var(--gold);
-        margin-top: 16px;
-      }
-
-      .chalk-sign {
-        left: 3.6%;
-        bottom: 17.7%;
-        width: 8.4%;
-        min-height: 170px;
-        padding: 14px 10px;
-        color: #ffb45e;
-        font-size: clamp(12px, 1.25vw, 20px);
-        border-color: #3b2115;
-        transform: rotate(-1deg);
-      }
-
-      .lower-info {
-        display: grid;
-        position: relative;
-        z-index: 1;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 16px;
-        max-width: 1180px;
-        width: calc(100% - 48px);
-        margin: 0 auto;
-        padding: 48px 0 24px;
-      }
-
-      .info-card {
-        border: 1px solid rgba(255, 242, 190, 0.18);
-        border-radius: 18px;
-        background:
-          linear-gradient(145deg, rgba(255, 242, 190, 0.08), rgba(255, 242, 190, 0.02)),
-          rgba(255, 250, 240, 0.76);
-        padding: 20px;
-        box-shadow: 0 16px 34px rgba(0, 0, 0, 0.34);
-        backdrop-filter: blur(18px) saturate(1.18);
-      }
-
-      .info-card h3 {
-        margin: 0 0 8px;
-        color: var(--gold);
-        font-size: 15px;
-        text-transform: uppercase;
-      }
-
-      .info-card p {
-        margin: 0;
-        color: #d8d6e6;
-        font-size: 13px;
-        line-height: 1.38;
-        font-weight: 700;
-      }
-
-      .info-pages {
-        background:
-          linear-gradient(180deg, #fff4df, #fffaf0 42%, #fff4df);
-        color: var(--ink);
-        padding: 0 24px 64px;
-      }
-
-      .info-section {
-        max-width: 1180px;
-        margin: 0 auto 18px;
-        padding: 26px;
-        border: 1px solid rgba(255, 242, 190, 0.18);
-        border-radius: 22px;
-        background:
-          linear-gradient(145deg, rgba(255, 242, 190, 0.08), rgba(255, 242, 190, 0.015)),
-          rgba(255, 250, 240, 0.78);
-        box-shadow:
-          inset 0 1px 0 rgba(255, 255, 255, 0.1),
-          0 18px 48px rgba(95, 46, 13, 0.12);
-        backdrop-filter: blur(20px) saturate(1.2);
-        scroll-margin-top: 92px;
-      }
-
-      .info-section h2 {
-        margin: 0 0 16px;
-        color: var(--orange);
-        font-family: var(--font-display);
-        font-size: 24px;
-        font-weight: 800;
-        line-height: 1;
-        text-transform: uppercase;
-      }
-
-      .info-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 14px;
-      }
-
-      .info-item {
-        border: 1px solid rgba(255, 242, 190, 0.14);
-        border-radius: 16px;
-        background: rgba(255, 255, 255, 0.48);
-        padding: 16px;
-      }
-
-      .info-item b {
-        display: block;
-        color: var(--mint);
-        font-size: 13px;
-        text-transform: uppercase;
-        margin-bottom: 8px;
-      }
-
-      .info-item span {
-        display: block;
-        color: var(--soft);
-        font-size: 13px;
-        line-height: 1.4;
-        font-weight: 800;
-      }
-
-      .holder-board {
-        margin-top: 18px;
-        border: 1px solid rgba(255, 242, 190, 0.18);
-        border-radius: 20px;
-        background:
-          linear-gradient(145deg, rgba(85, 223, 255, 0.08), rgba(247, 183, 51, 0.04)),
-          rgba(8, 10, 16, 0.72);
-        box-shadow:
-          inset 0 1px 0 rgba(255, 255, 255, 0.08),
-          0 16px 34px rgba(95, 46, 13, 0.12);
-        overflow: hidden;
-      }
-
-      .draw-board {
-        display: grid;
-        grid-template-columns: 1.1fr 0.9fr;
-        gap: 14px;
-        margin-top: 18px;
-      }
-
-      .draw-card {
-        border: 1px solid rgba(255, 242, 190, 0.16);
-        border-radius: 18px;
-        background:
-          linear-gradient(145deg, rgba(247, 183, 51, 0.09), rgba(85, 223, 255, 0.04)),
-          rgba(255, 250, 240, 0.72);
-        padding: 18px;
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
-      }
-
-      .draw-card h3 {
-        margin: 0 0 12px;
-        color: var(--gold);
-        font-size: 18px;
-        line-height: 1;
-        text-transform: uppercase;
-      }
-
-      .draw-meter {
-        position: relative;
-        height: 14px;
-        border-radius: 999px;
-        background: rgba(255, 242, 190, 0.1);
-        overflow: hidden;
-      }
-
-      .draw-meter span {
-        position: absolute;
-        inset: 0 auto 0 0;
-        width: var(--meter, 66%);
-        border-radius: inherit;
-        background: linear-gradient(90deg, var(--mint), var(--cyan));
-        box-shadow: 0 0 20px rgba(81, 244, 169, 0.25);
-      }
-
-      .draw-numbers {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 10px;
-        margin-top: 14px;
-      }
-
-      .draw-number {
-        border: 1px solid rgba(255, 242, 190, 0.13);
-        border-radius: 14px;
-        background: rgba(255, 242, 190, 0.055);
-        padding: 12px;
-      }
-
-      .draw-number span {
-        display: block;
-        color: var(--soft);
-        font-size: 11px;
-        font-weight: 900;
-        text-transform: uppercase;
-      }
-
-      .draw-number strong {
-        display: block;
-        margin-top: 5px;
-        color: var(--gold);
-        font-size: 20px;
-        line-height: 1;
-      }
-
-      .fair-list,
-      .boost-list {
-        display: grid;
-        gap: 10px;
-        margin: 0;
-        padding: 0;
-        list-style: none;
-      }
-
-      .fair-list li,
-      .boost-list li {
-        display: grid;
-        grid-template-columns: 22px 1fr;
-        gap: 10px;
-        align-items: start;
-        color: var(--soft);
-        font-size: 13px;
-        line-height: 1.35;
-        font-weight: 800;
-      }
-
-      .fair-list b,
-      .boost-list b {
-        color: var(--mint);
-      }
-
-      .boost-list li span:first-child,
-      .fair-list li span:first-child {
-        display: inline-grid;
-        place-items: center;
-        width: 22px;
-        height: 22px;
-        border-radius: 999px;
-        background: rgba(247, 183, 51, 0.16);
-        color: var(--gold);
-        font-size: 11px;
-        font-weight: 1000;
-      }
-
-      .holder-toolbar {
-        display: grid;
-        grid-template-columns: 1fr minmax(220px, 320px);
-        gap: 14px;
-        align-items: center;
-        padding: 18px;
-        border-bottom: 1px solid rgba(255, 242, 190, 0.14);
-      }
-
-      .holder-toolbar h3 {
-        margin: 0;
-        color: var(--gold);
-        font-size: 18px;
-        line-height: 1;
-        text-transform: uppercase;
-      }
-
-      .holder-toolbar span {
-        display: block;
-        margin-top: 7px;
-        color: #d8d6e6;
-        font-size: 12px;
-        font-weight: 800;
-      }
-
-      .holder-source {
-        display: inline-flex;
-        width: fit-content;
-        min-height: 24px;
-        align-items: center;
-        margin-top: 10px;
-        border: 1px solid rgba(85, 223, 255, 0.34);
-        border-radius: 999px;
-        background: rgba(85, 223, 255, 0.1);
-        color: var(--cyan);
-        padding: 3px 10px;
-        font-size: 11px;
-        font-weight: 1000;
-        text-transform: uppercase;
-      }
-
-      .holder-source.fallback {
-        border-color: rgba(247, 183, 51, 0.42);
-        background: rgba(247, 183, 51, 0.13);
-        color: var(--gold);
-      }
-
-      .holder-search {
-        width: 100%;
-        min-height: 42px;
-        border: 1px solid rgba(255, 242, 190, 0.22);
-        border-radius: 12px;
-        background: rgba(255, 255, 255, 0.58);
-        color: var(--ink);
-        padding: 0 14px;
-        font: inherit;
-        font-size: 13px;
-        font-weight: 900;
-        outline: none;
-      }
-
-      .holder-search:focus {
-        border-color: var(--cyan);
-        box-shadow: 0 0 0 3px rgba(85, 223, 255, 0.16);
-      }
-
-      .holder-stats {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 1px;
-        background: rgba(255, 242, 190, 0.1);
-      }
-
-      .holder-stat {
-        background: rgba(255, 250, 240, 0.8);
-        padding: 14px 16px;
-      }
-
-      .holder-stat span {
-        display: block;
-        color: var(--soft);
-        font-size: 11px;
-        font-weight: 900;
-        text-transform: uppercase;
-      }
-
-      .holder-stat strong {
-        display: block;
-        margin-top: 5px;
-        color: var(--gold);
-        font-size: 18px;
-        line-height: 1;
-      }
-
-      .holder-table {
-        display: grid;
-        padding: 10px;
-        gap: 7px;
-      }
-
-      .holder-row {
-        display: grid;
-        grid-template-columns: 42px minmax(0, 1fr) minmax(132px, 178px);
-        gap: 10px;
-        align-items: center;
-        min-height: 52px;
-        padding: 8px 10px;
-        border: 1px solid rgba(255, 242, 190, 0.12);
-        border-radius: 8px;
-        background:
-          linear-gradient(145deg, rgba(255, 242, 190, 0.055), rgba(85, 223, 255, 0.025)),
-          rgba(255, 242, 190, 0.035);
-        color: #d8d6e6;
-        font-size: 12px;
-        font-weight: 900;
-      }
-
-      .holder-row.header {
-        min-height: 32px;
-        color: var(--soft);
-        background: transparent;
-        border-color: transparent;
-        padding-top: 0;
-        padding-bottom: 0;
-        text-transform: uppercase;
-      }
-
-      .holder-row.current {
-        border-color: rgba(85, 223, 255, 0.48);
-        background: rgba(85, 223, 255, 0.1);
-        box-shadow: inset 0 0 0 1px rgba(85, 223, 255, 0.16);
-      }
-
-      .holder-row strong {
-        color: var(--cream);
-      }
-
-      .holder-rank {
-        display: inline-grid;
-        place-items: center;
-        width: 30px;
-        height: 30px;
-        border: 1px solid rgba(247, 183, 51, 0.4);
-        border-radius: 999px;
-        background: rgba(247, 183, 51, 0.14);
-        color: var(--gold);
-        font-size: 11px;
-        font-weight: 1000;
-        font-variant-numeric: tabular-nums;
-      }
-
-      .holder-main {
-        display: grid;
-        gap: 5px;
-        min-width: 0;
-      }
-
-      .holder-wallet {
-        color: var(--gold);
-        min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
-      .holder-details {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 4px;
-      }
-
-      .holder-chip {
-        display: inline-flex;
-        align-items: center;
-        min-height: 18px;
-        border: 1px solid rgba(255, 242, 190, 0.12);
-        border-radius: 999px;
-        background: rgba(8, 10, 16, 0.38);
-        color: #d8d6e6;
-        padding: 2px 6px;
-        font-size: 10px;
-        font-weight: 900;
-        white-space: nowrap;
-      }
-
-      .holder-amount {
-        color: var(--cyan);
-        text-align: right;
-        white-space: nowrap;
-        font-variant-numeric: tabular-nums;
-      }
-
-      .holder-amount span {
-        display: block;
-        margin-top: 2px;
-        color: var(--soft);
-        font-size: 9px;
-        font-weight: 900;
-        text-transform: uppercase;
-      }
-
-      .holder-empty {
-        padding: 22px;
-        color: var(--soft);
-        font-size: 13px;
-        font-weight: 900;
-        text-align: center;
-      }
-
-      @media (max-width: 1100px) {
-        .stage {
-          aspect-ratio: auto;
-          min-height: 1240px;
-        }
-
-        .dashboard,
-        .lower-info {
-          position: relative;
-          left: auto;
-          right: auto;
-          top: auto;
-          bottom: auto;
-          grid-template-columns: 1fr;
-        }
-
-        .dashboard {
-          width: calc(100% - 32px);
-          margin: 360px 16px 0;
-        }
-
-        .art-panel {
-          min-height: 240px;
-        }
-
-        .top {
-          display: grid;
-          grid-template-columns: minmax(0, 1fr) auto;
-          padding: 0 14px;
-        }
-
-        .brand {
-          min-width: 0;
-          overflow: hidden;
-        }
-
-        .wordmark {
-          font-size: clamp(14px, 4.2vw, 18px);
-        }
-
-        .menu-toggle {
-          display: inline-grid !important;
-          place-items: center;
-          position: fixed;
-          flex: 0 0 auto;
-          grid-column: 2;
-          justify-self: end;
-          margin-left: 0;
-          z-index: 2;
-        }
-
-        .nav {
-          position: fixed;
-          left: 0;
-          right: 0;
-          top: 76px;
-          z-index: 29;
-          display: grid;
-          grid-template-columns: 1fr;
-          gap: 8px;
-          max-height: calc(100dvh - 76px);
-          overflow-y: auto;
-          padding: 12px 14px 16px;
-          border: 0 solid rgba(247, 183, 51, 0.26);
-          border-top-width: 3px;
-          border-bottom-width: 3px;
-          background: rgba(4, 6, 10, 0.96);
-          box-shadow:
-            0 8px 0 rgba(0, 0, 0, 0.34),
-            0 18px 34px rgba(0, 0, 0, 0.42);
-          opacity: 0;
-          pointer-events: none;
-          transform: translateY(-8px);
-          visibility: hidden;
-          transition:
-            opacity 160ms ease,
-            transform 160ms ease,
-            visibility 160ms ease;
-        }
-
-        .top.menu-open .nav {
-          opacity: 1;
-          pointer-events: auto;
-          transform: translateY(0);
-          visibility: visible;
-        }
-
-        .nav a {
-          min-height: 44px;
-          width: 100%;
-        }
-
-        .brand,
-        .top-actions {
-          min-width: auto;
-        }
-
-        .top-actions {
-          display: none;
-        }
-
-        .hero-copy {
-          width: calc(100% - 32px);
-          left: 16px;
-          top: 92px;
-        }
-
-        .receipt-row {
-          width: calc(100% - 32px);
-          margin: 28px 16px 52px;
-          grid-template-columns: 1fr;
-          padding: 54px 18px 18px;
-        }
-
-        .receipt,
-        .empty-state,
-        .controls {
-          grid-column: 1;
-        }
-
-        .side-sign,
-        .chalk-sign {
-          display: none;
-        }
-
-        .hero-copy {
-          left: 16px;
-          right: 16px;
-          width: auto;
-          top: 100px;
-          padding-inline: 12px;
-        }
-
-        .hero-copy h1 {
-          font-size: clamp(22px, 6vw, 30px);
-          line-height: 1;
-        }
-
-        .pool-layout {
-          grid-template-columns: 0.9fr 1fr;
-        }
-
-        .info-grid,
-        .lower-info {
-          grid-template-columns: 1fr;
-        }
-
-        .holder-toolbar,
-        .draw-board,
-        .draw-numbers,
-        .holder-stats {
-          grid-template-columns: 1fr;
-        }
-
-        .holder-row.header {
-          display: none;
-        }
-      }
-    </style>
+    <link rel="stylesheet" href="styles.css?v=8" />
   </head>
-  <body>
+  <body data-accent="green" data-density="comfy">
+    <!-- ============== ATMOSPHERE ============== -->
+    <div class="atmosphere" aria-hidden="true">
+      <div class="atmosphere-grid"></div>
+      <div class="atmosphere-orb atmosphere-orb-1"></div>
+      <div class="atmosphere-orb atmosphere-orb-2"></div>
+      <div class="atmosphere-scan"></div>
+    </div>
+
     <main class="page">
-      <section class="stage" id="dashboard" aria-label="Jensen Strategy public dashboard">
-        <div class="parlor"></div>
+      <!-- ============== TOP BAR ============== -->
+      <header class="top" id="topBar">
+        <a class="brand" href="#dashboard">
+          <span class="brand-mark" aria-hidden="true">
+            <img src="assets/nvdax-coin.png?v=3" alt="" />
+          </span>
+          <span class="brand-text">
+            <span class="brand-name">JENSEN</span>
+            <span class="brand-name brand-name-accent">STRATEGY</span>
+          </span>
+        </a>
 
-        <header class="top">
-          <a class="brand" href="#">
-            <span class="slice-mark" aria-hidden="true"></span>
-            <span class="wordmark">Jensen Strategy</span>
-          </a>
-          <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open navigation" aria-controls="primaryNav" aria-expanded="false">
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
+        <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open navigation" aria-controls="primaryNav" aria-expanded="false">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </button>
+
+        <nav class="nav" id="primaryNav" aria-label="Primary">
+          <a class="active" href="#dashboard">Dashboard</a>
+          <a href="#receipts">Receipts</a>
+          <a href="#holders">Holders</a>
+          <a href="#airdrops">Airdrops</a>
+          <a href="#about">About</a>
+        </nav>
+
+        <div class="top-actions">
+          <button class="contract-pill" id="copyContract" type="button" disabled>
+            <span class="ca-label">CA</span>
+            <span class="ca-value">pending</span>
+            <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M5 3h7a1 1 0 0 1 1 1v9h-2V5H5V3zm-3 3h7a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1zm1 2v6h5V8H3z" fill="currentColor"/></svg>
           </button>
-          <nav class="nav" id="primaryNav" aria-label="Primary">
-            <a class="active" href="#dashboard">Dashboard</a>
-            <a href="#receipts">Receipts</a>
-            <a href="#holders">Holders</a>
-            <a href="#airdrops">Airdrops</a>
-            <a href="#about">About</a>
-          </nav>
-          <div class="top-actions" aria-label="Contract actions">
-            <button class="contract-pill" id="copyContract" type="button" disabled>CA pending</button>
-          </div>
-        </header>
+        </div>
+      </header>
 
-        <section class="market-ticker" aria-label="Live crypto prices">
-          <div class="ticker-track" id="tickerTrack">
-            <div class="ticker-set">
-              <span class="ticker-item" data-symbol="bitcoin"><b>BTC</b><span class="price">loading</span><span class="change up">live</span></span>
-              <span class="ticker-item" data-symbol="solana"><b>SOL</b><span class="price">loading</span><span class="change up">live</span></span>
-              <span class="ticker-item" data-symbol="ethereum"><b>ETH</b><span class="price">loading</span><span class="change up">live</span></span>
-              <span class="ticker-item" data-symbol="jupiter-exchange-solana"><b>JUP</b><span class="price">loading</span><span class="change up">live</span></span>
-              <span class="ticker-item" data-symbol="dogwifcoin"><b>WIF</b><span class="price">loading</span><span class="change up">live</span></span>
-              <span class="ticker-item" data-symbol="bonk"><b>BONK</b><span class="price">loading</span><span class="change up">live</span></span>
+      <!-- ============== MARKET TICKER ============== -->
+      <section class="market-ticker" aria-label="Live crypto prices">
+        <div class="ticker-edge ticker-edge-left" aria-hidden="true"></div>
+        <div class="ticker-track" id="tickerTrack">
+          <div class="ticker-set">
+            <span class="ticker-item" data-symbol="bitcoin"><b>BTC</b><span class="price">—</span><span class="change up">live</span></span>
+            <span class="ticker-divider" aria-hidden="true"></span>
+            <span class="ticker-item" data-symbol="solana"><b>SOL</b><span class="price">—</span><span class="change up">live</span></span>
+            <span class="ticker-divider" aria-hidden="true"></span>
+            <span class="ticker-item" data-symbol="ethereum"><b>ETH</b><span class="price">—</span><span class="change up">live</span></span>
+            <span class="ticker-divider" aria-hidden="true"></span>
+            <span class="ticker-item" data-symbol="jupiter-exchange-solana"><b>JUP</b><span class="price">—</span><span class="change up">live</span></span>
+            <span class="ticker-divider" aria-hidden="true"></span>
+            <span class="ticker-item" data-symbol="dogwifcoin"><b>WIF</b><span class="price">—</span><span class="change up">live</span></span>
+            <span class="ticker-divider" aria-hidden="true"></span>
+            <span class="ticker-item" data-symbol="bonk"><b>BONK</b><span class="price">—</span><span class="change up">live</span></span>
+          </div>
+        </div>
+        <div class="ticker-edge ticker-edge-right" aria-hidden="true"></div>
+      </section>
+
+      <!-- ============== HERO + DASHBOARD ============== -->
+      <section class="stage" id="dashboard" aria-label="Jensen Strategy dashboard">
+
+        <!-- HERO -->
+        <div class="hero">
+          <div class="hero-jensen">
+            <img class="hero-jensen-glow" src="assets/jensen-glow.png" alt="" aria-hidden="true" />
+            <img class="hero-jensen-img" src="assets/jensen-avatar.png" alt="Jensen — Strategy mascot" />
+            <img class="hero-jensen-coin" src="assets/nvdax-coin.png?v=3" alt="" aria-hidden="true" />
+          </div>
+
+          <div class="hero-copy">
+            <div class="hero-eyebrow">
+              <span class="status-dot"></span>
+              <span>Pre-launch · awaiting first epoch</span>
+            </div>
+            <h1 class="hero-title">
+              <span>JENSEN</span>
+              <span class="hero-title-accent">STRATEGY</span>
+            </h1>
+            <p class="hero-tagline">
+              <span>Fees in.</span>
+              <span class="hero-accent">NVDA<i>x</i> out.</span>
+            </p>
+            <p class="hero-sub">Creator fees auto-convert to NVDAx (NVIDIA xStock on Solana) and airdrop to holders every epoch. Onchain, transparent, automatic.</p>
+
+            <div class="hero-flow">
+              <div class="hero-flow-step">
+                <span class="hero-flow-icon">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M16 6.5H10a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6H7"/></svg>
+                </span>
+                <div>
+                  <b>FEES</b>
+                  <span>Compounded</span>
+                </div>
+              </div>
+              <span class="hero-flow-arrow" aria-hidden="true">→</span>
+              <div class="hero-flow-step">
+                <span class="hero-flow-icon hero-flow-icon-coin">
+                  <img src="assets/nvidia-eye.png" alt="" />
+                </span>
+                <div>
+                  <b>NVDA<i>x</i></b>
+                  <span>Acquired</span>
+                </div>
+              </div>
+              <span class="hero-flow-arrow" aria-hidden="true">→</span>
+              <div class="hero-flow-step">
+                <span class="hero-flow-icon">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><circle cx="7" cy="8" r="2.6"/><circle cx="17" cy="8" r="2.6"/><circle cx="12" cy="7" r="3"/><path d="M2 18.5c0-2.8 2.2-4.5 5-4.5s5 1.7 5 4.5V20H2v-1.5zm10 0c0-2.8 2.2-4.5 5-4.5s5 1.7 5 4.5V20H12v-1.5z"/></svg>
+                </span>
+                <div>
+                  <b>HOLDERS</b>
+                  <span>Rewarded</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <img class="hero-chart" src="assets/chart-rise.png" alt="" aria-hidden="true" />
+        </div>
+
+        <!-- Trust strip: brands powering Jensen Strategy -->
+        <section class="brand-strip" aria-label="Built on">
+          <div class="brand-strip-label">
+            <span class="brand-strip-dot"></span>
+            <span>Built on the stack</span>
+          </div>
+          <div class="brand-strip-track">
+            <div class="brand-strip-set">
+
+              <span class="brand-strip-item" title="Solana">
+                <img src="https://cdn.simpleicons.org/solana/ffffff" alt="" onerror="this.style.display='none'" />
+                <b>Solana</b>
+              </span>
+
+              <span class="brand-strip-item" title="Jupiter">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10" fill="none" stroke="#ffffff" stroke-width="2"/>
+                  <ellipse cx="12" cy="12" rx="11" ry="3" fill="none" stroke="#ffffff" stroke-width="1.6"/>
+                </svg>
+                <b>Jupiter</b>
+              </span>
+
+              <span class="brand-strip-item" title="Pump.fun">
+                <img src="https://cdn.simpleicons.org/pumpdotfun/ffffff" alt="" onerror="this.style.display='none'" />
+                <b>pump.fun</b>
+              </span>
+
+              <span class="brand-strip-item" title="Phantom">
+                <img src="https://cdn.simpleicons.org/phantom/ffffff" alt="" onerror="this.style.display='none'" />
+                <b>Phantom</b>
+              </span>
+
+              <span class="brand-strip-item" title="Backpack">
+                <img src="https://cdn.simpleicons.org/backpack/ffffff" alt="" onerror="this.style.display='none'" />
+                <b>Backpack</b>
+              </span>
+
+              <span class="brand-strip-item" title="Helius">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="12" cy="12" r="5" fill="#ffffff"/>
+                  <g stroke="#ffffff" stroke-width="2" stroke-linecap="round">
+                    <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1l2.1-2.1M17 7l2.1-2.1"/>
+                  </g>
+                </svg>
+                <b>Helius</b>
+              </span>
+
+              <span class="brand-strip-item" title="Solscan">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9" fill="none" stroke="#ffffff" stroke-width="2"/>
+                  <circle cx="12" cy="12" r="3.6" fill="#ffffff"/>
+                </svg>
+                <b>Solscan</b>
+              </span>
+
+              <span class="brand-strip-item" title="Anchor">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <g fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="5" r="2" fill="#ffffff"/>
+                    <path d="M12 7v15M6 13h12M3 16c0 4 4 7 9 7s9-3 9-7"/>
+                  </g>
+                </svg>
+                <b>Anchor</b>
+              </span>
+
+              <span class="brand-strip-item" title="xStocks">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <g stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" fill="none">
+                    <path d="M5 5l14 14M19 5L5 19"/>
+                  </g>
+                </svg>
+                <b>xStocks</b>
+              </span>
+
+              <span class="brand-strip-item" title="Vercel">
+                <img src="https://cdn.simpleicons.org/vercel/ffffff" alt="" onerror="this.style.display='none'" />
+                <b>Vercel</b>
+              </span>
+
             </div>
           </div>
         </section>
 
-        <section class="hero-copy">
-          <h1>Jensen Strategy</h1>
-          <p>AI equity exposure, delivered onchain.</p>
-          <div class="hero-actions">
-            <a class="button primary" href="#dashboard">See live pool</a>
-            <a class="button secondary" href="#receipts">View receipts</a>
-          </div>
-        </section>
+        <!-- KPI ROW -->
+        <div class="kpi-row">
+          <article class="kpi kpi-feature">
+            <div class="kpi-label"><span class="kpi-dot"></span>Next NVDA<i>x</i> Drop</div>
+            <div class="kpi-value kpi-value-mono" id="countdown" aria-live="polite">03:00</div>
+            <div class="kpi-bar" aria-hidden="true"><span id="countdownProgress"></span></div>
+            <div class="kpi-meta">
+              <span class="kpi-unit">interval</span>
+              <span class="kpi-delta" id="interval">3 minutes</span>
+            </div>
+          </article>
 
-        <aside class="side-sign">Pump fees in.<span>NVDAx rewards out.</span></aside>
-        <aside class="chalk-sign">Routing fees<br />into NVDAx<br />rewards</aside>
+          <article class="kpi">
+            <div class="kpi-label"><span class="kpi-dot"></span>Creator Fees Collected</div>
+            <div class="kpi-value" id="creatorFees">$0</div>
+            <div class="kpi-meta">
+              <span class="kpi-unit">total</span>
+              <span class="kpi-delta kpi-delta-neutral" id="lastReceipt">no receipts yet</span>
+            </div>
+          </article>
 
-        <section class="dashboard">
-          <article class="art-panel panel-pool">
-            <h2>NVDAx Reward Pool</h2>
+          <article class="kpi">
+            <div class="kpi-label"><span class="kpi-dot"></span>Eligible Holders</div>
+            <div class="kpi-value" id="eligibleShown">0</div>
+            <div class="kpi-meta">
+              <span class="kpi-unit">snapshotted</span>
+              <span class="kpi-delta kpi-delta-neutral" id="snapshotAge">pre-snapshot</span>
+            </div>
+          </article>
+
+          <article class="kpi">
+            <div class="kpi-label"><span class="kpi-dot"></span>NVDA<i>x</i> Reward Pool</div>
+            <div class="kpi-value" id="pool">0.00</div>
+            <div class="kpi-meta">
+              <span class="kpi-unit">NVDAx</span>
+              <span class="kpi-delta kpi-delta-neutral">awaiting first deposit</span>
+            </div>
+          </article>
+        </div>
+
+        <!-- MAIN GRID -->
+        <div class="grid">
+          <!-- Pool card with image -->
+          <article class="card card-pool">
+            <header class="card-head">
+              <h2><span class="card-num">01</span>NVDA<i>x</i> Reward Pool</h2>
+              <span class="card-status status-pending">EMPTY</span>
+            </header>
             <div class="pool-layout">
-              <img class="pizza-pool" src="assets/pizza-pie-3d.png" alt="NVDAx reward pool" />
-              <div>
-                <div class="metric"><span>Total NVDAx</span><strong id="pool">--</strong></div>
-                <div class="metric"><span>Creator Fees</span><strong id="creatorFees">--</strong></div>
-                <div class="metric"><span>Last Receipt</span><strong class="green" id="lastReceipt">--</strong></div>
+              <div class="pool-coin">
+                <img src="assets/nvdax-coin.png?v=3" alt="NVDAx token" />
+                <div class="pool-coin-ring" aria-hidden="true"></div>
+              </div>
+              <div class="pool-stats">
+                <div class="pool-stat">
+                  <span>Pool balance</span>
+                  <strong id="poolCardBalance">0.00 <em>NVDAx</em></strong>
+                </div>
+                <div class="pool-stat">
+                  <span>USD equivalent</span>
+                  <strong id="poolUsd">$0.00</strong>
+                </div>
+                <div class="pool-stat">
+                  <span>Last fee receipt</span>
+                  <strong class="muted" id="poolLastReceipt">never</strong>
+                </div>
+              </div>
+            </div>
+            <div class="pool-meter">
+              <div class="pool-meter-rail" aria-hidden="true"><span id="poolMeter" style="width:0%"></span></div>
+              <div class="pool-meter-labels">
+                <span>Threshold $50 · enables first swap</span>
+                <span id="poolMeterLabel">0%</span>
               </div>
             </div>
           </article>
 
-          <article class="art-panel panel-next">
-            <h2>Next NVDAx Drop</h2>
-            <div class="next-countdown">
-              <div class="countdown" id="countdown" aria-live="polite">08:42</div>
-              <div class="countdown-rail" aria-hidden="true"><span id="countdownProgress"></span></div>
+          <!-- Next drop schedule -->
+          <article class="card card-schedule">
+            <header class="card-head">
+              <h2><span class="card-num">02</span>Epoch Schedule</h2>
+              <span class="card-status status-armed" id="cycleStatus">WARMING UP</span>
+            </header>
+            <div class="schedule-grid">
+              <div class="schedule-metric">
+                <span>Interval</span>
+                <strong id="interval-mirror">3 min</strong>
+              </div>
+              <div class="schedule-metric">
+                <span>Holder cap</span>
+                <strong id="epochHolderCap">5</strong>
+              </div>
+              <div class="schedule-metric">
+                <span>Multiplier</span>
+                <strong>×2 / epoch</strong>
+              </div>
+              <div class="schedule-metric">
+                <span>Cap base</span>
+                <strong>×2 / epoch</strong>
+              </div>
             </div>
-            <div class="next-metrics">
-              <div class="metric"><span>Interval</span><strong class="green" id="interval">10 minutes</strong></div>
-              <div class="metric"><span>Holder Cap</span><strong class="green" id="epochHolderCap">5</strong></div>
-              <div class="metric status"><span>Epoch Status</span><strong class="green" id="cycleStatus">Syncing</strong></div>
-            </div>
-            <div class="slice-schedule" id="sliceSchedule" aria-label="Distribution schedule"></div>
+            <div class="schedule-rail" id="sliceSchedule" aria-label="Upcoming epoch intervals"></div>
+            <p class="card-note">Intervals double every epoch — early rounds prove the system, later rounds pool larger NVDAx reserves.</p>
           </article>
 
-          <article class="art-panel panel-flow" id="flow">
-            <h2>Order Flow</h2>
-            <div class="flow-list">
-              <div class="flow-row"><b>1 Fees</b><span>Pump.fun fee wallet</span><strong id="feeStatus">Syncing</strong></div>
-              <div class="flow-row"><b>2 Swap</b><span>NVDAx pool wallet</span><strong id="swapStatus">Syncing</strong></div>
-              <div class="flow-row"><b>3 List</b><span>Holder board</span><strong id="holderStatus">Snapshot</strong></div>
-              <div class="flow-row"><b>4 Drop</b><span>Distributor receipts</span><strong id="batch">Queued</strong></div>
-            </div>
+          <!-- Order flow -->
+          <article class="card card-flow" id="flow">
+            <header class="card-head">
+              <h2><span class="card-num">03</span>Order Flow</h2>
+              <span class="card-status status-pending">SYNCING</span>
+            </header>
+            <ol class="flow-list">
+              <li class="flow-row">
+                <span class="flow-index">01</span>
+                <span class="flow-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2L3 7l9 5 9-5-9-5zm0 8.18L3.27 5l8.73 4.85L20.73 5 12 10.18zM3 17l9 5 9-5v-7l-9 5-9-5v7z"/></svg></span>
+                <div class="flow-body">
+                  <b>Fees</b>
+                  <span>Pump.fun fee wallet</span>
+                </div>
+                <strong class="flow-status" id="feeStatus">Pending</strong>
+              </li>
+              <li class="flow-row">
+                <span class="flow-index">02</span>
+                <span class="flow-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M3 7h13l-3-3M21 17H8l3 3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                <div class="flow-body">
+                  <b>Swap</b>
+                  <span>Jupiter → NVDAx</span>
+                </div>
+                <strong class="flow-status" id="swapStatus">Pending</strong>
+              </li>
+              <li class="flow-row">
+                <span class="flow-index">03</span>
+                <span class="flow-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M3 5h18v3H3V5zm0 6h18v3H3v-3zm0 6h18v3H3v-3z"/></svg></span>
+                <div class="flow-body">
+                  <b>Snapshot</b>
+                  <span>Holder board indexed</span>
+                </div>
+                <strong class="flow-status" id="holderStatus">Pending</strong>
+              </li>
+              <li class="flow-row flow-row-final">
+                <span class="flow-index">04</span>
+                <span class="flow-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2l-1.5 6.5L4 7l4.5 5L4 17l6.5-1.5L12 22l1.5-6.5L20 17l-4.5-5L20 7l-6.5 1.5z"/></svg></span>
+                <div class="flow-body">
+                  <b>Airdrop</b>
+                  <span>Batched onchain</span>
+                </div>
+                <strong class="flow-status" id="batch">Queued</strong>
+              </li>
+            </ol>
           </article>
 
-          <article class="art-panel panel-ticket" id="ticket">
-            <h2>Allocation Check</h2>
-            <strong class="ticket-status" id="ticketStatus">Search</strong>
-            <div class="ticket-list">
-              <div class="ticket-row"><b>Wallet Balance</b><span>Snapshot share</span><strong id="score">--</strong></div>
-              <div class="ticket-row"><b>Round Rank</b><span>Current list</span><strong id="holderRank">--</strong></div>
-              <div class="ticket-row"><b>Cutoff</b><span>Score needed</span><strong id="cutoffScore">--</strong></div>
-              <div class="ticket-row"><b>Est. NVDAx</b><span>Projected allocation</span><strong id="estimate">--</strong></div>
+          <!-- Allocation check -->
+          <article class="card card-ticket" id="ticket">
+            <header class="card-head">
+              <h2><span class="card-num">04</span>Allocation Check</h2>
+              <span class="card-status status-info" id="ticketStatus">SEARCH</span>
+            </header>
+            <div class="ticket-search">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/></svg>
+              <input class="holder-search" id="holderSearch" type="search" placeholder="Paste wallet or .sol domain…" autocomplete="off" />
+            </div>
+            <div class="ticket-stats">
+              <div class="ticket-stat">
+                <span>Wallet balance</span>
+                <strong id="score">—</strong>
+              </div>
+              <div class="ticket-stat">
+                <span>Round rank</span>
+                <strong id="holderRank">—</strong>
+              </div>
+              <div class="ticket-stat">
+                <span>Cutoff</span>
+                <strong id="cutoffScore">—</strong>
+              </div>
+              <div class="ticket-stat ticket-stat-feature">
+                <span>Est. NVDAx</span>
+                <strong id="estimate">—</strong>
+              </div>
             </div>
           </article>
+        </div>
+
+        <!-- RECEIPTS -->
+        <section class="receipts-section" id="receipts" aria-live="polite">
+          <header class="receipts-head">
+            <div>
+              <h2><span class="card-num">05</span>Distribution Receipts</h2>
+              <p>Every fee intake, swap, snapshot, and NVDAx batch posts an onchain receipt here.</p>
+            </div>
+            <div class="receipts-actions">
+              <button class="btn btn-primary" id="refreshData" type="button">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>
+                Refresh chain data
+              </button>
+              <a class="btn btn-secondary" href="#holders">View holder board</a>
+            </div>
+          </header>
+          <div class="receipts-grid" id="receiptsGrid">
+            <div class="empty-state" id="receiptEmpty">
+              <div class="empty-state-icon" aria-hidden="true">
+                <img src="assets/nvdax-coin.png?v=3" alt="" />
+              </div>
+              <div>
+                <b>Fee wallet is being watched.</b>
+                <span>Confirmed receipts will appear here as soon as the first epoch closes onchain.</span>
+              </div>
+            </div>
+          </div>
         </section>
       </section>
 
-      <section class="receipt-row" id="receipts" aria-live="polite">
-        <div class="empty-state" id="receiptEmpty">Fee wallet is being watched. Confirmed fee receipts will appear here as soon as Solana returns them.</div>
-        <div class="controls">
-          <button class="button primary" id="refreshData" type="button">Refresh chain data</button>
-          <a class="button secondary" href="#holders">Search holders</a>
-        </div>
-      </section>
+      <!-- ============== INFO PAGES ============== -->
+      <section class="info-pages">
 
-      <section class="info-pages" aria-label="Jensen Strategy information pages">
-        <div class="lower-info">
-          <article class="info-card"><h3>What it does</h3><p>Routes creator fees into NVDAx rewards and distributes to holders.</p></article>
-          <article class="info-card"><h3>Live utility</h3><p>Pool, countdown, holder estimate, receipts, and batches update live.</p></article>
-          <article class="info-card"><h3>Public proof</h3><p>Every fee, manifest, and NVDAx transfer links to onchain receipts.</p></article>
+        <!-- Squatting Jensen mascot — sits in the gap between sections -->
+        <div class="mascot-strip" aria-hidden="true">
+          <div class="mascot-caption">
+            <span>Jensen says:</span>
+            <b>Hold tight. NVDA<i>x</i> is coming.</b>
+          </div>
+          <img src="assets/jensen-squat.png" alt="" />
         </div>
 
+        <!-- HOLDERS -->
         <section class="info-section" id="holders">
-          <h2>Holders</h2>
-          <div class="info-grid">
-            <div class="info-item"><b>Reward Share</b><span>Every wallet's allocation is based on its share of the token supply held at the epoch snapshot.</span></div>
-            <div class="info-item"><b>Visible Cutoff</b><span>The board shows the balance needed to make the current holder-cap snapshot.</span></div>
-            <div class="info-item"><b>Proof</b><span>Snapshots, formula inputs, manifest hash, and transfer txs stay public.</span></div>
+          <header class="info-head">
+            <div class="info-tag">06</div>
+            <h2>Holders</h2>
+            <p>Every wallet's allocation is its share of the eligible snapshot supply. Same formula for everyone, published manifest, onchain receipts.</p>
+          </header>
+
+          <div class="info-grid info-grid-3">
+            <article class="info-card">
+              <header><span>·</span><b>Reward share</b></header>
+              <p>Allocation = wallet balance ÷ total eligible snapshot balance at epoch close.</p>
+            </article>
+            <article class="info-card">
+              <header><span>·</span><b>Visible cutoff</b></header>
+              <p>The board surfaces the balance required to make the current holder-cap snapshot.</p>
+            </article>
+            <article class="info-card">
+              <header><span>·</span><b>Public proof</b></header>
+              <p>Snapshots, manifest hash, batch signatures stay public and reproducible.</p>
+            </article>
           </div>
-          <div class="draw-board">
-            <div class="draw-card">
-              <h3>Your Round Position</h3>
-              <div class="draw-meter" aria-label="Progress above current cutoff"><span id="drawMeter"></span></div>
-              <div class="draw-numbers">
-                <div class="draw-number"><span>Rank</span><strong id="drawRank">--</strong></div>
-                <div class="draw-number"><span>Above cutoff</span><strong id="drawEdge">--</strong></div>
-                <div class="draw-number"><span>Snapshot status</span><strong id="drawOdds">--</strong></div>
+
+          <div class="info-grid info-grid-2">
+            <article class="info-card info-card-feature">
+              <header><span>·</span><b>Your round position</b></header>
+              <div class="meter">
+                <span id="drawMeter"></span>
               </div>
-            </div>
-            <div class="draw-card">
-              <h3>How to get a larger allocation</h3>
-              <ul class="boost-list">
-                <li><span>1</span><div><b>Hold more.</b> Reward share is wallet balance / total eligible snapshot balance.</div></li>
-                <li><span>2</span><div><b>Make the cut.</b> Wallets inside the current holder cap at snapshot time are included first.</div></li>
-                <li><span>3</span><div><b>Stay ready.</b> NVDAx ATA readiness keeps eligible wallets from getting skipped.</div></li>
+              <div class="meter-grid">
+                <div><span>Rank</span><strong id="drawRank">—</strong></div>
+                <div><span>Above cutoff</span><strong id="drawEdge">—</strong></div>
+                <div><span>Snapshot</span><strong id="drawOdds">—</strong></div>
+              </div>
+            </article>
+
+            <article class="info-card">
+              <header><span>·</span><b>How to get a larger allocation</b></header>
+              <ul class="ordered-list">
+                <li><span>1</span><div><b>Hold more.</b> Reward share scales linearly with balance.</div></li>
+                <li><span>2</span><div><b>Make the cut.</b> Top wallets fill the holder cap first.</div></li>
+                <li><span>3</span><div><b>Stay ready.</b> Keep your NVDAx token account open so distributions land.</div></li>
               </ul>
-            </div>
+            </article>
           </div>
-          <div class="draw-board">
-            <div class="draw-card">
-              <h3>Fairness Layer</h3>
-              <ul class="fair-list">
-                <li><span>✓</span><div><b>Same formula for everyone.</b> Reward share = wallet balance / total eligible snapshot balance.</div></li>
-                <li><span>✓</span><div><b>Public snapshot.</b> Round manifests prove the eligible wallet set once the holder indexer is configured.</div></li>
-                <li><span>✓</span><div><b>Onchain outcome.</b> Final NVDAx transfers become clickable Solscan receipts when real batch signatures exist.</div></li>
-              </ul>
-            </div>
-            <div class="draw-card">
-              <h3>Round Rules</h3>
-              <ul class="fair-list">
-                <li><span>•</span><div>Top balance wallets make the next NVDAx drop until the round cap is filled.</div></li>
-                <li><span>•</span><div>Payout size follows token balance share, so a bigger snapshot balance means a larger allocation.</div></li>
-                <li><span>•</span><div>If you miss this round, your wallet can qualify before the next snapshot.</div></li>
-              </ul>
-            </div>
-          </div>
+
           <div class="holder-board">
             <div class="holder-toolbar">
-              <div>
-                <h3>Holder Allocation Board</h3>
+              <div class="holder-toolbar-info">
+                <h3>Holder allocation board</h3>
                 <span>All eligible wallets for this epoch, ranked by token balance with projected NVDAx allocations.</span>
-                <strong class="holder-source" id="holderSource">Loading holders</strong>
+                <strong class="holder-source" id="holderSource">Awaiting first snapshot</strong>
               </div>
-              <input class="holder-search" id="holderSearch" type="search" placeholder="Search wallet or SOL domain" autocomplete="off" />
             </div>
             <div class="holder-stats">
-              <div class="holder-stat"><span>Round cap</span><strong id="roundCap">--</strong></div>
-              <div class="holder-stat"><span>Cutoff balance</span><strong id="holderCutoff">--</strong></div>
-              <div class="holder-stat"><span>Eligible shown</span><strong id="eligibleShown">--</strong></div>
-              <div class="holder-stat"><span>Snapshot</span><strong id="snapshotAge">--</strong></div>
+              <div class="holder-stat"><span>Round cap</span><strong id="roundCap">5</strong></div>
+              <div class="holder-stat"><span>Cutoff balance</span><strong id="holderCutoff">—</strong></div>
+              <div class="holder-stat"><span>Eligible shown</span><strong id="eligibleShown-mirror">0</strong></div>
+              <div class="holder-stat"><span>Snapshot age</span><strong id="snapshotAge-mirror">—</strong></div>
             </div>
             <div class="holder-table" id="holderTable" aria-live="polite"></div>
           </div>
         </section>
 
+        <!-- AIRDROPS -->
         <section class="info-section" id="airdrops">
-          <h2>NVDAx Airdrops</h2>
-          <div class="info-grid">
-            <div class="info-item"><b>Intervals</b><span>Distribution windows expand from 3 minutes to longer cycles as the campaign grows.</span></div>
-            <div class="info-item"><b>Pool</b><span>Creator fees are routed and reserved as NVDAx for holder distribution.</span></div>
-            <div class="info-item"><b>Batches</b><span>Each NVDAx airdrop posts a manifest hash and transfer receipts for public verification.</span></div>
+          <header class="info-head">
+            <div class="info-tag">07</div>
+            <h2>NVDA<i>x</i> Airdrops</h2>
+            <p>Distribution windows start frequent and expand exponentially so reward pools can compound.</p>
+          </header>
+          <div class="info-grid info-grid-3">
+            <article class="info-card"><header><span>·</span><b>Intervals</b></header><p>3 minutes → 6 min → 12 min → 24 min … doubling each epoch.</p></article>
+            <article class="info-card"><header><span>·</span><b>Pool</b></header><p>Creator fees swap to NVDAx and reserve in the distribution wallet.</p></article>
+            <article class="info-card"><header><span>·</span><b>Batches</b></header><p>Each airdrop posts a manifest hash plus per-recipient transfer receipts.</p></article>
           </div>
         </section>
 
+        <!-- ABOUT -->
         <section class="info-section" id="about">
-          <h2>About</h2>
-          <div class="info-grid">
-            <div class="info-item"><b>What is Jensen Strategy?</b><span>Jensen Strategy is an onchain reward system that routes project fees into NVDAx rewards and distributes them to holders through epoch-based snapshots.</span></div>
-            <div class="info-item"><b>What is NVDAx?</b><span>NVDAx is NVIDIA xStock, a tokenized NVIDIA exposure asset issued on Solana. It does not provide shareholder rights, voting rights, dividends, or direct ownership of NVIDIA common stock.</span></div>
-            <div class="info-item"><b>How are rewards calculated?</b><span>Each epoch snapshots eligible holders. Your reward share equals your wallet's token balance divided by the total eligible holder balance in that snapshot.</span></div>
-            <div class="info-item"><b>Why do epochs get longer?</b><span>Early epochs prove the system quickly. Later epochs are spaced farther apart so reward pools can accumulate larger NVDAx balances before distribution.</span></div>
-            <div class="info-item"><b>How do I verify rewards?</b><span>Each epoch publishes holder snapshot data, a manifest hash, distribution batches, and Solscan-verifiable transfer receipts.</span></div>
-            <div class="info-item"><b>Compliance</b><span>Jensen Strategy is not affiliated with or endorsed by NVIDIA Corporation. NVDAx is a tokenized representation and does not grant equity ownership.</span></div>
+          <header class="info-head">
+            <div class="info-tag">08</div>
+            <h2>About</h2>
+            <p>Plain-language answers to the questions every holder asks first.</p>
+          </header>
+          <div class="info-grid info-grid-2">
+            <article class="info-card"><header><span>·</span><b>What is Jensen Strategy?</b></header><p>An onchain reward system that routes project creator fees into NVDAx and distributes to holders via epoch-based snapshots.</p></article>
+            <article class="info-card"><header><span>·</span><b>What is NVDAx?</b></header><p>NVDAx is NVIDIA xStock — a tokenized NVIDIA exposure asset on Solana. It does not grant equity, voting, dividends, or direct ownership of NVIDIA common stock.</p></article>
+            <article class="info-card"><header><span>·</span><b>How are rewards calculated?</b></header><p>Reward share = wallet balance ÷ total eligible balance at the epoch's snapshot. Same formula for every wallet.</p></article>
+            <article class="info-card"><header><span>·</span><b>Why do epochs get longer?</b></header><p>Early epochs prove the system fast. Later epochs space out so reward pools can compound into larger NVDAx batches.</p></article>
+            <article class="info-card"><header><span>·</span><b>How do I verify rewards?</b></header><p>Each epoch publishes holder snapshot data, a manifest hash, distribution batches, and Solscan-verifiable transfer receipts.</p></article>
+            <article class="info-card info-card-warning"><header><span>·</span><b>Compliance</b></header><p>Jensen Strategy is a parody/community project. Not affiliated with or endorsed by NVIDIA Corporation. NVDAx is a tokenized representation and does not grant equity ownership.</p></article>
           </div>
         </section>
       </section>
+
+      <!-- ============== FOOTER ============== -->
+      <footer class="footer">
+        <div class="footer-grid">
+          <div class="footer-brand">
+            <div class="brand">
+              <span class="brand-mark"><img src="assets/nvdax-coin.png?v=3" alt="" /></span>
+              <span class="brand-text">
+                <span class="brand-name">JENSEN</span>
+                <span class="brand-name brand-name-accent">STRATEGY</span>
+              </span>
+            </div>
+            <p>Fees in. NVDAx out. Onchain since the first epoch.</p>
+          </div>
+          <div>
+            <h4>Product</h4>
+            <a href="#dashboard">Dashboard</a>
+            <a href="#receipts">Receipts</a>
+            <a href="#holders">Holders</a>
+            <a href="#airdrops">Airdrops</a>
+          </div>
+          <div>
+            <h4>Onchain</h4>
+            <a href="#" data-disabled>Solscan</a>
+            <a href="#" data-disabled>Manifest</a>
+            <a href="#" data-disabled>Pump.fun</a>
+          </div>
+          <div>
+            <h4>Legal</h4>
+            <a href="#about">Parody disclaimer</a>
+            <a href="#about">Terms</a>
+            <a href="#about">Risk</a>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <span>Built on Solana · Routed through Jupiter</span>
+          <span>Not affiliated with NVIDIA Corporation.</span>
+        </div>
+      </footer>
     </main>
 
-    <script>
-      const state = {
-        config: null,
-        holderSnapshot: null,
-        feeReceipts: [],
-        rewardReceipts: [],
-        rewardsStatus: null,
-        feeReceiptStatus: null,
-        operations: null,
-        wbtcPoolBalance: 0,
-        remaining: 0,
-        cycle: null,
-        configSyncedAtMs: Date.now()
-      };
-
-      const poolEl = document.querySelector("#pool");
-      const countdownEl = document.querySelector("#countdown");
-      const countdownProgressEl = document.querySelector("#countdownProgress");
-      const intervalEl = document.querySelector("#interval");
-      const epochHolderCapEl = document.querySelector("#epochHolderCap");
-      const cycleStatusEl = document.querySelector("#cycleStatus");
-      const sliceScheduleEl = document.querySelector("#sliceSchedule");
-      const creatorFeesEl = document.querySelector("#creatorFees");
-      const lastReceiptEl = document.querySelector("#lastReceipt");
-      const scoreEl = document.querySelector("#score");
-      const holderRankEl = document.querySelector("#holderRank");
-      const cutoffScoreEl = document.querySelector("#cutoffScore");
-      const estimateEl = document.querySelector("#estimate");
-      const ticketStatusEl = document.querySelector("#ticketStatus");
-      const feeStatusEl = document.querySelector("#feeStatus");
-      const swapStatusEl = document.querySelector("#swapStatus");
-      const holderStatusEl = document.querySelector("#holderStatus");
-      const batchEl = document.querySelector("#batch");
-      const receiptRow = document.querySelector("#receipts");
-      const receiptEmptyEl = document.querySelector("#receiptEmpty");
-      const tickerTrack = document.querySelector("#tickerTrack");
-      const holderSearchEl = document.querySelector("#holderSearch");
-      const holderTableEl = document.querySelector("#holderTable");
-      const roundCapEl = document.querySelector("#roundCap");
-      const holderCutoffEl = document.querySelector("#holderCutoff");
-      const eligibleShownEl = document.querySelector("#eligibleShown");
-      const snapshotAgeEl = document.querySelector("#snapshotAge");
-      const holderSourceEl = document.querySelector("#holderSource");
-      const drawMeterEl = document.querySelector("#drawMeter");
-      const drawRankEl = document.querySelector("#drawRank");
-      const drawEdgeEl = document.querySelector("#drawEdge");
-      const drawOddsEl = document.querySelector("#drawOdds");
-      const copyContractEl = document.querySelector("#copyContract");
-      const refreshDataEl = document.querySelector("#refreshData");
-      const topBarEl = document.querySelector(".top");
-      const menuToggleEl = document.querySelector("#menuToggle");
-      const primaryNavEl = document.querySelector("#primaryNav");
-      let holderSearchTimer = null;
-      const marketFallback = {
-        bitcoin: { usd: null, usd_24h_change: null },
-        solana: { usd: null, usd_24h_change: null },
-        ethereum: { usd: null, usd_24h_change: null },
-        "jupiter-exchange-solana": { usd: null, usd_24h_change: null },
-        dogwifcoin: { usd: null, usd_24h_change: null },
-        bonk: { usd: null, usd_24h_change: null }
-      };
-
-      function shortAddress(address) {
-        if (!address) return "";
-        return `${address.slice(0, 4)}...${address.slice(-4)}`;
-      }
-
-      function escapeHtml(value) {
-        return String(value ?? "")
-          .replaceAll("&", "&amp;")
-          .replaceAll("<", "&lt;")
-          .replaceAll(">", "&gt;")
-          .replaceAll('"', "&quot;")
-          .replaceAll("'", "&#39;");
-      }
-
-      function holderDisplayName(holder) {
-        return holder?.solDomain || holder?.domain || holder?.snsName || holder?.name || shortAddress(holder?.wallet || holder?.address || "");
-      }
-
-      function holderSearchText(holder) {
-        return [
-          holder?.wallet,
-          holder?.address,
-          holder?.solDomain,
-          holder?.domain,
-          holder?.snsName,
-          holder?.name
-        ]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase();
-      }
-
-      function solscanTx(signature) {
-        const base = state.config?.solscanBaseUrl || "https://solscan.io";
-        return `${base.replace(/\/$/, "")}/tx/${signature}`;
-      }
-
-      function formatTime(totalSeconds) {
-        const safeSeconds = Math.max(0, totalSeconds);
-        const hours = Math.floor(safeSeconds / 3600);
-        const minutes = Math.floor((safeSeconds % 3600) / 60).toString().padStart(2, "0");
-        const seconds = Math.floor(safeSeconds % 60).toString().padStart(2, "0");
-        return hours > 0 ? `${hours}:${minutes}:${seconds}` : `${minutes}:${seconds}`;
-      }
-
-      function formatDurationLabel(totalSeconds) {
-        const safeSeconds = Math.max(1, Math.round(totalSeconds));
-        const days = Math.floor(safeSeconds / 86400);
-        const hours = Math.floor((safeSeconds % 86400) / 3600);
-        const minutes = Math.floor((safeSeconds % 3600) / 60);
-        const seconds = safeSeconds % 60;
-        if (days > 0) return hours > 0 ? `${days}d ${hours}h` : `${days}d`;
-        if (hours > 0) return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
-        if (minutes > 0) return seconds > 0 ? `${minutes}m ${seconds}s` : `${minutes}m`;
-        return `${seconds}s`;
-      }
-
-      function boundedPower(base, multiplier, exponent) {
-        const value = base * multiplier ** exponent;
-        return Number.isFinite(value) && value < Number.MAX_SAFE_INTEGER ? value : Number.MAX_SAFE_INTEGER;
-      }
-
-      function distributionStep(index) {
-        const secondsList = Array.isArray(state.config?.distributionScheduleSeconds) ? state.config.distributionScheduleSeconds : [];
-        const labels = Array.isArray(state.config?.distributionScheduleLabels) ? state.config.distributionScheduleLabels : [];
-        const holderCaps = Array.isArray(state.config?.distributionHolderCaps) ? state.config.distributionHolderCaps : [];
-        const baseInterval = Number(state.config?.distributionBaseIntervalSeconds || secondsList[0] || 180);
-        const intervalMultiplier = Number(state.config?.distributionIntervalMultiplier || 2);
-        const baseHolderCap = Number(state.config?.distributionBaseHolderCap || holderCaps[0] || 5);
-        const holderCapMultiplier = Number(state.config?.distributionHolderCapMultiplier || 2);
-        const secondsValue = Number(secondsList[index]) || boundedPower(baseInterval, intervalMultiplier, index);
-        const holderCap = Number(holderCaps[index]) || boundedPower(baseHolderCap, holderCapMultiplier, index);
-
-        return {
-          epochIndex: index,
-          seconds: Math.max(1, Math.round(secondsValue)),
-          holderCap: Math.max(1, Math.floor(holderCap)),
-          label: labels[index] || formatDurationLabel(secondsValue)
-        };
-      }
-
-      function distributionSchedule(currentIndex = 0) {
-        const previewCount = Math.max(1, Number(state.config?.distributionPreviewEpochs || 12));
-        const start = Math.max(0, currentIndex >= previewCount ? currentIndex - Math.floor(previewCount / 2) : 0);
-        return Array.from({ length: previewCount }, (_, offset) => distributionStep(start + offset));
-      }
-
-      function distributionStartMs() {
-        const configured = Date.parse(state.config?.distributionStartedAt || "");
-        return Number.isFinite(configured) ? configured : null;
-      }
-
-      function distributionCycle(nowMs = Date.now()) {
-        const rewardEpoch = state.rewardsStatus?.current_epoch;
-        const rewardEndMs = Date.parse(rewardEpoch?.ends_at || "");
-        if (rewardEpoch && Number.isFinite(rewardEndMs)) {
-          const remaining = Math.max(0, Math.ceil((rewardEndMs - nowMs) / 1000));
-          const interval = Math.max(1, Number(rewardEpoch.interval_seconds || 180));
-          const elapsed = Math.max(0, interval - remaining);
-          return {
-            active: true,
-            schedule: distributionSchedule(Number(rewardEpoch.epoch_index || 0)),
-            scheduleIndex: Number(rewardEpoch.epoch_index || 0),
-            epochIndex: Number(rewardEpoch.epoch_index || 0),
-            interval,
-            label: formatDurationLabel(interval),
-            holderCap: Number(rewardEpoch.holder_cap || 5),
-            status: rewardEpoch.status,
-            stage: rewardEpoch.stage,
-            remaining,
-            progress: Math.max(0, Math.min(1, elapsed / interval))
-          };
-        }
-        const automation = state.operations?.automation;
-        const automationEndMs = Date.parse(automation?.nextEpochEndsAt || "");
-        if (automation?.active && Number.isFinite(automationEndMs)) {
-          const epochIndex = Math.max(0, Number(automation.nextEpochIndex || 0));
-          const step = distributionStep(epochIndex);
-          const remaining = Math.max(0, Math.ceil((automationEndMs - nowMs) / 1000));
-          const elapsed = Math.max(0, step.seconds - remaining);
-          return {
-            active: true,
-            schedule: distributionSchedule(epochIndex),
-            scheduleIndex: epochIndex,
-            epochIndex,
-            interval: step.seconds,
-            label: step.label,
-            holderCap: step.holderCap,
-            remaining,
-            progress: Math.max(0, Math.min(1, elapsed / step.seconds))
-          };
-        }
-
-        const startMs = distributionStartMs();
-        if (startMs === null) {
-          const step = distributionStep(0);
-          return {
-            active: false,
-            schedule: distributionSchedule(0),
-            scheduleIndex: 0,
-            epochIndex: 0,
-            interval: step.seconds,
-            label: step.label,
-            holderCap: step.holderCap,
-            remaining: step.seconds,
-            progress: 0
-          };
-        }
-
-        const elapsed = Math.max(0, Math.floor((nowMs - startMs) / 1000));
-        let epochIndex = 0;
-        let remainingElapsed = elapsed;
-        let step = distributionStep(epochIndex);
-
-        while (remainingElapsed >= step.seconds && epochIndex < 256) {
-          remainingElapsed -= step.seconds;
-          epochIndex += 1;
-          step = distributionStep(epochIndex);
-        }
-
-        return {
-          schedule: distributionSchedule(epochIndex),
-          scheduleIndex: epochIndex,
-          epochIndex,
-          interval: step.seconds,
-          label: step.label,
-          holderCap: step.holderCap,
-          remaining: step.seconds - remainingElapsed,
-          progress: remainingElapsed / step.seconds
-        };
-      }
-
-      function renderSliceSchedule(cycle) {
-        if (!sliceScheduleEl || !cycle?.schedule) return;
-        sliceScheduleEl.innerHTML = cycle.schedule.slice(0, 4)
-          .map((step) => {
-            const status = cycle.active
-              ? step.epochIndex < cycle.scheduleIndex
-                ? "done"
-                : step.epochIndex === cycle.scheduleIndex
-                  ? "active"
-                  : ""
-              : "";
-            return `<div class="slice-step ${status}" title="Up to ${escapeHtml(step.holderCap.toLocaleString())} holders">${escapeHtml(step.label)}</div>`;
-          })
-          .join("");
-      }
-
-      function effectiveHolderCap(cycle) {
-        if (state.rewardsStatus?.current_epoch) return cycle.holderCap;
-        const snapshot = state.holderSnapshot;
-        const total = Number(snapshot?.totalHolderCount ?? snapshot?.holders?.length);
-        if (Number.isFinite(total) && total >= 0) return Math.min(cycle.holderCap, total);
-        return cycle.holderCap;
-      }
-
-      function syncCountdown() {
-        const cycle = distributionCycle();
-        state.cycle = cycle;
-        state.remaining = cycle.remaining;
-        countdownEl.textContent = cycle.active ? formatTime(state.remaining) : "03:00";
-        countdownProgressEl.style.setProperty("--countdown-progress", `${Math.round(cycle.progress * 100)}%`);
-        intervalEl.textContent = cycle.label || "3 minutes";
-        epochHolderCapEl.textContent = effectiveHolderCap(cycle).toLocaleString();
-        cycleStatusEl.textContent = cycle.stage || (cycle.active ? `Epoch ${cycle.epochIndex + 1} active` : "Warming GPUs");
-        renderSliceSchedule(cycle);
-      }
-
-      function formatAmount(value, suffix = "") {
-        const number = Number(value);
-        if (!Number.isFinite(number)) return "--";
-        return `${number.toLocaleString(undefined, { maximumFractionDigits: 6 })}${suffix}`;
-      }
-
-      function formatCompactNumber(value) {
-        const number = Number(value);
-        if (!Number.isFinite(number)) return "--";
-        return number.toLocaleString(undefined, { maximumFractionDigits: number >= 1 ? 2 : 6 });
-      }
-
-      function renderShell() {
-        syncCountdown();
-
-        const contractAddress = state.config?.contractAddress || "";
-        if (contractAddress) {
-          copyContractEl.textContent = `CA ${shortAddress(contractAddress)}`;
-          copyContractEl.disabled = false;
-          copyContractEl.classList.add("ready");
-        } else {
-          copyContractEl.textContent = "CA pending";
-          copyContractEl.disabled = true;
-          copyContractEl.classList.remove("ready", "copied");
-        }
-      }
-
-      function batchStatusLabel(batch) {
-        if (!batch) return "";
-        if (batch.signature) return "Sent";
-        if (batch.status === "confirmed") return "Sent";
-        if (batch.status === "prepared" || batch.status === "not_sent") return `${batch.recipientCount || batch.batchSize || 0} ready`;
-        return String(batch.status || "Queued").replaceAll("_", " ");
-      }
-
-      function formatProofTime(value) {
-        const parsed = Date.parse(value || "");
-        return Number.isFinite(parsed) ? new Date(parsed).toLocaleString() : "";
-      }
-
-      function operationProofs() {
-        const operations = state.operations;
-        if (!operations) return [];
-        const proofs = [];
-        const epoch = operations.latestEpoch;
-        const batch = operations.latestBatch;
-        const manifest = operations.latestManifest;
-        const snapshot = operations.latestSnapshot;
-
-        if (epoch) {
-          proofs.push({
-            status: `Epoch ${epoch.epochNumber || ""} ${epoch.status || "recorded"}`.trim(),
-            time: formatProofTime(epoch.endedAt || epoch.createdAt),
-            signature: epoch.signature,
-            label: epoch.message || epoch.label || epoch.id
-          });
-        }
-        if (batch) {
-          proofs.push({
-            status: `Batch ${batchStatusLabel(batch)}`,
-            time: formatProofTime(batch.createdAt),
-            signature: batch.signature,
-            label: `${batch.recipientCount || 0} recipients`
-          });
-        }
-        if (manifest) {
-          proofs.push({
-            status: "Manifest locked",
-            time: formatProofTime(manifest.createdAt),
-            label: `${manifest.payableCount || 0} payable`
-          });
-        }
-        if (snapshot) {
-          proofs.push({
-            status: "Snapshot indexed",
-            time: formatProofTime(snapshot.createdAt),
-            label: `${snapshot.eligibleCount || 0} eligible holders`
-          });
-        }
-
-        const receipts = Array.isArray(operations.receipts) ? operations.receipts : [];
-        receipts.forEach((receipt) => {
-          proofs.push({
-            status: receipt.type || receipt.status || "Receipt",
-            time: formatProofTime(receipt.createdAt),
-            signature: receipt.signature,
-            label: receipt.label || receipt.id
-          });
-        });
-
-        return proofs.filter((proof) => proof.status || proof.signature || proof.label);
-      }
-
-      function renderOperations() {
-        const operations = state.operations;
-        if (!operations) return;
-        const automation = operations.automation;
-        const batch = operations.latestBatch;
-
-        if (batch) {
-          batchEl.textContent = batchStatusLabel(batch);
-          batchEl.title = batch.id || "";
-        } else if (automation?.active) {
-          batchEl.textContent = "Armed";
-          batchEl.title = automation.nextEpochEndsAt ? `Next epoch due ${formatProofTime(automation.nextEpochEndsAt)}` : "";
-        } else {
-          batchEl.textContent = "Queued";
-          batchEl.title = automation?.message || "";
-        }
-
-        syncCountdown();
-
-        if (state.rewardsStatus?.current_epoch) {
-          syncCountdown();
-        } else if (automation?.active) {
-          cycleStatusEl.textContent = `Epoch ${Number(automation.nextEpochIndex || 0) + 1} armed`;
-        } else if (automation?.status === "blocked") {
-          cycleStatusEl.textContent = "Blocked";
-          cycleStatusEl.title = automation.lastError || "";
-        }
-
-        const latestProof = operationProofs().find((proof) => proof.time || proof.signature);
-        if (latestProof?.time) lastReceiptEl.textContent = latestProof.time.split(", ").pop();
-      }
-
-      function renderTicket(current) {
-        const isEligible = current?.status === "eligible" || current?.eligible === true;
-        const query = holderSearchEl.value.trim();
-        scoreEl.textContent = current?.balanceLabel || current?.balance || current?.score?.toLocaleString?.() || "--";
-        holderRankEl.textContent = current?.rank ? `#${current.rank}` : "--";
-        cutoffScoreEl.textContent = current?.cutoffScore?.toLocaleString?.() || "--";
-        estimateEl.textContent = current?.projected_reward ? `${current.projected_reward} NVDAx` : Number.isFinite(Number(current?.estimatedWbtc)) ? Number(current.estimatedWbtc).toFixed(8) : "--";
-        ticketStatusEl.textContent = current ? (isEligible ? "Eligible" : "Not in cut") : query ? "No match" : "Search";
-        ticketStatusEl.style.color = current && isEligible ? "var(--gold)" : "#ff6b58";
-        ticketStatusEl.style.borderColor = current && isEligible ? "rgba(81, 244, 169, 0.42)" : "rgba(255, 107, 88, 0.5)";
-        ticketStatusEl.style.background = current && isEligible ? "rgba(81, 244, 169, 0.14)" : "rgba(255, 107, 88, 0.16)";
-      }
-
-      function resolveCurrentHolder() {
-        const snapshot = state.holderSnapshot;
-        const query = holderSearchEl.value.trim().toLowerCase();
-        const holders = Array.isArray(snapshot?.holders) ? snapshot.holders : [];
-        if (!query) return null;
-        if (snapshot?.current && holderSearchText(snapshot.current).includes(query)) return snapshot.current;
-
-        return (
-          holders.find((holder) => holderSearchText(holder) === query) ||
-          holders.find((holder) => holderSearchText(holder).includes(query)) ||
-          null
-        );
-      }
-
-      function renderHolderViews() {
-        const current = resolveCurrentHolder();
-        renderTicket(current);
-        renderDrawStats(current);
-        renderHolderBoard(current);
-      }
-
-      function eligibleScoreTotal(snapshot) {
-        const holders = Array.isArray(snapshot?.holders) ? snapshot.holders : [];
-        return holders.reduce((total, holder) => {
-          const eligible = holder.status === "eligible" || holder.eligible === true;
-          return eligible ? total + Number(holder.score || 0) : total;
-        }, 0);
-      }
-
-      function formatHoldingTime(holder) {
-        if (holder.holdingTimeLabel) return holder.holdingTimeLabel;
-        const seconds = Number(holder.holdingSeconds);
-        if (Number.isFinite(seconds) && seconds > 0) return formatDurationLabel(seconds);
-        const since = Date.parse(holder.holdingSince || "");
-        const updatedAt = Date.parse(state.holderSnapshot?.updatedAt || "");
-        if (Number.isFinite(since) && Number.isFinite(updatedAt) && updatedAt >= since) {
-          return formatDurationLabel(Math.floor((updatedAt - since) / 1000));
-        }
-        return "Unindexed";
-      }
-
-      function weightDetails(holder) {
-        const balance = holder.balanceLabel || formatCompactNumber(holder.balanceUi);
-        const reward = holder.projected_reward || holder.reward_ui || holder.estimatedWbtc;
-        return [
-          `Bal ${balance}`,
-          `Share ${formatCompactNumber(holder.score)}`,
-          `Reward ${reward || "--"}`
-        ];
-      }
-
-      function epochEstimateLabel(holder, snapshot) {
-        const eligible = holder.status === "eligible" || holder.eligible === true;
-        if (!eligible) return "0.00000000 NVDAx";
-
-        if (holder.projected_reward) return `${holder.projected_reward} NVDAx`;
-        if (state.wbtcPoolBalance === null) return "Pending NVDAx";
-        const pool = Number(state.wbtcPoolBalance);
-        const totalScore = eligibleScoreTotal(snapshot);
-        const score = Number(holder.score || 0);
-        if (!Number.isFinite(pool)) return "Pending NVDAx";
-        if (pool <= 0 || totalScore <= 0 || score <= 0) return "0.00000000 NVDAx";
-
-        const estimate = (pool * score) / totalScore;
-        return `${estimate.toLocaleString(undefined, { minimumFractionDigits: 8, maximumFractionDigits: 8 })} NVDAx`;
-      }
-
-      function renderHolderBoard(current = resolveCurrentHolder()) {
-        const snapshot = state.holderSnapshot;
-        const holders = Array.isArray(snapshot?.holders) ? snapshot.holders : [];
-        const query = holderSearchEl.value.trim().toLowerCase();
-        const eligibleHolders = holders.filter((holder) => holder.status === "eligible" || holder.eligible === true);
-        const pool = query ? holders : eligibleHolders.length ? eligibleHolders : holders;
-        const visible = pool.filter((holder) => !query || holderSearchText(holder).includes(query));
-
-        roundCapEl.textContent = snapshot?.roundCap?.toLocaleString?.() || "--";
-        holderCutoffEl.textContent = snapshot?.cutoffScore?.toLocaleString?.() || "--";
-        eligibleShownEl.textContent = snapshot?.eligibleCount?.toLocaleString?.() || "--";
-        snapshotAgeEl.textContent = snapshot?.updatedAt
-          ? new Date(snapshot.updatedAt).toLocaleTimeString()
-          : _lastLoadedAt ? `API ${new Date(_lastLoadedAt).toLocaleTimeString()}` : "--";
-
-        if (snapshot?.degraded) {
-          holderSourceEl.textContent = snapshot.message || "Showing last confirmed snapshot. RPC refresh is catching up.";
-          holderSourceEl.classList.add("fallback");
-          holderSourceEl.title = snapshot.last_successful_snapshot_at
-            ? `Last good: ${new Date(snapshot.last_successful_snapshot_at).toLocaleTimeString()}`
-            : "";
-        } else if (snapshot?.reason === "no_snapshot_yet") {
-          holderSourceEl.textContent = "First epoch not closed yet";
-          holderSourceEl.classList.add("fallback");
-          holderSourceEl.title = "";
-        } else {
-          holderSourceEl.textContent = snapshot
-            ? (snapshot.fallback ? "Unavailable" : snapshot.sourceLabel || "Stored snapshot")
-            : "Loading holders";
-          holderSourceEl.classList.toggle("fallback", !snapshot || Boolean(snapshot.fallback));
-          holderSourceEl.title = snapshot?.notice || snapshot?.fallbackReason || "";
-        }
-
-        holderTableEl.innerHTML = `
-          <div class="holder-row header">
-            <span>Rank</span><span>Eligible wallet and balance</span><span>Est. epoch NVDAx</span>
-          </div>
-          ${
-            visible.length
-              ? visible
-                  .map((holder) => {
-                    const isCurrent = Boolean(current?.wallet && holder.wallet === current.wallet);
-                    const wallet = holder.wallet || holder.address || "";
-                    const label = wallet ? shortAddress(wallet) : "--";
-                    const chips = weightDetails(holder).map((item) => `<span class="holder-chip">${escapeHtml(item)}</span>`).join("");
-                    return `
-                      <div class="holder-row ${isCurrent ? "current" : ""}">
-                        <span class="holder-rank">${holder.rank ? `#${holder.rank}` : "--"}</span>
-                        <span class="holder-main">
-                          <strong class="holder-wallet" title="${escapeHtml(wallet)}">${escapeHtml(label)}</strong>
-                          <span class="holder-details">${chips}</span>
-                        </span>
-                        <strong class="holder-amount">${escapeHtml(epochEstimateLabel(holder, snapshot))}<span>this epoch</span></strong>
-                      </div>
-                    `;
-                  })
-                  .join("")
-              : `<div class="holder-empty">${
-                  snapshot?.reason === "no_snapshot_yet"
-                    ? "First holder snapshot begins when the first reward epoch closes."
-                    : state.rewardsStatus?.current_epoch?.status === "snapshotting"
-                      ? "Cutting allocations. Holder board will update after the snapshot finalizes."
-                      : snapshot?.degraded
-                        ? (snapshot.message || "Showing last confirmed snapshot. RPC refresh is catching up.")
-                        : snapshot?.configured === false
-                          ? (snapshot.reason || "No holder snapshot available yet.")
-                          : "No holder snapshot available yet."
-                }</div>`
-          }
-        `;
-      }
-
-      function renderDrawStats(current) {
-        if (!current) {
-          drawMeterEl.style.setProperty("--meter", "0%");
-          drawRankEl.textContent = "--";
-          drawEdgeEl.textContent = "--";
-          drawOddsEl.textContent = "--";
-          return;
-        }
-        drawMeterEl.style.setProperty("--meter", `${Math.max(0, Math.min(100, Number(current.cutoffProgress || 0)))}%`);
-        drawRankEl.textContent = current.rank ? `#${current.rank}` : "--";
-        drawEdgeEl.textContent = Number.isFinite(Number(current.cutoffDelta)) ? `${Number(current.cutoffDelta) >= 0 ? "+" : ""}${Number(current.cutoffDelta).toLocaleString()}` : "--";
-        drawEdgeEl.style.color = Number(current.cutoffDelta) >= 0 ? "var(--gold)" : "#ff6b58";
-        drawOddsEl.textContent = current.oddsLabel || current.transfer_status || "--";
-      }
-
-      function formatUsd(value) {
-        if (!Number.isFinite(value)) return "$--";
-        if (value >= 1000) return `$${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
-        if (value >= 1) return `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-        return `$${value.toLocaleString(undefined, { minimumSignificantDigits: 2, maximumSignificantDigits: 3 })}`;
-      }
-
-      function renderMarketTicker(marketData) {
-        document.querySelectorAll(".ticker-item").forEach((item) => {
-          const data = marketData[item.dataset.symbol] || marketFallback[item.dataset.symbol];
-          const change = Number(data?.usd_24h_change);
-          item.querySelector(".price").textContent = formatUsd(Number(data?.usd));
-          const changeEl = item.querySelector(".change");
-          if (Number.isFinite(change)) {
-            changeEl.textContent = `${change >= 0 ? "+" : ""}${change.toFixed(2)}%`;
-            changeEl.className = `change ${change >= 0 ? "up" : "down"}`;
-          } else {
-            changeEl.textContent = "live";
-            changeEl.className = "change up";
-          }
-        });
-      }
-
-      async function updateMarketTicker() {
-        const ids = Object.keys(marketFallback).join(",");
-        try {
-          const api = state.config?.coingeckoApiUrl || "https://api.coingecko.com/api/v3";
-          const response = await fetch(`${api}/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`, {
-            cache: "no-store"
-          });
-          if (!response.ok) throw new Error("price request failed");
-          renderMarketTicker(await response.json());
-        } catch {
-          renderMarketTicker(marketFallback);
-        }
-      }
-
-      function renderReceipts() {
-        receiptRow.querySelectorAll(".receipt").forEach((node) => node.remove());
-        const proofs = operationProofs();
-        const rewardProofs = state.rewardReceipts.map((receipt) => ({
-          status: receipt.status,
-          time: receipt.created_at ? new Date(receipt.created_at).toLocaleString() : "",
-          signature: receipt.signature,
-          label: receipt.signature ? `TX: ${shortAddress(receipt.signature)} view` : `${receipt.amount_ui || receipt.amount_raw || "0"} NVDAx`
-        }));
-        const chainProofs = state.feeReceipts.map((receipt) => ({
-          status: receipt.status,
-          time: receipt.blockTime ? new Date(receipt.blockTime * 1000).toLocaleString() : `Slot ${receipt.slot}`,
-          signature: receipt.signature,
-          label: receipt.signature ? `TX: ${shortAddress(receipt.signature)} view` : "Solana receipt"
-        }));
-        const cards = [...rewardProofs, ...proofs, ...chainProofs].slice(0, 5);
-
-        if (!cards.length) {
-          receiptEmptyEl.style.display = "grid";
-          receiptEmptyEl.textContent = state.rewardsStatus?.current_epoch?.status === "snapshotting"
-            ? "Cutting allocations. Holder board will update after the snapshot finalizes."
-            : "First holder snapshot begins when the first reward epoch closes.";
-          return;
-        }
-
-        receiptEmptyEl.style.display = "none";
-        cards.forEach((receipt) => {
-          const card = document.createElement("article");
-          card.className = "receipt";
-          const link = receipt.signature
-            ? `<a class="tx-link" href="${solscanTx(receipt.signature)}" target="_blank" rel="noreferrer">${escapeHtml(receipt.label || `TX: ${shortAddress(receipt.signature)} view`)}</a>`
-            : `<span>${escapeHtml(receipt.label || "Stored proof")}</span>`;
-          card.innerHTML = `<b>${escapeHtml(receipt.status || "recorded")}</b><span>${escapeHtml(receipt.time || "")}</span>${link}`;
-          receiptRow.insertBefore(card, receiptEmptyEl);
-        });
-      }
-
-      async function loadConfig() {
-        const response = await fetch("/api/config", { cache: "no-store" });
-        state.config = await response.json();
-        state.configSyncedAtMs = Date.now();
-        feeStatusEl.textContent = state.config.feeWallet ? "Ready" : "Pending";
-        swapStatusEl.textContent = state.config.distributorWallet ? "Ready" : "Pending";
-        holderStatusEl.textContent = state.config.holderIndexerUrlConfigured ? "Indexer" : "RPC";
-        batchEl.textContent = "Queued";
-        renderShell();
-      }
-
-      // Polling state — one AbortController per load cycle, overlap guard, visibility awareness.
-      let _chainAbort = null;
-      let _chainBusy = false;
-      let _chainIntervalId = null;
-      let _lastLoadedAt = 0;
-
-      function startPollingInterval() {
-        if (_chainIntervalId) window.clearInterval(_chainIntervalId);
-        // 15 s when visible, 60 s when hidden — avoids piling up requests on background tabs.
-        const delay = document.hidden ? 60_000 : 15_000;
-        _chainIntervalId = window.setInterval(() => {
-          // Skip hidden-tab ticks that fired too soon (transition race).
-          if (document.hidden && Date.now() - _lastLoadedAt < 55_000) return;
-          loadChainData();
-        }, delay);
-      }
-
-      document.addEventListener("visibilitychange", () => {
-        startPollingInterval();
-        if (!document.hidden) loadChainData(); // Refresh immediately when user returns to tab.
-      });
-
-      async function loadChainData() {
-        if (_chainBusy) return; // Overlap guard: skip if previous load is still in flight.
-        if (!state.config) await loadConfig().catch(() => {});
-        _chainBusy = true;
-        if (_chainAbort) _chainAbort.abort(); // Cancel any stale in-flight requests.
-        _chainAbort = new AbortController();
-        const signal = _chainAbort.signal;
-        try {
-          await Promise.allSettled([
-            loadRewardsStatus(signal),
-            loadHolderSnapshot(signal),
-            loadRewardReceipts(signal),
-            loadOperationsSummary(signal)
-          ]);
-          _lastLoadedAt = Date.now();
-        } finally {
-          _chainBusy = false;
-        }
-        renderReceipts();
-      }
-
-      async function loadRewardsStatus(signal) {
-        try {
-          const response = await fetch("/api/rewards/status", { cache: "no-store", signal });
-          if (!response.ok) return;
-          state.rewardsStatus = await response.json();
-          const status = state.rewardsStatus;
-          const epoch = status.current_epoch || {};
-          state.wbtcPoolBalance = Number(status.total_wbtc_pool || 0);
-          poolEl.textContent = status.total_wbtc_pool && status.total_wbtc_pool !== "0" ? `${status.total_wbtc_pool} NVDAx` : "--";
-          creatorFeesEl.textContent = status.creator_fees_collected === "cache-first" ? "--" : status.creator_fees_collected || "--";
-          feeStatusEl.textContent = epoch.status === "scheduled" ? "Watching" : "Synced";
-          swapStatusEl.textContent = Number(state.wbtcPoolBalance || 0) > 0 ? "Ready" : "Waiting";
-          batchEl.textContent = epoch.status === "distributing" ? "Delivering" : epoch.status === "completed" ? "Done" : "Queued";
-          renderShell();
-        } catch (error) {
-          if (error.name === "AbortError") return;
-        }
-      }
-
-      async function loadOperationsSummary(signal) {
-        try {
-          const response = await fetch("/api/operations", { cache: "no-store", signal });
-          state.operations = await response.json();
-          renderOperations();
-        } catch {
-          state.operations = null;
-        }
-      }
-
-      async function loadHolderSnapshot(signal) {
-        try {
-          const params = new URLSearchParams();
-          const walletQuery = holderSearchEl.value.trim();
-          if (walletQuery) params.set("wallet", walletQuery);
-          const response = await fetch(`/api/rewards/holders?${params}`, { cache: "no-store", signal });
-          if (!response.ok) return;
-          state.holderSnapshot = await response.json();
-          renderHolderViews();
-          syncCountdown();
-          const snap = state.holderSnapshot;
-          holderStatusEl.textContent = snap?.rows?.length ? (snap.degraded ? "Cached" : "Snapshot") : "Pending";
-        } catch (error) {
-          if (error.name === "AbortError") return;
-        }
-      }
-
-      async function loadRewardReceipts(signal) {
-        try {
-          const response = await fetch("/api/rewards/receipts", { cache: "no-store", signal });
-          if (!response.ok) return;
-          const body = await response.json();
-          state.rewardReceipts = body.receipts || [];
-          if (state.rewardReceipts[0]?.created_at) lastReceiptEl.textContent = new Date(state.rewardReceipts[0].created_at).toLocaleTimeString();
-        } catch (error) {
-          if (error.name === "AbortError") return;
-        }
-      }
-
-      async function copyContractAddress() {
-        const contractAddress = state.config?.contractAddress || "";
-        if (!contractAddress) return;
-
-        try {
-          await navigator.clipboard.writeText(contractAddress);
-          copyContractEl.textContent = "CA copied";
-          copyContractEl.classList.add("copied");
-          window.setTimeout(() => {
-            copyContractEl.textContent = `CA ${shortAddress(contractAddress)}`;
-            copyContractEl.classList.remove("copied");
-          }, 1600);
-        } catch {
-          copyContractEl.textContent = "Copy failed";
-          window.setTimeout(() => {
-            copyContractEl.textContent = `CA ${shortAddress(contractAddress)}`;
-          }, 1600);
-        }
-      }
-
-      function closeMobileMenu() {
-        topBarEl.classList.remove("menu-open");
-        menuToggleEl.setAttribute("aria-expanded", "false");
-        menuToggleEl.setAttribute("aria-label", "Open navigation");
-      }
-
-      function toggleMobileMenu() {
-        const isOpen = topBarEl.classList.toggle("menu-open");
-        menuToggleEl.setAttribute("aria-expanded", String(isOpen));
-        menuToggleEl.setAttribute("aria-label", isOpen ? "Close navigation" : "Open navigation");
-      }
-
-      menuToggleEl.addEventListener("click", toggleMobileMenu);
-      primaryNavEl.addEventListener("click", (event) => {
-        if (event.target.closest("a")) closeMobileMenu();
-      });
-      document.addEventListener("click", (event) => {
-        if (!topBarEl.classList.contains("menu-open")) return;
-        if (topBarEl.contains(event.target)) return;
-        closeMobileMenu();
-      });
-      document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape") closeMobileMenu();
-      });
-      window.addEventListener("resize", () => {
-        if (window.innerWidth > 1100) closeMobileMenu();
-      });
-      copyContractEl.addEventListener("click", copyContractAddress);
-      refreshDataEl.addEventListener("click", loadChainData);
-      holderSearchEl.addEventListener("input", () => {
-        renderHolderViews();
-        window.clearTimeout(holderSearchTimer);
-        holderSearchTimer = window.setTimeout(loadHolderSnapshot, 350);
-      });
-      tickerTrack.appendChild(tickerTrack.firstElementChild.cloneNode(true));
-
-      renderShell();
-      renderTicket(null);
-      renderDrawStats(null);
-      renderHolderBoard();
-      renderMarketTicker(marketFallback);
-      loadConfig().then(loadChainData);
-      updateMarketTicker();
-      window.setInterval(updateMarketTicker, 60_000);
-      startPollingInterval();
-      window.setInterval(syncCountdown, 1000);
-    </script>
+    <script src="app.js"></script>
   </body>
 </html>
